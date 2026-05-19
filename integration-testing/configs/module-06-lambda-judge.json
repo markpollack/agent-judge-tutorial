@@ -1,0 +1,17 @@
+{
+  "moduleId": "module-06-lambda-judge",
+  "displayName": "Module 06: Lambda Judge",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Create lambda judges (3-line inline checks), named lambdas with metadata, and wire them into a jury. Show that plain lambdas have no metadata but named lambdas expose name, description, and type. The jury of three lambda judges should all PASS.",
+  "requiredOutput": [
+    "=== Module 06: Lambda Judge Demo ===",
+    "Lambda Judge",
+    "Named Lambda",
+    "pom-check",
+    "DETERMINISTIC",
+    "Lambda Judges in a Jury",
+    "Done."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "moduleId": "module-04-simple-jury",
+  "displayName": "Module 04: Simple Jury",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Build a SimpleJury with three named judges and weights. Show majority voting verdict with per-judge results and weights. Then show weighted average voting with a score. All three judges should PASS since the test workspace has the expected files.",
+  "requiredOutput": [
+    "=== Module 04: Simple Jury Demo ===",
+    "Majority Voting",
+    "Weighted Average",
+    "file-exists",
+    "has-method",
+    "has-pom",
+    "Done."
+  ]
+}

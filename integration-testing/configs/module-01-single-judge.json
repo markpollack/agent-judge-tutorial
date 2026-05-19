@@ -1,0 +1,14 @@
+{
+  "moduleId": "module-01-single-judge",
+  "displayName": "Module 01: Single Judge",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Create a JudgmentContext for a workspace, evaluate with FileExistsJudge. The HelloController.java file exists in test-workspace so the first judge should PASS. A second judge checking for MissingFile.java should FAIL. Both should display status, score, and reasoning.",
+  "requiredOutput": [
+    "=== Module 01: Single Judge Demo ===",
+    "PASS",
+    "FAIL",
+    "Done."
+  ]
+}

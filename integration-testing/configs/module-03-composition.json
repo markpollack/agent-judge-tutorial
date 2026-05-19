@@ -1,0 +1,16 @@
+{
+  "moduleId": "module-03-composition",
+  "displayName": "Module 03: Judge Composition",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Demonstrate Judges.and(), Judges.or(), Judges.allOf(), and Judges.anyOf() composition. AND of file-exists and has-content should PASS. OR of two content checks should PASS. allOf three checks should show mixed results since @RestController is missing from the file. anyOf should PASS.",
+  "requiredOutput": [
+    "=== Module 03: Judge Composition Demo ===",
+    "Judges.and()",
+    "Judges.or()",
+    "Judges.allOf()",
+    "Judges.anyOf()",
+    "Done."
+  ]
+}

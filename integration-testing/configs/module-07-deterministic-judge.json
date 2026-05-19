@@ -1,0 +1,19 @@
+{
+  "moduleId": "module-07-deterministic-judge",
+  "displayName": "Module 07: Deterministic Judge",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Demonstrate a custom DeterministicJudge subclass (PackageStructureJudge) that checks Java package structure with granular Check sub-assertions. First evaluation of com.example.HelloController should PASS with all three checks passing. Second evaluation of com.example.MissingController should FAIL with specific checks showing what failed.",
+  "requiredOutput": [
+    "=== Module 07: Deterministic Judge Demo ===",
+    "package-structure",
+    "PASS",
+    "package_dir",
+    "file_exists",
+    "package_decl",
+    "Missing class",
+    "FAIL",
+    "Done."
+  ]
+}

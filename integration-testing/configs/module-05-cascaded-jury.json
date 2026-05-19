@@ -1,0 +1,16 @@
+{
+  "moduleId": "module-05-cascaded-jury",
+  "displayName": "Module 05: Cascaded Jury",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Build a CascadedJury with two tiers. Tier 1 checks file existence (REJECT_ON_ANY_FAIL). Tier 2 checks content (FINAL_TIER). Show overall verdict and per-tier results. Both tiers should pass since test workspace has the expected files and content.",
+  "requiredOutput": [
+    "=== Module 05: Cascaded Jury Demo ===",
+    "Evaluating with cascaded jury",
+    "Per-tier verdicts",
+    "Tier 1",
+    "Tier 2",
+    "Done."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "moduleId": "module-08-model-backed-judge",
+  "displayName": "Module 08: ModelBackedJudge",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Build a ModelBackedJudge from three composed parts: JudgePromptTemplate, a stub JudgeModel, and JudgmentClassifiers.passFail(). The passing case (HelloController with SUCCESS status) should produce PASS. The failing case (failed execution) should produce FAIL. Show the stub model receiving prompts and responding.",
+  "requiredOutput": [
+    "=== Module 08: ModelBackedJudge Demo ===",
+    "goal-completion",
+    "Stub model",
+    "Passing case",
+    "PASS",
+    "Failing case",
+    "FAIL",
+    "Done."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "moduleId": "module-02-build-judge",
+  "displayName": "Module 02: Build Judge",
+  "timeoutSec": 120,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Run BuildSuccessJudge.maven('compile') against the test-workspace Maven project. The project should compile successfully, producing a PASS verdict with reasoning about the build result.",
+  "requiredOutput": [
+    "=== Module 02: Build Judge Demo ===",
+    "Running Maven compile",
+    "Done."
+  ]
+}
