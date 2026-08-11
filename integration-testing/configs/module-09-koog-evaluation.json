@@ -1,0 +1,14 @@
+{
+  "moduleId": "module-09-koog-evaluation",
+  "displayName": "Module 09: Koog Evaluation",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Use a deterministic Koog AIAgent fake, adapt its execution through KoogEvaluator, and produce a PASS judgment without credentials.",
+  "requiredOutput": [
+    "=== Module 09: Koog Evaluation Demo ===",
+    "docs-assistant",
+    "PASS",
+    "Done."
+  ]
+}

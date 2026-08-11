@@ -49,7 +49,7 @@ public class SingleJudgeDemo {
 
         System.out.println("Judge result:");
         System.out.println("  Status:    " + result.status());
-        System.out.println("  Score:     " + result.score());
+        System.out.println("  Stored score (optional): " + result.score());
         System.out.println("  Reasoning: " + result.reasoning());
 
         // Try a file that doesn't exist

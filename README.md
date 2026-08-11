@@ -31,6 +31,12 @@ cd agent-judge-tutorial
 
 # Module 08: Composed AI judge (stub model, no API key)
 ./mvnw exec:java -pl module-08-model-backed-judge
+
+# Module 09: Evaluate a Koog agent result (deterministic fake, no API key)
+./mvnw exec:java -pl module-09-koog-evaluation
+
+# Module 10: Evaluate a LangChain4j result (deterministic fake, no API key)
+./mvnw exec:java -pl module-10-langchain4j-evaluation
 ```
 
 ## Tutorial Structure
@@ -57,6 +63,8 @@ cd agent-judge-tutorial
 | Module | Title | What You'll Learn |
 |--------|-------|-------------------|
 | 08 | ModelBackedJudge | Composed AI judge: template + model + classifier |
+| 09 | Koog Evaluation | Adapt a Koog `AIAgent` execution into the shared evaluation layer |
+| 10 | LangChain4j Evaluation | Adapt a LangChain4j `Result<T>` into the shared evaluation layer |
 
 ## Build Commands
 
@@ -73,9 +81,12 @@ cd agent-judge-tutorial
 
 ## Integration Testing
 
-The tutorial includes an automated test suite with two-gate validation:
-1. **Deterministic gate** — required output strings must appear
-2. **AI gate** — Claude Haiku validates semantic correctness
+The tutorial includes a credential-free automated test suite.
+Its required-output assertions are the default gate.
+Optional Claude validation runs only when `AGENT_JUDGE_TUTORIAL_AI_VALIDATE=true` is explicitly set.
+Candidate verification can select an isolated Maven repository and exact pre-release artifact with
+`AGENT_JUDGE_TUTORIAL_MAVEN_REPO` and `AGENT_JUDGE_TUTORIAL_AGENT_JUDGE_VERSION`; committed examples
+continue to target 0.14.0.
 
 ```bash
 cd integration-testing
@@ -103,7 +114,9 @@ agent-judge-tutorial/
 ├── module-06-lambda-judge/          # Lambda and named lambda judges
 ├── module-07-deterministic-judge/   # DeterministicJudge subclass with Checks
 ├── module-08-model-backed-judge/    # ModelBackedJudge composed pipeline
-└── integration-testing/             # Two-gate automated test suite
+├── module-09-koog-evaluation/       # Credential-free Koog bridge example
+├── module-10-langchain4j-evaluation/# Credential-free LangChain4j bridge example
+└── integration-testing/             # Credential-free deterministic test suite
 ```
 
 ## Related Projects

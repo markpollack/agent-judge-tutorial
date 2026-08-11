@@ -85,7 +85,7 @@ public class ModelBackedJudgeDemo {
 
         Judgment passResult = judge.judge(passContext);
         System.out.println("  Status:    " + passResult.status());
-        System.out.println("  Score:     " + passResult.score());
+        System.out.println("  Stored score (optional): " + passResult.score());
         System.out.println("  Reasoning: " + passResult.reasoning());
 
         // --- Step 5: Evaluate with a failing context ---

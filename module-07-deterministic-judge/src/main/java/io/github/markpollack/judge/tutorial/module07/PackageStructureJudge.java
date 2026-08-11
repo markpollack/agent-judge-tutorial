@@ -7,8 +7,6 @@ import io.github.markpollack.judge.DeterministicJudge;
 import io.github.markpollack.judge.context.JudgmentContext;
 import io.github.markpollack.judge.result.Check;
 import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.result.JudgmentStatus;
-import io.github.markpollack.judge.score.BooleanScore;
 
 /**
  * A reusable deterministic judge that verifies Java package structure.
@@ -43,15 +41,13 @@ public class PackageStructureJudge extends DeterministicJudge {
                 String content = Files.readString(javaFile);
                 hasPackageDecl = content.contains("package " + expectedPackage);
             } catch (Exception e) {
-                return Judgment.error("Failed to read file: " + e.getMessage(), e);
+                return Judgment.error("Failed to read file: " + e.getMessage());
             }
         }
 
         boolean allPassed = dirExists && fileExists && hasPackageDecl;
 
-        return Judgment.builder()
-            .score(new BooleanScore(allPassed))
-            .status(allPassed ? JudgmentStatus.PASS : JudgmentStatus.FAIL)
+        return Judgment.verdict(allPassed)
             .reasoning(allPassed
                 ? expectedPackage + "." + expectedClass + " exists with correct package"
                 : "Package structure check failed")

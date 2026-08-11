@@ -1,0 +1,14 @@
+{
+  "moduleId": "module-10-langchain4j-evaluation",
+  "displayName": "Module 10: LangChain4j Evaluation",
+  "timeoutSec": 30,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Build a deterministic LangChain4j Result, adapt it through LangChain4jEvaluator, and produce a PASS judgment without credentials.",
+  "requiredOutput": [
+    "=== Module 10: LangChain4j Evaluation Demo ===",
+    "PASS",
+    "Answer addresses Spring Boot",
+    "Done."
+  ]
+}

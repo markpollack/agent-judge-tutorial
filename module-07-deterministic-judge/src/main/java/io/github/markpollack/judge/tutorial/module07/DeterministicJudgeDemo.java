@@ -50,7 +50,7 @@ public class DeterministicJudgeDemo {
 
         System.out.println("Result:");
         System.out.println("  Status:    " + result.status());
-        System.out.println("  Score:     " + result.score());
+        System.out.println("  Stored score (optional): " + result.score());
         System.out.println("  Reasoning: " + result.reasoning());
 
         // Granular checks pinpoint exactly what passed or failed

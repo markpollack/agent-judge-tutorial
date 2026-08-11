@@ -3,7 +3,8 @@
  * Adapted from acp-java-tutorial integration testing framework.
  *
  * Key features:
- * - Two-layer validation: deterministic requiredOutput check + AI behavioral validation
+ * - Credential-free deterministic requiredOutput validation by default
+ * - Optional AI behavioral validation when explicitly enabled
  * - Uses mvn exec:java to run modules
  * - All modules run locally, no external agents needed
  */
@@ -12,10 +13,12 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.zeroturnaround.exec.*;
 import java.nio.file.*;
-import java.util.concurrent.TimeUnit;
-import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import static java.lang.System.*;
 
 public class IntegrationTestUtils {
@@ -87,7 +90,7 @@ public class IntegrationTestUtils {
         out.println("Building " + cfg.moduleId() + " (" + goal + ")...");
 
         ProcessResult result = new ProcessExecutor()
-            .command("./mvnw", goal, "-DskipTests", "-pl", cfg.moduleId(), "-q")
+            .command(mavenCommand(goal, "-DskipTests", "-pl", cfg.moduleId(), "-q"))
             .directory(repoRoot.toFile())
             .timeout(300, TimeUnit.SECONDS)
             .redirectOutput(out)
@@ -108,12 +111,27 @@ public class IntegrationTestUtils {
     public static ProcessResult runModule(ExampleInfo cfg, Path logFile) throws Exception {
         Path repoRoot = findRepoRoot();
         return new ProcessExecutor()
-            .command("./mvnw", "exec:java", "-pl", cfg.moduleId(), "-q")
+            .command(mavenCommand("exec:java", "-pl", cfg.moduleId(), "-q"))
             .directory(repoRoot.toFile())
             .timeout(cfg.timeoutSec(), TimeUnit.SECONDS)
             .redirectOutput(Files.newOutputStream(logFile))
             .redirectErrorStream(true)
             .execute();
+    }
+
+    private static List<String> mavenCommand(String... arguments) {
+        List<String> command = new ArrayList<>();
+        command.add("./mvnw");
+        String repository = getenv("AGENT_JUDGE_TUTORIAL_MAVEN_REPO");
+        if (repository != null && !repository.isBlank()) {
+            command.add("-Dmaven.repo.local=" + repository);
+        }
+        String agentJudgeVersion = getenv("AGENT_JUDGE_TUTORIAL_AGENT_JUDGE_VERSION");
+        if (agentJudgeVersion != null && !agentJudgeVersion.isBlank()) {
+            command.add("-Dagent-judge.version=" + agentJudgeVersion);
+        }
+        command.addAll(Arrays.asList(arguments));
+        return command;
     }
 
     public static void displayOutputPreview(String output) {
@@ -194,8 +212,15 @@ public class IntegrationTestUtils {
             out.println("\nAll " + cfg.requiredOutput().length + " required output strings found");
         }
 
-        // AI Validation
-        out.println("\nRunning AI validation...");
+        if (!Boolean.parseBoolean(getenv("AGENT_JUDGE_TUTORIAL_AI_VALIDATE"))) {
+            out.println("\nAI validation skipped (set AGENT_JUDGE_TUTORIAL_AI_VALIDATE=true to enable)");
+            out.println("\n" + "=".repeat(60));
+            out.println("PASSED: " + cfg.displayName());
+            return;
+        }
+
+        // Optional AI validation
+        out.println("\nRunning optional AI validation...");
         AIValidator.ValidationResult validation = AIValidator.validate(
             output,
             cfg.expectedBehavior(),

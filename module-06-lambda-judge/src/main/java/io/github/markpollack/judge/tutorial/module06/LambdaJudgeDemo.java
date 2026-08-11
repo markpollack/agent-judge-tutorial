@@ -88,7 +88,7 @@ public class LambdaJudgeDemo {
                         ? Judgment.pass("Found " + count + " Java file(s)")
                         : Judgment.fail("No Java files found");
                 } catch (Exception e) {
-                    return Judgment.error("Error scanning: " + e.getMessage(), e);
+                    return Judgment.error("Error scanning: " + e.getMessage());
                 }
             },
             "java-files", "Java source files present");

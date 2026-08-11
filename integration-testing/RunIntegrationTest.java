@@ -60,7 +60,8 @@ public class RunIntegrationTest {
             Module Categories:
               Core Evaluation (01-05): No API key needed
               Custom Judges (06-07):   No API key needed
-              AI Judges (08):          Uses stub model, no API key needed
+              AI Judge (08):           Uses a stub model, no API key needed
+              Bridges (09-10):         Use deterministic framework results, no API key needed
             """);
     }
 

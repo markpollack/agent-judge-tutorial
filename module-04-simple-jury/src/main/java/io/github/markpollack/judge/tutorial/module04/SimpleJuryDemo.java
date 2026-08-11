@@ -87,7 +87,7 @@ public class SimpleJuryDemo {
         Verdict weightedVerdict = weightedJury.vote(context);
 
         System.out.println("Overall: " + weightedVerdict.aggregated().status());
-        System.out.println("Score:   " + weightedVerdict.aggregated().score());
+        System.out.println("Stored score: " + weightedVerdict.aggregated().score());
 
         System.out.println("\nDone.");
     }

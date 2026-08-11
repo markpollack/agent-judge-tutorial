@@ -5,7 +5,7 @@
 # Usage:
 #   ./scripts/run-integration-tests.sh              # Run all tests
 #   ./scripts/run-integration-tests.sh --core       # Run only core evaluation (01-05)
-#   ./scripts/run-integration-tests.sh --custom     # Run only custom judges (06-08)
+#   ./scripts/run-integration-tests.sh --custom     # Run only custom/bridge modules (06-10)
 #
 
 set -e
@@ -32,7 +32,7 @@ if [ "$1" == "--core" ]; then
     echo -e "${YELLOW}Running only core evaluation tests (modules 01-05)${NC}"
 elif [ "$1" == "--custom" ]; then
     RUN_CORE=false
-    echo -e "${YELLOW}Running only custom judge tests (modules 06-08)${NC}"
+    echo -e "${YELLOW}Running only custom judge and bridge tests (modules 06-10)${NC}"
 fi
 
 echo "================================================================"
@@ -49,11 +49,13 @@ CORE_MODULES=(
     "module-05-cascaded-jury"
 )
 
-# Custom judge modules (no API key)
+# Custom judge and framework bridge modules (no API key)
 CUSTOM_MODULES=(
     "module-06-lambda-judge"
     "module-07-deterministic-judge"
     "module-08-model-backed-judge"
+    "module-09-koog-evaluation"
+    "module-10-langchain4j-evaluation"
 )
 
 run_test() {
@@ -65,10 +67,10 @@ run_test() {
 
     if jbang RunIntegrationTest.java "$module"; then
         echo -e "${GREEN}PASSED: $module${NC}"
-        ((PASSED++))
+        ((++PASSED))
     else
         echo -e "${RED}FAILED: $module${NC}"
-        ((FAILED++))
+        ((++FAILED))
     fi
 }
 
@@ -81,7 +83,7 @@ if [ "$RUN_CORE" == "true" ]; then
             run_test "$module"
         else
             echo -e "${YELLOW}Skipping $module (no config)${NC}"
-            ((SKIPPED++))
+            ((++SKIPPED))
         fi
     done
 fi
@@ -95,7 +97,7 @@ if [ "$RUN_CUSTOM" == "true" ]; then
             run_test "$module"
         else
             echo -e "${YELLOW}Skipping $module (no config)${NC}"
-            ((SKIPPED++))
+            ((++SKIPPED))
         fi
     done
 fi
