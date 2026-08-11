@@ -10,4 +10,4 @@ The demo uses a deterministic Mockito fake so it runs without a provider or API 
 ```
 
 The committed Agent Judge target is 0.14.0.
-The module uses Koog 0.8.0; the release-time latest-GA compatibility check is performed separately by Agent Judge.
+The module uses Koog 1.1.1, the latest non-prerelease GA selected for Agent Judge 0.14.
