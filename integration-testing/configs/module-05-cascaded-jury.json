@@ -4,13 +4,14 @@
   "timeoutSec": 30,
   "requiredEnv": [],
   "requiresPackage": false,
-  "expectedBehavior": "Build a CascadedJury with two tiers. Tier 1 checks file existence (REJECT_ON_ANY_FAIL). Tier 2 checks content (FINAL_TIER). Show overall verdict and per-tier results. Both tiers should pass since test workspace has the expected files and content.",
+  "expectedBehavior": "Build a CascadedJury with two tiers. Show the overall PASS verdict, then flatten ordered composite evidence in preorder. The successful file-checks attempt precedes content-checks with their configured policies, aggregate statuses, and named individual judgments.",
   "requiredOutput": [
     "=== Module 05: Cascaded Jury Demo ===",
     "Evaluating with cascaded jury",
-    "Per-tier verdicts",
-    "Tier 1",
-    "Tier 2",
+    "Overall: PASS",
+    "Reason:",
+    "Composite attempts (preorder):",
+    "  /file-checks name=file-checks relation=cascade_tier policy=REJECT_ON_ANY_FAIL\n    Status: PASS\n    file-exists     PASS\n    has-pom         PASS\n  /content-checks name=content-checks relation=cascade_tier policy=FINAL_TIER\n    Status: PASS\n    has-method      PASS\n    correct-class   PASS",
     "Done."
   ]
 }

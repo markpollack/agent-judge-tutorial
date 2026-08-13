@@ -49,7 +49,7 @@ cd agent-judge-tutorial
 | 02 | Build Judge | BuildSuccessJudge runs real Maven builds |
 | 03 | Composition | Judges.and(), or(), allOf(), anyOf() |
 | 04 | Simple Jury | Weighted judges, majority and average voting |
-| 05 | Cascaded Jury | Tiered evaluation, fail-fast cost optimization |
+| 05 | Cascaded Jury | Tiered evaluation, fail-fast control, ordered named composite evidence |
 
 ### Part 2: Custom Judges
 

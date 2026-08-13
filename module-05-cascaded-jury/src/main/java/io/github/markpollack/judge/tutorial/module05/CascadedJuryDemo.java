@@ -19,6 +19,9 @@ import io.github.markpollack.judge.context.JudgmentContext;
 import io.github.markpollack.judge.fs.FileContentJudge;
 import io.github.markpollack.judge.fs.FileExistsJudge;
 import io.github.markpollack.judge.jury.CascadedJury;
+import io.github.markpollack.judge.jury.CompositeAttempt;
+import io.github.markpollack.judge.jury.CompositePathEntry;
+import io.github.markpollack.judge.jury.CompositePaths;
 import io.github.markpollack.judge.jury.MajorityVotingStrategy;
 import io.github.markpollack.judge.jury.SimpleJury;
 import io.github.markpollack.judge.jury.TierPolicy;
@@ -78,14 +81,27 @@ public class CascadedJuryDemo {
         System.out.println("Overall: " + verdict.aggregated().status());
         System.out.println("Reason:  " + verdict.aggregated().reasoning());
 
-        // Show per-tier results
-        System.out.println("\nPer-tier verdicts:");
-        int tierNum = 1;
-        for (Verdict tierVerdict : verdict.subVerdicts()) {
-            System.out.printf("  Tier %d: %s%n", tierNum++,
-                tierVerdict.aggregated().status());
-            tierVerdict.individualByName().forEach((name, judgment) ->
-                System.out.printf("    %-15s %s%n", name, judgment.status()));
+        // Show the ordered composite evidence with canonical paths.
+        System.out.println("\nComposite attempts (preorder):");
+        for (CompositePathEntry entry : CompositePaths.flatten(verdict)) {
+            CompositeAttempt attempt = entry.attempt();
+            System.out.printf("  %s name=%s relation=%s", entry.path(), attempt.name(),
+                attempt.relation().wireName());
+            if (attempt.policy() != null) {
+                System.out.printf(" policy=%s", attempt.policy().wireName());
+            }
+            System.out.println();
+
+            if (attempt.verdict() != null) {
+                System.out.println("    Status: "
+                    + attempt.verdict().aggregated().status());
+                attempt.verdict().individualByName().forEach((name, judgment) ->
+                    System.out.printf("    %-15s %s%n", name, judgment.status()));
+            }
+            else {
+                System.out.println("    Failure code: "
+                    + attempt.failure().code().wireName());
+            }
         }
 
         System.out.println("\nDone.");
