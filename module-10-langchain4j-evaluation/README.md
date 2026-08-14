@@ -10,4 +10,4 @@ The demo builds a deterministic result locally, so it runs without a model provi
 ```
 
 The committed Agent Judge target is 0.14.0.
-The module uses LangChain4j 1.18.1, the latest non-prerelease GA selected for Agent Judge 0.14.
+The module uses LangChain4j 1.19.0, the latest non-prerelease GA selected for Agent Judge 0.14.
