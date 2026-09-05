@@ -4,8 +4,8 @@
 #
 # Usage:
 #   ./scripts/run-integration-tests.sh              # Run all tests
-#   ./scripts/run-integration-tests.sh --demo       # Run only the live demo path (01-03, 06)
-#   ./scripts/run-integration-tests.sh --rest       # Run everything else (04, 05, 07-11)
+#   ./scripts/run-integration-tests.sh --demo       # Run only the live demo path (01-06)
+#   ./scripts/run-integration-tests.sh --rest       # Run everything else (07-11)
 #
 
 set -e
@@ -45,13 +45,13 @@ DEMO_MODULES=(
     "module-01-oracle-boundary"
     "module-02-build-and-tests"
     "module-03-coverage-evidence"
+    "module-04-custom-judge"
+    "module-05-derived-judge"
     "module-06-definition-of-done"
 )
 
 # The learning path: everything else, in sequence.
 REST_MODULES=(
-    "module-04-custom-judge"
-    "module-05-derived-judge"
     "module-07-model-backed-judge"
     "module-08-jury"
     "module-09-error-and-escalation"

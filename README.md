@@ -33,14 +33,21 @@ relative to where Maven was launched.
 
 ## The live path
 
-Four modules, about ten minutes, in directory order.
+Modules 01 through 06, in directory order. About 18 seconds of runtime, and 10 to 15
+minutes of talking.
 
 ```bash
 ./mvnw exec:java -pl module-01-oracle-boundary      # where JUnit stops
 ./mvnw exec:java -pl module-02-build-and-tests      # the oracles you already trust
 ./mvnw exec:java -pl module-03-coverage-evidence    # a measurement is not a decision
+./mvnw exec:java -pl module-04-custom-judge         # write one: task, criterion, evidence
+./mvnw exec:java -pl module-05-derived-judge        # several facts, one finding
 ./mvnw exec:java -pl module-06-definition-of-done   # would you merge this?
 ```
+
+01, 02, 03 and 06 carry the narrative. 04 and 05 are the craft beats, showing how a judge
+is written before 06 puts five of them in one table. Skip them if the discussion runs
+long; the arc still closes without them.
 
 It ends here, which is the whole point of running it:
 
@@ -58,6 +65,8 @@ It ends here, which is the whole point of running it:
 
 Modules 02, 03 and 06 run real Maven builds. Run each once before presenting so the
 dependencies are warm.
+
+No module on this path needs an API key, a network call, or a model endpoint.
 
 ## The learning path
 
@@ -77,6 +86,20 @@ dependencies are warm.
 
 Plus [`judge-junit`](judge-junit) - a small bridge turning an Agent Judge outcome into a
 useful JUnit assertion failure.
+
+## Three kinds of oracle
+
+> **The mistake is treating every eval as an LLM-as-a-judge problem. Start by asking what
+> kind of oracle you actually have.**
+
+| Kind | There is | Instrument | Modules |
+|---|---|---|---|
+| **Known** | an exact answer | the compiler, JUnit, JaCoCo, a deterministic judge | 01, 02, 03 |
+| **Derived** | no single expected value, but objective evidence | several checks, one finding | 05 |
+| **Judgment** | a property that requires interpretation | a model-backed judge | 01, 07 |
+
+Most criteria that feel like they need a model do not. The sequence reveals this through
+code rather than teaching it up front.
 
 ## The two rules the sequence is built on
 
