@@ -1,11 +1,11 @@
-# Module 07 — Inside the judgment oracle
+# Module 07 - Inside the judgment oracle
 
 ```bash
 ./mvnw exec:java -pl module-07-model-backed-judge
 ```
 
 [Module 01](../module-01-oracle-boundary) used a model-backed judge and did not open it.
-This is the inside, and there is less to it than the name suggests — three independent
+This is the inside, and there is less to it than the name suggests - three independent
 parts, composed, no subclassing:
 
 | Part | Job |
@@ -52,10 +52,10 @@ can disagree.
   reasoning: Judge output did not match any label: I am not sure
 ```
 
-`ABSTAIN`, with the raw text kept in metadata — not a guess, and not a default `PASS`. The
+`ABSTAIN`, with the raw text kept in metadata - not a guess, and not a default `PASS`. The
 judge reached no finding, which is exactly the case
 [module 09](../module-09-error-and-escalation) makes a jury decide about.
 
 ## Next
 
-[Module 08](../module-08-jury) puts several of these on a panel — correctly.
+[Module 08](../module-08-jury) puts several of these on a panel - correctly.

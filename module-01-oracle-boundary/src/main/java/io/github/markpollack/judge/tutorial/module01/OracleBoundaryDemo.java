@@ -3,7 +3,7 @@
  *
  * The agent says it is done. Should I merge?
  *
- * Some of that question has a known oracle — an exact answer exists and we can
+ * Some of that question has a known oracle - an exact answer exists and we can
  * write it down in advance. That is what assertTrue is, and Agent Judge is not
  * an improvement on it.
  *
@@ -43,7 +43,7 @@ public class OracleBoundaryDemo {
         //
         // These are the assertions in OracleBoundaryTest, evaluated here so
         // you can see them next to the one that follows. We knew every answer
-        // when we wrote them down — which is exactly what makes them
+        // when we wrote them down - which is exactly what makes them
         // assertions rather than judgments.
         // ---------------------------------------------------------------
         System.out.println("--- Known oracle: ordinary Java testing already answers this ---\n");
@@ -93,7 +93,7 @@ public class OracleBoundaryDemo {
         para("""
             The judgment keeps its parts. Five failing criteria and one passing
             one are not averaged into 0.17, because a number cannot tell you
-            which criterion binds — and the binding criterion is the only part
+            which criterion binds - and the binding criterion is the only part
             anybody acts on.
 
             One of those lines is mechanisable: concatenating request parameters

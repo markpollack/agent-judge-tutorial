@@ -24,7 +24,7 @@ model calls.
 ```bash
 git clone https://github.com/markpollack/agent-judge-tutorial.git
 cd agent-judge-tutorial
-./mvnw install -DskipTests     # once — modules reuse judges from earlier modules
+./mvnw install -DskipTests     # once - modules reuse judges from earlier modules
 ./mvnw exec:java -pl module-01-oracle-boundary
 ```
 
@@ -75,7 +75,7 @@ dependencies are warm.
 | [10](module-10-koog-evaluation) | The same bar, applied to a Koog agent. |
 | [11](module-11-langchain4j-evaluation) | The same bar, applied to a LangChain4j result. |
 
-Plus [`judge-junit`](judge-junit) — a small bridge turning an Agent Judge outcome into a
+Plus [`judge-junit`](judge-junit) - a small bridge turning an Agent Judge outcome into a
 useful JUnit assertion failure.
 
 ## The two rules the sequence is built on
@@ -85,7 +85,7 @@ Judge does not replace JUnit, AssertJ, ArchUnit, Checkstyle, JaCoCo, JApiCmp, or
 compiler. Module 01 keeps four criteria in plain `assertTrue` on purpose.
 
 **Compose requirements. Aggregate estimates of the same uncertain property.** A definition
-of done is a conjunction, not a vote — `3 of 5 = 0.60` lets "the tests pass" offset "it
+of done is a conjunction, not a vote - `3 of 5 = 0.60` lets "the tests pass" offset "it
 does not compile". Module 06 is the first rule; module 08 is the second.
 
 ## Subject under evaluation
@@ -128,6 +128,6 @@ committed examples target 0.15.2.
 
 ## Related
 
-- [Agent Judge](https://github.com/markpollack/agent-judge) — the library
+- [Agent Judge](https://github.com/markpollack/agent-judge) - the library
 - [Documentation](https://lab.pollack.ai/docs/agent-judge/getting-started)
-- [Agent Experiment](https://github.com/markpollack/agent-experiment) — the runner that uses these juries
+- [Agent Experiment](https://github.com/markpollack/agent-experiment) - the runner that uses these juries

@@ -113,7 +113,7 @@ public class DefinitionOfDoneDemo {
             "the tests pass" cannot make up for "it does not compile".
 
             A definition of done is conjunctive. Every criterion binds, so the
-            aggregate is a minimum, not a mean — and the aggregate is worth
+            aggregate is a minimum, not a mean - and the aggregate is worth
             less than the row that failed, which is the part you act on.
             """);
 
@@ -139,7 +139,7 @@ public class DefinitionOfDoneDemo {
         para("""
             The status is right and the diagnosis is gone. allOf() short-circuits,
             so evaluation stopped at the first failure and the criteria after it
-            never ran — including architectural-fit, which would also have failed.
+            never ran - including architectural-fit, which would also have failed.
             You learn that something failed, not what, and not how much.
 
             Use it for a cheap gate. Do not use it as a definition of done.
@@ -164,7 +164,7 @@ public class DefinitionOfDoneDemo {
      * The composition rule.
      *
      * <p>Conjunctive: every criterion must hold. The count guard is not
-     * defensive tidiness — {@code allMatch} over an empty stream is {@code true},
+     * defensive tidiness - {@code allMatch} over an empty stream is {@code true},
      * so without it a definition of done that lost its criteria would report
      * success.
      */

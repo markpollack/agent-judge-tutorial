@@ -14,7 +14,7 @@ import io.github.markpollack.judge.ai.model.JudgeModelResponse;
  * <p><strong>What is a fixture here and what is not.</strong> The two review texts below
  * are written by hand. They are what we claim a competent reviewer would say about each
  * controller, in the shape a real model returns. They are not a transcript of a live
- * call, and a fixture can never tell you that a judge is <em>right</em> — only that the
+ * call, and a fixture can never tell you that a judge is <em>right</em> - only that the
  * wiring around it is.
  *
  * <p>Everything else on the path is real: the prompt is rendered from the actual

@@ -8,7 +8,7 @@ oracles, and none of them is part of Agent Judge.
 ## The convention
 
 `HelloController` is the idiomatic controller. It holds no logic, opens no resource, and
-returns a record — it delegates to `GreetingService`. That expectation is the codebase's
+returns a record - it delegates to `GreetingService`. That expectation is the codebase's
 convention. Nothing in the build enforces it, and nothing writes it down in a form a
 compiler can read.
 

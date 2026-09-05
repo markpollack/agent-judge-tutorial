@@ -1,4 +1,4 @@
-# Module 09 — Error, abstention, and escalation
+# Module 09 - Error, abstention, and escalation
 
 ```bash
 ./mvnw exec:java -pl module-09-error-and-escalation
@@ -9,7 +9,7 @@ One rule, in the shape you already trust from testing:
 > A judge that failed, timed out, was never configured, or declined to answer must not make
 > the result look better.
 
-A broken **test** fails closed — it goes red and you fix it. A broken **judge** fails
+A broken **test** fails closed - it goes red and you fix it. A broken **judge** fails
 open: it returns a plausible number and you build on it. Nothing checks the checker, so
 fail-closed has to be chosen rather than assumed.
 
@@ -39,7 +39,7 @@ same judge module 03 used, and the `ERROR` is real:
 evaluated.
 
 `TREAT_AS_FAIL` is the surprise. It *did* convert the error into a failure, the roster is
-intact at 3 of 3 — and the verdict is still `PASS`, because majority voting is
+intact at 3 of 3 - and the verdict is still `PASS`, because majority voting is
 compensatory and two passes outvote one failure.
 
 **The error policy and the aggregation rule are two separate decisions**, and getting one
@@ -61,7 +61,7 @@ from two:
   eligibleCount:    2
 ```
 
-Nothing is hidden — both counts are recorded — but nothing raises its voice either.
+Nothing is hidden - both counts are recorded - but nothing raises its voice either.
 
 > **Assert `eligibleCount == inputCount` wherever you expect a full panel.** That single
 > equality is the difference between a jury that scored what you asked for and one that
@@ -76,7 +76,7 @@ Nothing is hidden — both counts are recorded — but nothing raises its voice 
 ```
 
 `pass()` is `false` for `FAIL`, `ERROR` **and** `ABSTAIN` alike. A consumer that branches
-on `!pass()` records this as a rejected subject when nothing was ever asked — the judge
+on `!pass()` records this as a rejected subject when nothing was ever asked - the judge
 stops lying and the system starts blaming the subject.
 
 Assert `status()`, not `pass()`. That is why

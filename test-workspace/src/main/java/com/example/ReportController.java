@@ -14,7 +14,7 @@ import java.sql.Statement;
  *
  * <p>It also opens its own database connection, concatenates a SQL string from
  * request parameters, builds JSON by hand, swallows the exception, and never
- * closes anything — none of which the codebase's other controller does.
+ * closes anything - none of which the codebase's other controller does.
  */
 public class ReportController {
 

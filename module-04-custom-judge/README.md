@@ -1,4 +1,4 @@
-# Module 04 — Write a judge
+# Module 04 - Write a judge
 
 ```bash
 ./mvnw exec:java -pl module-04-custom-judge
@@ -39,7 +39,7 @@ Name a judge as soon as anything other than the call site will read its result.
 **State the denominator.** `"Found 4 Java file(s)"` and `"No Java files found"` are
 different facts. A bare `PASS` hides which one it was.
 
-**`ERROR` is not `FAIL`.** When the scan throws, the workspace has not been rejected — it
+**`ERROR` is not `FAIL`.** When the scan throws, the workspace has not been rejected - it
 has not been read:
 
 ```java

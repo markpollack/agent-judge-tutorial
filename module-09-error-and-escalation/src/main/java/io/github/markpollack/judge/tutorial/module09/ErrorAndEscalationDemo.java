@@ -6,7 +6,7 @@
  *     A judge that failed, timed out, was never configured, or declined to
  *     answer must not make the result look better.
  *
- * A broken test fails closed — it goes red and you fix it. A broken judge
+ * A broken test fails closed - it goes red and you fix it. A broken judge
  * fails open: it returns a plausible number and you build on it. Nothing
  * checks the checker, so the fail-closed behaviour has to be chosen.
  *
@@ -103,7 +103,7 @@ public class ErrorAndEscalationDemo {
 
             TREAT_AS_FAIL is the surprise. It did convert the error into a
             failure, the roster is intact at 3 of 3, and the verdict is still
-            PASS — because majority voting is compensatory, and two passes
+            PASS - because majority voting is compensatory, and two passes
             outvote one failure. The error policy and the aggregation rule are
             two separate decisions, and getting one of them right does not save
             you from the other. This is module 06's point arriving from the other
@@ -136,8 +136,8 @@ public class ErrorAndEscalationDemo {
 
         para("""
             The verdict still names all three judges, and the aggregate was
-            computed from two. Nothing here is hidden — inputCount and
-            eligibleCount are both recorded — but nothing raises its voice either.
+            computed from two. Nothing here is hidden - inputCount and
+            eligibleCount are both recorded - but nothing raises its voice either.
 
             So assert the roster: eligibleCount == inputCount, wherever you expect
             a full panel. That single equality is the difference between a jury
@@ -162,7 +162,7 @@ public class ErrorAndEscalationDemo {
         System.out.println("  pass():    " + abstained.pass());
 
         para("""
-            pass() is false — and it is false for FAIL, ERROR and ABSTAIN alike.
+            pass() is false - and it is false for FAIL, ERROR and ABSTAIN alike.
             A consumer that branches on !pass() records this as a rejected subject,
             when in fact nothing was ever asked. Assert status(), not pass().
             """);
@@ -179,7 +179,7 @@ public class ErrorAndEscalationDemo {
             The second subject never reached the content tier: only /structural
             appears in the composite evidence. Which tiers are present is itself
             the record, so "rejected at tier 1" stays distinguishable from
-            "failed at tier 2" — and a tier that never ran is never mistaken for
+            "failed at tier 2" - and a tier that never ran is never mistaken for
             a tier that passed.
 
             A cascade is cost control. It is not an evaluation policy, and it

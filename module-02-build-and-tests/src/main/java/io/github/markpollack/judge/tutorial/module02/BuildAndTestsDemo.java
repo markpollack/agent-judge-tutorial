@@ -7,7 +7,7 @@
  * neither is part of Agent Judge.
  *
  * What Agent Judge adds is not a better oracle. It is a way for that oracle's
- * result to travel — so a build outcome and a semantic verdict can sit in the
+ * result to travel - so a build outcome and a semantic verdict can sit in the
  * same definition of done, which is module 06.
  *
  * Run: ./mvnw exec:java -pl module-02-build-and-tests
@@ -59,7 +59,7 @@ public class BuildAndTestsDemo {
             third. The judge only carries the answer.
 
             That is the point. A criterion with a known oracle should keep using
-            the instrument that already owns it — and module 06 needs those
+            the instrument that already owns it - and module 06 needs those
             answers in the same shape as the semantic ones so they can sit in one
             definition of done together.
             """);

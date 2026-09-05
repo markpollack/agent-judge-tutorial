@@ -1,4 +1,4 @@
-# Module 10 — Evaluating a Koog agent
+# Module 10 - Evaluating a Koog agent
 
 ```bash
 ./mvnw exec:java -pl module-10-koog-evaluation
@@ -12,7 +12,7 @@ instead, and an **evaluator** is the adapter: it runs or wraps that result, puts
 Judgment judgment = KoogEvaluator.evaluate(agent, "Explain dependency injection", judge);
 ```
 
-That is the whole bridge. The judge does not know the output came from Koog — which is the
+That is the whole bridge. The judge does not know the output came from Koog - which is the
 point. The bar you built in [module 06](../module-06-definition-of-done) is the same bar
 here.
 

@@ -122,7 +122,7 @@ public class ModelBackedJudgeDemo {
             .build()));
 
         para("""
-            ABSTAIN, with the raw text kept in metadata — not a guess, and not a
+            ABSTAIN, with the raw text kept in metadata - not a guess, and not a
             default PASS. An unparseable reply means the judge reached no
             finding, which is exactly the case module 09 makes a jury decide
             about.

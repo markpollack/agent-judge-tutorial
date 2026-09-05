@@ -6,7 +6,7 @@
  * result, puts it in a JudgmentContext, and then applies an ordinary Judge.
  *
  * That is the whole bridge. The judge does not know it came from Koog, which
- * is the point — the bar you built in module 06 is the same bar here.
+ * is the point - the bar you built in module 06 is the same bar here.
  *
  * The agent is a deterministic mock so the module runs with no credentials.
  * Its output is fixed; the evaluation path around it is real.

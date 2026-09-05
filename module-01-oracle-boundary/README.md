@@ -1,4 +1,4 @@
-# Module 01 — Where JUnit stops
+# Module 01 - Where JUnit stops
 
 > The agent says it is done. Should I merge?
 
@@ -45,7 +45,7 @@ The question is:
 `ReportController` compiles, sits in the right package, is named correctly, and has the
 requested method. Every cheap check says yes. It also opens its own JDBC connection,
 concatenates SQL from request parameters, builds JSON by hand, swallows the exception, and
-closes nothing — none of which the codebase's other controller does.
+closes nothing - none of which the codebase's other controller does.
 
 ## What the judgment keeps
 
@@ -66,7 +66,7 @@ binding criterion is the only part anybody acts on.
 ## Credentials
 
 None. `FixtureJudgeModel` replays two hand-written reviews so the module runs offline.
-A fixture cannot tell you a judge is *right* — only that the wiring around it is. The
+A fixture cannot tell you a judge is *right* - only that the wiring around it is. The
 prompt, the classifier, and the `Judgment` are all real; swapping the model for
 `SpringAiJudgeModel` is one line.
 
@@ -77,7 +77,7 @@ approves what it has not seen is a judge that cannot fail, which is worse than n
 
 One of those six lines is mechanisable: concatenating request parameters into SQL is a
 pattern a scanner should own, and [module 05](../module-05-derived-judge) builds exactly
-that shape. The *verdict* is the part that is left over — and that is the part worth a
+that shape. The *verdict* is the part that is left over - and that is the part worth a
 model.
 
 ## Next

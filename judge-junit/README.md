@@ -76,7 +76,7 @@ policy, and policy belongs in the judge.
 ## Lambdas
 
 `Judge` and `Jury` are both functional interfaces over `JudgmentContext`, so an implicitly
-typed lambda is ambiguous across the two-argument overloads. Name it first — worth doing
+typed lambda is ambiguous across the two-argument overloads. Name it first - worth doing
 anyway, since an unnamed judge has no identity in a verdict:
 
 ```java

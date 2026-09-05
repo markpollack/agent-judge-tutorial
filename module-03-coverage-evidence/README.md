@@ -1,4 +1,4 @@
-# Module 03 — Coverage as measured evidence
+# Module 03 - Coverage as measured evidence
 
 ```bash
 ./mvnw exec:java -pl module-03-coverage-evidence
@@ -12,7 +12,7 @@ This module keeps three things apart on purpose.
 | | |
 |---|---|
 | **the measurement** | `100.00% → 36.00%`, a `-64.0 pp` delta |
-| **the score** | `0.0` — which is a floor, not a distance |
+| **the score** | `0.0` - which is a floor, not a distance |
 | **the status** | `FAIL`, because 64 pp is past the bar we chose |
 
 ## The evidence has to be produced before it can be read
@@ -44,7 +44,7 @@ private static final double MAX_ACCEPTABLE_DROP = 5.0;
 `5.0` is the library's default, and **a default is not a derivation**. A real bar comes
 from somewhere: the drop your team has historically waved through, or the point at which
 review actually starts. Ours is inherited and provisional, and the comment saying so lives
-on the constant — because that is where the next person changing it will be standing.
+on the constant - because that is where the next person changing it will be standing.
 
 Setting the bar just under what a known-good run scored is fitting the bar to the data it
 has to judge. It will always pass, and you will never know.
@@ -55,7 +55,7 @@ Point the judge at a workspace where no build ever ran:
 
 ```
   status     ERROR
-  reasoning  No JaCoCo report found in workspace — coverage evaluation could not complete
+  reasoning  No JaCoCo report found in workspace - coverage evaluation could not complete
 ```
 
 `ERROR`, not `FAIL` and not `0.0`. The subject was never judged. Scoring it zero blames

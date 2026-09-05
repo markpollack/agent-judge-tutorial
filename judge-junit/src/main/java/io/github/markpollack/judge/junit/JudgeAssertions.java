@@ -36,7 +36,7 @@ import org.opentest4j.AssertionFailedError;
  *
  * <p>{@code Judge} and {@code Jury} are both functional interfaces taking a
  * {@link JudgmentContext}, so an implicitly typed lambda passed to
- * {@code assertPass(judge, context)} is ambiguous. Name the judge first — which is
+ * {@code assertPass(judge, context)} is ambiguous. Name the judge first - which is
  * worth doing anyway, because an unnamed judge has no identity in a verdict:
  *
  * <pre>{@code

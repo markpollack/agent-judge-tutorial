@@ -1,4 +1,4 @@
-# Module 08 — When aggregation is the right answer
+# Module 08 - When aggregation is the right answer
 
 ```bash
 ./mvnw exec:java -pl module-08-jury
@@ -28,7 +28,7 @@ individual answers did not.
 ## Majority
 
 ```
-  FAIL — Majority vote: 1 passed, 2 failed (majority fail)
+  FAIL - Majority vote: 1 passed, 2 failed (majority fail)
 ```
 
 A legitimate aggregate: two of three independent reviewers found the same problem.
@@ -36,7 +36,7 @@ A legitimate aggregate: two of three independent reviewers found the same proble
 ## Consensus
 
 ```
-  ABSTAIN — No consensus: 1 passed, 2 failed among 3 applicable judge(s)
+  ABSTAIN - No consensus: 1 passed, 2 failed among 3 applicable judge(s)
 ```
 
 `ABSTAIN`, not `FAIL`. **A split vote is indeterminate, not negative.** The panel
@@ -53,7 +53,7 @@ Rejection belongs to the gate, not to the aggregation step.
   reviewer-c   PASS   package, class name and method shape all match
 ```
 
-A verdict recording only `FAIL, 2 of 3` could not tell you who disagreed or why — the
+A verdict recording only `FAIL, 2 of 3` could not tell you who disagreed or why - the
 first thing worth reading when a panel splits.
 
 ⚠️ Note the key space: `weights` is keyed by the judge's **position** in the builder, while
@@ -64,7 +64,7 @@ first thing worth reading when a panel splits.
 There is no weighted average, and its absence is the point.
 
 These three judges made no measurement. Averaging them means reading `PASS` as `1.0` and
-`FAIL` as `0.0` and calling the result `0.33` — a number invented by the aggregation step,
+`FAIL` as `0.0` and calling the result `0.33` - a number invented by the aggregation step,
 carrying a precision nobody measured, comparable against thresholds nobody derived.
 
 Use `AverageVotingStrategy`, `WeightedAverageStrategy` or `MedianVotingStrategy` when the

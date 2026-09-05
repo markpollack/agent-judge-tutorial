@@ -49,7 +49,7 @@ public class JuryDemo {
 
         // Three reviewers of the same property, prompted to weigh different
         // things. In production each is a ModelBackedJudge with its own prompt
-        // — see module 07. Their opinions are recorded here so the module runs
+        // - see module 07. Their opinions are recorded here so the module runs
         // with no credentials, and so the panel reliably disagrees.
         Judge layering = reviewer("reviewer-a", false,
             "reaches the database directly, unlike its neighbours");
@@ -69,7 +69,7 @@ public class JuryDemo {
         Verdict majority = jury(new MajorityVotingStrategy(), layering, simplicity, consistency)
             .vote(context);
         System.out.println("  " + majority.aggregated().status()
-            + " — " + majority.aggregated().reasoning());
+            + " - " + majority.aggregated().reasoning());
 
         para("""
             This is a legitimate aggregate. All three judges were estimating the
@@ -85,7 +85,7 @@ public class JuryDemo {
         Verdict consensus = jury(new ConsensusStrategy(), layering, simplicity, consistency)
             .vote(context);
         System.out.println("  " + consensus.aggregated().status()
-            + " — " + consensus.aggregated().reasoning());
+            + " - " + consensus.aggregated().reasoning());
 
         para("""
             ABSTAIN, not FAIL. A split vote is indeterminate, not negative: the
@@ -105,7 +105,7 @@ public class JuryDemo {
         para("""
             The dissent is still there. reviewer-c said PASS, and a verdict that
             recorded only "FAIL, 2 of 3" could not tell you who disagreed or why
-            — which is the first thing worth reading when a panel splits.
+            - which is the first thing worth reading when a panel splits.
 
             Note the key space, though: weights are keyed by the judge's position
             in the builder, while individualByName() is keyed by its name. Join
@@ -120,7 +120,7 @@ public class JuryDemo {
             There is no weighted average here, and its absence is the point.
 
             These three judges made no measurement. Averaging them means reading
-            PASS as 1.0 and FAIL as 0.0 and calling the result 0.33 — a number
+            PASS as 1.0 and FAIL as 0.0 and calling the result 0.33 - a number
             invented by the aggregation step, carrying a precision nobody
             measured, and now comparable against thresholds nobody derived.
 

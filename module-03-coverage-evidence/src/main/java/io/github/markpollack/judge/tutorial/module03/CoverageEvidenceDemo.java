@@ -62,7 +62,7 @@ public class CoverageEvidenceDemo {
         if (!Files.exists(REPORT)) {
             System.out.println("No JaCoCo report yet. Producing the evidence first...");
             Judgment build = BuildSuccessJudge.maven("test").judge(context());
-            System.out.println("  build+tests: " + build.status() + " — " + build.reasoning() + "\n");
+            System.out.println("  build+tests: " + build.status() + " - " + build.reasoning() + "\n");
         }
 
         JudgmentContext context = JudgmentContext.builder()
@@ -85,7 +85,7 @@ public class CoverageEvidenceDemo {
         System.out.printf("  delta      %+.1f pp%n", asDouble(measured, "improvementPp"));
 
         // ---------------------------------------------------------------
-        // 2. The score — and what it cannot tell you.
+        // 2. The score - and what it cannot tell you.
         // ---------------------------------------------------------------
         System.out.println("\n--- The score ---");
         System.out.println("  score      " + measured.score());
@@ -100,7 +100,7 @@ public class CoverageEvidenceDemo {
                 check.passed() ? "PASS" : "FAIL", check.name(), check.message()));
 
         // ---------------------------------------------------------------
-        // 3. The status — a separate decision, against a bar somebody chose.
+        // 3. The status - a separate decision, against a bar somebody chose.
         // ---------------------------------------------------------------
         System.out.println("\n--- The acceptance decision ---");
         Judge gate = new CoveragePreservationJudge(MAX_ACCEPTABLE_DROP);

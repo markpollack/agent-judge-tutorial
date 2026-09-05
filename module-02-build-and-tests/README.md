@@ -1,4 +1,4 @@
-# Module 02 — The build and the tests are already oracles
+# Module 02 - The build and the tests are already oracles
 
 ```bash
 ./mvnw exec:java -pl module-02-build-and-tests

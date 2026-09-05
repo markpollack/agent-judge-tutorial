@@ -55,7 +55,7 @@ public class CustomJudgeDemo {
         System.out.println("  pom.xml check: " + pomResult.status());
         System.out.println("  Reasoning: " + pomResult.reasoning());
 
-        // Lambda judges have no metadata — infrastructure can't discover their name.
+        // Lambda judges have no metadata - infrastructure can't discover their name.
         System.out.println("  Has metadata: " + (pomCheck instanceof JudgeWithMetadata));
 
         // --- Named lambda ---

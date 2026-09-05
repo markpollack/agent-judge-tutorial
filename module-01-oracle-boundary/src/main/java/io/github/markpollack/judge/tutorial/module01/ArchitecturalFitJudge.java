@@ -26,7 +26,7 @@ import io.github.markpollack.judge.result.Judgment;
  * not greppable. The oracle has to be produced rather than looked up, which is the only
  * thing that justifies a model here.
  *
- * <p>Some of the evidence it reports <em>is</em> mechanisable — concatenating request
+ * <p>Some of the evidence it reports <em>is</em> mechanisable - concatenating request
  * parameters into SQL is a pattern a scanner should own, and module 05 shows that shape.
  * The verdict is the part that is not. Use the least interpretive instrument that can
  * reliably answer the question, and this is the question that is left over.
@@ -136,7 +136,7 @@ public final class ArchitecturalFitJudge {
     }
 
     /**
-     * The same context, still open, for callers that need to add their own metadata —
+     * The same context, still open, for callers that need to add their own metadata -
      * module 06 supplies a coverage baseline alongside these sources.
      */
     public static JudgmentContext.Builder contextBuilder(Path workspace, String goal, String subjectPath) {

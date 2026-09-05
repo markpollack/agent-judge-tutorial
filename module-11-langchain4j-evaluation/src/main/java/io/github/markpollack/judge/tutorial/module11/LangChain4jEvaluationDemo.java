@@ -2,7 +2,7 @@
  * Module 11: The same bar again, through a different framework
  *
  * LangChain4j hands back a Result<T>. LangChain4jEvaluator adapts it into a
- * JudgmentContext and applies an ordinary Judge — the same shape as module 10,
+ * JudgmentContext and applies an ordinary Judge - the same shape as module 10,
  * with a different framework on the far side.
  *
  * Two frameworks, one evaluation layer, and a judge that does not know or care

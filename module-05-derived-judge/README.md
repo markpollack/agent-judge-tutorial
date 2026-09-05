@@ -1,4 +1,4 @@
-# Module 05 — The derived oracle
+# Module 05 - The derived oracle
 
 ```bash
 ./mvnw exec:java -pl module-05-derived-judge
@@ -6,7 +6,7 @@
 
 A **known** oracle has one exact answer: the build's exit code, the file's presence.
 
-A **derived** oracle has none — there is no single expected value — but several objective
+A **derived** oracle has none - there is no single expected value - but several objective
 facts together settle the question:
 
 > "Is this class where the codebase's layout says it should be?"
@@ -18,7 +18,7 @@ facts together settle the question:
 ```
 
 No one of those is the answer. All three are the evidence, and the finding is derived from
-them. Nothing here is interpretive, so nothing here needs a model — this is still
+them. Nothing here is interpretive, so nothing here needs a model - this is still
 deterministic, just not a single assertion.
 
 ## Why extend `DeterministicJudge`

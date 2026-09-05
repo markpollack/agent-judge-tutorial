@@ -1,4 +1,4 @@
-# Module 06 — The definition of done
+# Module 06 - The definition of done
 
 ```bash
 ./mvnw exec:java -pl module-06-definition-of-done
@@ -28,7 +28,7 @@ aggregation rule. That is the whole point of the module.
 > **Compose requirements. Aggregate estimates of the same uncertain property.**
 
 These five are not five opinions about one thing. They are five different things, and
-every one of them has to hold. A definition of done is **conjunctive** — the aggregate is
+every one of them has to hold. A definition of done is **conjunctive** - the aggregate is
 a minimum, not a mean.
 
 [Module 08](../module-08-jury) is the other case, where several judges really are
@@ -55,7 +55,7 @@ criterion binds, and the binding criterion is the only thing you act on.
 ```
 
 `allOf` short-circuits. Evaluation stopped at `coverage`, so `package-structure` and
-`architectural-fit` never ran — and `architectural-fit` would also have failed. You learn
+`architectural-fit` never ran - and `architectural-fit` would also have failed. You learn
 that something failed, not what, and not how much.
 
 Use it for a cheap gate. Do not use it as a definition of done.
@@ -76,7 +76,7 @@ A pass over an empty input set is not a pass. It is an abstention wearing a pass
 
 ## Reuse
 
-The criteria come from the modules that introduced them —
+The criteria come from the modules that introduced them -
 [`ArchitecturalFitJudge`](../module-01-oracle-boundary) and
 [`PackageStructureJudge`](../module-05-derived-judge) are imported, not re-written. A judge
 you wrote once is a judge you can put in a definition of done.

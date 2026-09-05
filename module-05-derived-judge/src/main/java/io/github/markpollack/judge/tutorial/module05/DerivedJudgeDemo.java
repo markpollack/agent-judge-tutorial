@@ -2,7 +2,7 @@
  * Module 05: The derived oracle
  *
  * A known oracle has one exact answer: the build's exit code, the file's
- * presence. A derived oracle has none — there is no single expected value —
+ * presence. A derived oracle has none - there is no single expected value -
  * but several objective facts together settle the question.
  *
  *     "Is this class where the codebase's layout says it should be?"
@@ -13,7 +13,7 @@
  *
  * No one of those is the answer. All three are the evidence, and the finding
  * is derived from them. Nothing here is interpretive, so nothing here needs a
- * model — this is still deterministic, just not a single assertion.
+ * model - this is still deterministic, just not a single assertion.
  *
  * The rule that makes it useful: every fact computed on the way to the
  * verdict is kept as a Check. A verdict can be recomputed from its parts;
