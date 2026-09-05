@@ -132,6 +132,14 @@ public final class ArchitecturalFitJudge {
      * context metadata because that is what the prompt renders from.
      */
     public static JudgmentContext contextFor(Path workspace, String goal, String subjectPath) {
+        return contextBuilder(workspace, goal, subjectPath).build();
+    }
+
+    /**
+     * The same context, still open, for callers that need to add their own metadata —
+     * module 06 supplies a coverage baseline alongside these sources.
+     */
+    public static JudgmentContext.Builder contextBuilder(Path workspace, String goal, String subjectPath) {
         return JudgmentContext.builder()
             .goal(goal)
             .workspace(workspace)
@@ -139,8 +147,7 @@ public final class ArchitecturalFitJudge {
             .startedAt(java.time.Instant.now())
             .executionTime(java.time.Duration.ofMinutes(2))
             .metadata("conventionSource", read(workspace.resolve(CONVENTION)))
-            .metadata("subjectSource", read(workspace.resolve(subjectPath)))
-            .build();
+            .metadata("subjectSource", read(workspace.resolve(subjectPath)));
     }
 
     private static String read(Path path) {

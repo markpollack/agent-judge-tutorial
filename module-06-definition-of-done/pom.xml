@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>module-06-definition-of-done</artifactId>
-    <name>Module 03 - Judge Composition</name>
-    <description>Compose judges with and(), or(), allOf(), anyOf()</description>
+    <name>Module 06 - The Definition of Done</name>
+    <description>Compose several requirements without collapsing them into one number</description>
 
     <dependencies>
         <dependency>
@@ -23,6 +23,21 @@
             <groupId>io.github.markpollack</groupId>
             <artifactId>agent-judge-exec</artifactId>
         </dependency>
+
+        <!--
+          The criteria come from the modules that introduced them. A judge you
+          wrote once is a judge you can put in a definition of done.
+        -->
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>module-01-oracle-boundary</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>module-05-derived-judge</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -31,7 +46,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.module06.CompositionDemo</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.module06.DefinitionOfDoneDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>

@@ -141,7 +141,7 @@ public class OracleBoundaryDemo {
         StringBuilder line = new StringBuilder("  ");
         for (String word : text.split(" ")) {
             if (line.length() + word.length() > 76) {
-                System.out.println(line);
+                System.out.println(line.toString().stripTrailing());
                 line = new StringBuilder("  ");
             }
             line.append(word).append(' ');
