@@ -82,17 +82,22 @@ public class CoverageEvidenceDemo {
 
         System.out.printf("  baseline   %.2f%%%n", asDouble(measured, "baselineLineCoverage"));
         System.out.printf("  current    %.2f%%%n", asDouble(measured, "currentLineCoverage"));
-        System.out.printf("  delta      %+.1f pp%n", asDouble(measured, "improvement"));
+        System.out.printf("  delta      %+.1f pp%n", asDouble(measured, "improvementPp"));
 
         // ---------------------------------------------------------------
         // 2. The score — and what it cannot tell you.
         // ---------------------------------------------------------------
         System.out.println("\n--- The score ---");
         System.out.println("  score      " + measured.score());
-        System.out.println("""
-              The score is normalized to [0.0, 1.0] and floors at 0.0, so it reads
-              the same for a 1-point drop and a 64-point one. The distance survived
-              only because the judge also recorded the parts. Read the parts.""");
+        para("""
+            The score is normalized to [0.0, 1.0] and floors at 0.0, so it reads
+            the same for a 1-point drop and a 64-point one. The distance survived
+            only because the judge also recorded the parts. Read the parts.
+            """);
+        System.out.println("  the parts it kept:");
+        measured.checks().forEach(check ->
+            System.out.printf("    %-4s %-20s %s%n",
+                check.passed() ? "PASS" : "FAIL", check.name(), check.message()));
 
         // ---------------------------------------------------------------
         // 3. The status — a separate decision, against a bar somebody chose.
@@ -124,19 +129,32 @@ public class CoverageEvidenceDemo {
 
         System.out.println("  status     " + missing.status());
         System.out.println("  reasoning  " + missing.reasoning());
-        System.out.println("""
-              ERROR, not FAIL and not 0.0. The workspace was never judged; the judge
-              could not run. Scoring it zero would blame the subject for a missing
-              report, and averaging that zero into anything would be worse.
-              Module 09 is where a jury has to decide what to do about it.""");
+        para("""
+            ERROR, not FAIL and not 0.0. The workspace was never judged; the judge
+            could not run. Scoring it zero would blame the subject for a missing
+            report, and averaging that zero into anything would be worse.
+            Module 09 is where a jury has to decide what to do about it.
+            """);
 
         Files.deleteIfExists(empty);
-        System.out.println("\nDone.");
+        System.out.println("Done.");
     }
 
     private static double asDouble(Judgment judgment, String key) {
         Object value = judgment.metadata().get(key);
-        return value instanceof Number number ? number.doubleValue() : Double.NaN;
+        if (!(value instanceof Number number)) {
+            // NaN would print, and printing is not the same as knowing. If the
+            // evidence is not there, say so rather than rendering a shrug.
+            throw new IllegalStateException("Judgment carried no numeric '" + key + "': " + judgment.metadata().keySet());
+        }
+        return number.doubleValue();
+    }
+
+    private static void para(String text) {
+        System.out.println();
+        text.stripTrailing().lines()
+            .forEach(line -> System.out.println(line.isBlank() ? "" : "      " + line));
+        System.out.println();
     }
 
     private static JudgmentContext context() {

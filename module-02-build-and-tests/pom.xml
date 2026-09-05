@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>module-02-build-and-tests</artifactId>
-    <name>Module 02 - Build Judge</name>
-    <description>Verify a Maven project compiles with BuildSuccessJudge</description>
+    <name>Module 02 - Build and Tests</name>
+    <description>The compiler and JUnit are already oracles; Agent Judge carries their answers</description>
 
     <dependencies>
         <dependency>
@@ -31,7 +31,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.module02.BuildJudgeDemo</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.module02.BuildAndTestsDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>
