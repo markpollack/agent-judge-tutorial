@@ -9,5 +9,5 @@ The demo uses a deterministic Mockito fake so it runs without a provider or API 
 ./mvnw exec:java -pl module-09-koog-evaluation
 ```
 
-The committed Agent Judge target is 0.14.0.
+The committed Agent Judge target is 0.15.2.
 The module uses Koog 1.1.1, the latest non-prerelease GA selected for Agent Judge 0.14.

@@ -86,7 +86,7 @@ Its required-output assertions are the default gate.
 Optional Claude validation runs only when `AGENT_JUDGE_TUTORIAL_AI_VALIDATE=true` is explicitly set.
 Candidate verification can select an isolated Maven repository and exact pre-release artifact with
 `AGENT_JUDGE_TUTORIAL_MAVEN_REPO` and `AGENT_JUDGE_TUTORIAL_AGENT_JUDGE_VERSION`; committed examples
-continue to target 0.14.0.
+continue to target 0.15.2.
 
 ```bash
 cd integration-testing
