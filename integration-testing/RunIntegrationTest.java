@@ -12,7 +12,7 @@
  *
  * Usage:
  *   cd integration-testing
- *   jbang RunIntegrationTest.java module-01-single-judge
+ *   jbang RunIntegrationTest.java module-01-oracle-boundary
  *
  * Or run all tests:
  *   ./scripts/run-integration-tests.sh
@@ -47,21 +47,22 @@ public class RunIntegrationTest {
             Usage: jbang RunIntegrationTest.java <module-id>
 
             Examples:
-              jbang RunIntegrationTest.java module-01-single-judge
-              jbang RunIntegrationTest.java module-08-model-backed-judge
+              jbang RunIntegrationTest.java module-01-oracle-boundary
+              jbang RunIntegrationTest.java module-06-definition-of-done
 
             Options:
               --list    List all available module configs
               --help    Show this help message
 
             To run all tests:
-              ./scripts/run-integration-tests.sh
+              ./scripts/run-integration-tests.sh          # every module
+              ./scripts/run-integration-tests.sh --demo   # the live demo path
+              ./scripts/run-integration-tests.sh --rest   # everything else
 
-            Module Categories:
-              Core Evaluation (01-05): No API key needed
-              Custom Judges (06-07):   No API key needed
-              AI Judge (08):           Uses a stub model, no API key needed
-              Bridges (09-10):         Use deterministic framework results, no API key needed
+            No module needs an API key. Modules 01 and 07 use fixture models;
+            modules 10 and 11 use deterministic framework objects.
+
+            Modules 02, 03 and 06 run real Maven builds and take longer.
             """);
     }
 
