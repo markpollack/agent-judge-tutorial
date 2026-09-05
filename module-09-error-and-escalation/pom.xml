@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>module-09-error-and-escalation</artifactId>
-    <name>Module 05 - Cascaded Jury</name>
-    <description>Tiered evaluation with CascadedJury and fail-fast cost optimization</description>
+    <name>Module 09 - Error, Abstention, and Escalation</name>
+    <description>A judge that could not run must not make the result look better</description>
 
     <dependencies>
         <dependency>
@@ -31,7 +31,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.module09.CascadedJuryDemo</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.module09.ErrorAndEscalationDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>
