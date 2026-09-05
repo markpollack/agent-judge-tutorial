@@ -11,13 +11,28 @@
     </parent>
 
     <artifactId>module-01-oracle-boundary</artifactId>
-    <name>Module 01 - Single Judge</name>
-    <description>Evaluate agent output with a single FileExistsJudge</description>
+    <name>Module 01 - The Oracle Boundary</name>
+    <description>Where ordinary Java testing stops and a judge starts</description>
 
     <dependencies>
         <dependency>
             <groupId>io.github.markpollack</groupId>
             <artifactId>agent-judge-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-judge-ai-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>judge-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -27,7 +42,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.module01.SingleJudgeDemo</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.module01.OracleBoundaryDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>

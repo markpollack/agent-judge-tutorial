@@ -156,6 +156,14 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire.version}</version>
+                    <configuration>
+                        <!--
+                          Tests resolve test-workspace the same way exec:java does:
+                          relative to the directory Maven was launched from. Run the
+                          tutorial from the repository root.
+                        -->
+                        <workingDirectory>${session.executionRootDirectory}</workingDirectory>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
