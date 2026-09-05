@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>module-07-model-backed-judge</artifactId>
-    <name>Module 08 - ModelBackedJudge</name>
-    <description>Composed AI judge with prompt template, model backend, and classifier</description>
+    <name>Module 07 - Inside the Judgment Oracle</name>
+    <description>Prompt template, model, and classifier composed into a judgment oracle</description>
 
     <dependencies>
         <dependency>

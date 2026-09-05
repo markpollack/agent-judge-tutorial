@@ -1,11 +1,16 @@
 /*
- * Module 06: Lambda Judge
+ * Module 04: Write a judge
  *
- * The simplest custom judges: lambdas and named lambdas.
- * Judge is a @FunctionalInterface, so any lambda that takes
- * JudgmentContext and returns Judgment is a judge.
+ * Modules 01 to 03 used judges. This one writes them, and the whole job is
+ * four steps:
  *
- * Run: ./mvnw exec:java -pl module-06-lambda-judge
+ *     task -> criterion -> evidence -> judgment
+ *
+ * Judge is a @FunctionalInterface, so the smallest judge that can exist is a
+ * lambda taking a JudgmentContext and returning a Judgment. Start there and
+ * add only what the criterion actually needs.
+ *
+ * Run: ./mvnw exec:java -pl module-04-custom-judge
  */
 package io.github.markpollack.judge.tutorial.module04;
 
@@ -13,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 import io.github.markpollack.judge.Judge;
 import io.github.markpollack.judge.Judges;
@@ -20,15 +26,13 @@ import io.github.markpollack.judge.JudgeType;
 import io.github.markpollack.judge.JudgeWithMetadata;
 import io.github.markpollack.judge.context.ExecutionStatus;
 import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.jury.MajorityVotingStrategy;
-import io.github.markpollack.judge.jury.SimpleJury;
-import io.github.markpollack.judge.jury.Verdict;
 import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.result.JudgmentStatus;
 
-public class LambdaJudgeDemo {
+public class CustomJudgeDemo {
 
     public static void main(String[] args) {
-        System.out.println("=== Module 06: Lambda Judge Demo ===\n");
+        System.out.println("=== Module 04: Write a judge ===\n");
 
         Path workspace = Path.of("test-workspace");
 
@@ -68,8 +72,14 @@ public class LambdaJudgeDemo {
             System.out.println("  Type: " + jwm.metadata().type());
         }
 
-        // --- Lambda judges in a jury ---
-        System.out.println("\n--- Lambda Judges in a Jury ---");
+        // --- Three lambdas, all of them required ---
+        //
+        // Note what this is not: a vote. These are three different criteria,
+        // not three estimates of one, so the composition is a conjunction and
+        // every result stays visible. Module 06 builds this out properly;
+        // module 08 is the case where voting is right.
+        System.out.println("\n--- Three criteria, all required ---");
+
         Judge srcDirCheck = Judges.named(
             ctx -> Files.isDirectory(ctx.workspace().resolve("src"))
                 ? Judgment.pass("src/ directory exists")
@@ -84,27 +94,32 @@ public class LambdaJudgeDemo {
                 }
                 try (var stream = Files.walk(javaDir)) {
                     long count = stream.filter(p -> p.toString().endsWith(".java")).count();
+                    // State the denominator. "No Java files found" and "found 4"
+                    // are different facts, and a bare PASS hides which one it was.
                     return count > 0
                         ? Judgment.pass("Found " + count + " Java file(s)")
                         : Judgment.fail("No Java files found");
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
+                    // The judge could not complete. That is ERROR, not FAIL:
+                    // the workspace has not been rejected, it has not been read.
                     return Judgment.error("Error scanning: " + e.getMessage());
                 }
             },
             "java-files", "Java source files present");
 
-        SimpleJury jury = SimpleJury.builder()
-            .judge(namedPom, 1.0)
-            .judge(srcDirCheck, 1.0)
-            .judge(javaFileCheck, 1.0)
-            .votingStrategy(new MajorityVotingStrategy())
-            .build();
+        List<Judge> required = List.of(namedPom, srcDirCheck, javaFileCheck);
+        List<Judgment> results = required.stream().map(judge -> judge.judge(context)).toList();
 
-        Verdict verdict = jury.vote(context);
-        System.out.println("  Overall: " + verdict.aggregated().status());
-        verdict.individualByName().forEach((name, judgment) ->
-            System.out.printf("    %-15s %s  %s%n",
-                name, judgment.status(), judgment.reasoning()));
+        for (int i = 0; i < required.size(); i++) {
+            System.out.printf("    %-12s %-6s %s%n",
+                Judges.tryMetadata(required.get(i)).map(m -> m.name()).orElse("?"),
+                results.get(i).status(), results.get(i).reasoning());
+        }
+
+        boolean allHold = !results.isEmpty()
+            && results.stream().allMatch(r -> r.status() == JudgmentStatus.PASS);
+        System.out.println("\n    all three hold: " + allHold);
 
         System.out.println("\nDone.");
     }

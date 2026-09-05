@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>module-11-langchain4j-evaluation</artifactId>
-    <name>Module 10 - LangChain4j Evaluation</name>
+    <name>Module 11 - LangChain4j Evaluation</name>
     <description>Evaluate a LangChain4j Result with Agent Judge</description>
 
     <dependencies>

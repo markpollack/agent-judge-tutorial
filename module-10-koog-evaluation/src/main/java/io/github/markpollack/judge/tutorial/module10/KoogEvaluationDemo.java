@@ -1,7 +1,17 @@
 /*
- * Module 09: Koog Evaluation
+ * Module 10: The same bar, applied to a real agent framework
  *
- * Run: ./mvnw exec:java -pl module-09-koog-evaluation
+ * Everything so far judged a workspace. An agent framework hands you its own
+ * result type instead, and an evaluator is the adapter: it runs or wraps that
+ * result, puts it in a JudgmentContext, and then applies an ordinary Judge.
+ *
+ * That is the whole bridge. The judge does not know it came from Koog, which
+ * is the point — the bar you built in module 06 is the same bar here.
+ *
+ * The agent is a deterministic mock so the module runs with no credentials.
+ * Its output is fixed; the evaluation path around it is real.
+ *
+ * Run: ./mvnw exec:java -pl module-10-koog-evaluation
  */
 package io.github.markpollack.judge.tutorial.module10;
 
@@ -18,7 +28,7 @@ public class KoogEvaluationDemo {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        System.out.println("=== Module 09: Koog Evaluation Demo ===\n");
+        System.out.println("=== Module 10: Evaluating a Koog agent ===\n");
 
         AIAgent<String, String> agent = mock(AIAgent.class);
         when(agent.run("Explain dependency injection"))

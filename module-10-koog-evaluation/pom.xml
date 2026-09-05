@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>module-10-koog-evaluation</artifactId>
-    <name>Module 09 - Koog Evaluation</name>
+    <name>Module 10 - Koog Evaluation</name>
     <description>Evaluate a Koog agent execution with Agent Judge</description>
 
     <dependencies>

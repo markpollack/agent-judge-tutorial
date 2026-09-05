@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>module-04-custom-judge</artifactId>
-    <name>Module 06 - Lambda Judge</name>
-    <description>Custom judges as lambdas and named lambdas</description>
+    <name>Module 04 - Write a Judge</name>
+    <description>task -&gt; criterion -&gt; evidence -&gt; judgment, in the smallest form that works</description>
 
     <dependencies>
         <dependency>
@@ -27,7 +27,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.module04.LambdaJudgeDemo</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.module04.CustomJudgeDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>

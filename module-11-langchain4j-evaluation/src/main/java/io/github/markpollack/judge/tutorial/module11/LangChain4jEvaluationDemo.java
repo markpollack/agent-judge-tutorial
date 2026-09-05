@@ -1,7 +1,14 @@
 /*
- * Module 10: LangChain4j Evaluation
+ * Module 11: The same bar again, through a different framework
  *
- * Run: ./mvnw exec:java -pl module-10-langchain4j-evaluation
+ * LangChain4j hands back a Result<T>. LangChain4jEvaluator adapts it into a
+ * JudgmentContext and applies an ordinary Judge — the same shape as module 10,
+ * with a different framework on the far side.
+ *
+ * Two frameworks, one evaluation layer, and a judge that does not know or care
+ * which one produced the output it is reading.
+ *
+ * Run: ./mvnw exec:java -pl module-11-langchain4j-evaluation
  */
 package io.github.markpollack.judge.tutorial.module11;
 
@@ -16,7 +23,7 @@ import io.github.markpollack.judge.result.Judgment;
 public class LangChain4jEvaluationDemo {
 
     public static void main(String[] args) {
-        System.out.println("=== Module 10: LangChain4j Evaluation Demo ===\n");
+        System.out.println("=== Module 11: Evaluating a LangChain4j result ===\n");
 
         Judge addressesTopic = (JudgmentContext context) -> {
             String output = context.agentOutput().orElse("").toLowerCase();

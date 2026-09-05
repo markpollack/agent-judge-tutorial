@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>module-05-derived-judge</artifactId>
-    <name>Module 07 - Deterministic Judge</name>
-    <description>Reusable judge subclass with metadata and granular checks</description>
+    <name>Module 05 - The Derived Oracle</name>
+    <description>Several objective facts settling one question that has no single expected value</description>
 
     <dependencies>
         <dependency>
@@ -27,7 +27,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.module05.DeterministicJudgeDemo</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.module05.DerivedJudgeDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>
