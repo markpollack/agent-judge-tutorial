@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>module-08-jury</artifactId>
-    <name>Module 04 - Simple Jury</name>
-    <description>Multi-judge aggregation with SimpleJury and voting strategies</description>
+    <name>Module 08 - Jury</name>
+    <description>Aggregate independent estimates of one uncertain property</description>
 
     <dependencies>
         <dependency>
@@ -31,7 +31,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.module08.SimpleJuryDemo</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.module08.JuryDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>
