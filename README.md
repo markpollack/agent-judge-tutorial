@@ -2,125 +2,132 @@
 
 > **Documentation**: https://lab.pollack.ai/docs/agent-judge/tutorial | [API Reference](https://lab.pollack.ai/docs/agent-judge/api-reference)
 
-A progressive, hands-on tutorial for learning **[Agent Judge](https://github.com/markpollack/agent-judge)** — the framework-neutral evaluation layer for AI agent output.
+The agent says it is done. Should you merge?
+
+Part of that question already has an answer you know how to write down: it compiles, the
+tests pass, the file is there. Part of it does not.
+
+> **JUnit handles assertions where we know how to write the oracle. Agent Judge extends
+> that testing discipline to criteria whose oracle requires richer evidence or judgment.**
+
+Eleven executable Maven modules for **[Agent Judge](https://github.com/markpollack/agent-judge)**,
+sequenced by the evaluation problem rather than by the API. No API key, no network, no
+model calls.
 
 ## Prerequisites
 
 - Java 21+
-- Maven 3.8+ (or use the included `./mvnw` wrapper)
-- No API key required — all modules run locally
+- Maven 3.8+ (or the included `./mvnw`)
 
-## Getting Started
-
-### Step 1: Build All Modules
+## Run it
 
 ```bash
 git clone https://github.com/markpollack/agent-judge-tutorial.git
 cd agent-judge-tutorial
-./mvnw compile
+./mvnw install -DskipTests     # once — modules reuse judges from earlier modules
+./mvnw exec:java -pl module-01-oracle-boundary
 ```
 
-### Step 2: Run Any Module
+Run every module from the **repository root**: the demos and tests resolve `test-workspace`
+relative to where Maven was launched.
+
+## The live path
+
+Four modules, about ten minutes, in directory order.
 
 ```bash
-# Module 01: Your first judge
-./mvnw exec:java -pl module-01-single-judge
-
-# Module 04: Multi-judge jury with voting
-./mvnw exec:java -pl module-04-simple-jury
-
-# Module 08: Composed AI judge (stub model, no API key)
-./mvnw exec:java -pl module-08-model-backed-judge
-
-# Module 09: Evaluate a Koog agent result (deterministic fake, no API key)
-./mvnw exec:java -pl module-09-koog-evaluation
-
-# Module 10: Evaluate a LangChain4j result (deterministic fake, no API key)
-./mvnw exec:java -pl module-10-langchain4j-evaluation
+./mvnw exec:java -pl module-01-oracle-boundary      # where JUnit stops
+./mvnw exec:java -pl module-02-build-and-tests      # the oracles you already trust
+./mvnw exec:java -pl module-03-coverage-evidence    # a measurement is not a decision
+./mvnw exec:java -pl module-06-definition-of-done   # would you merge this?
 ```
 
-## Tutorial Structure
+It ends here, which is the whole point of running it:
 
-### Part 1: Core Evaluation
+```
+  CRITERION          ORACLE     STATUS
+  ------------------ ---------- ------
+  build              known      PASS
+  tests              known      PASS
+  coverage           known      FAIL
+  package-structure  derived    PASS
+  architectural-fit  judgment   FAIL
 
-| Module | Title | What You'll Learn |
-|--------|-------|-------------------|
-| 01 | Single Judge | JudgmentContext, FileExistsJudge, pass/fail |
-| 02 | Build Judge | BuildSuccessJudge runs real Maven builds |
-| 03 | Composition | Judges.and(), or(), allOf(), anyOf() |
-| 04 | Simple Jury | Weighted judges, majority and average voting |
-| 05 | Cascaded Jury | Tiered evaluation, fail-fast control, ordered named composite evidence |
+  done: false
+```
 
-### Part 2: Custom Judges
+Modules 02, 03 and 06 run real Maven builds. Run each once before presenting so the
+dependencies are warm.
 
-| Module | Title | What You'll Learn |
-|--------|-------|-------------------|
-| 06 | Lambda Judge | Inline lambdas, named lambdas with metadata |
-| 07 | Deterministic Judge | DeterministicJudge subclass with granular Checks |
+## The learning path
 
-### Part 3: AI-Backed Judges
+| Module | The problem it introduces |
+|---|---|
+| [01](module-01-oracle-boundary) | A criterion with no expected value. Known oracle vs. judgment oracle. |
+| [02](module-02-build-and-tests) | The compiler and JUnit are already oracles; Agent Judge carries their answers. |
+| [03](module-03-coverage-evidence) | A measurement is not an acceptance decision. A score is not a status. |
+| [04](module-04-custom-judge) | Writing one: task → criterion → evidence → judgment. |
+| [05](module-05-derived-judge) | A derived oracle: several objective facts, one finding, all parts kept. |
+| [06](module-06-definition-of-done) | Composing requirements without collapsing them into a number. |
+| [07](module-07-model-backed-judge) | Inside the judgment oracle: template, model, classifier. |
+| [08](module-08-jury) | When aggregation *is* right: several estimates of one property. |
+| [09](module-09-error-and-escalation) | A judge that could not run must not improve the result. |
+| [10](module-10-koog-evaluation) | The same bar, applied to a Koog agent. |
+| [11](module-11-langchain4j-evaluation) | The same bar, applied to a LangChain4j result. |
 
-| Module | Title | What You'll Learn |
-|--------|-------|-------------------|
-| 08 | ModelBackedJudge | Composed AI judge: template + model + classifier |
-| 09 | Koog Evaluation | Adapt a Koog `AIAgent` execution into the shared evaluation layer |
-| 10 | LangChain4j Evaluation | Adapt a LangChain4j `Result<T>` into the shared evaluation layer |
+Plus [`judge-junit`](judge-junit) — a small bridge turning an Agent Judge outcome into a
+useful JUnit assertion failure.
 
-## Build Commands
+## The two rules the sequence is built on
+
+**Use the least interpretive instrument that can reliably answer the question.** Agent
+Judge does not replace JUnit, AssertJ, ArchUnit, Checkstyle, JaCoCo, JApiCmp, or the
+compiler. Module 01 keeps four criteria in plain `assertTrue` on purpose.
+
+**Compose requirements. Aggregate estimates of the same uncertain property.** A definition
+of done is a conjunction, not a vote — `3 of 5 = 0.60` lets "the tests pass" offset "it
+does not compile". Module 06 is the first rule; module 08 is the second.
+
+## Subject under evaluation
+
+[`test-workspace/`](test-workspace) is a small Maven project an agent modified. Its
+`HelloController` is the codebase's idiom; its `ReportController` is what the agent
+produced. Everything in the tutorial judges that change.
+
+## Versions
+
+| | |
+|---|---|
+| Agent Judge | `0.15.2` |
+| Koog | `1.1.1` |
+| LangChain4j | `1.19.0` |
+
+## Tests
+
+Modules 01 and `judge-junit` carry JUnit tests. Everything else is a `main`.
 
 ```bash
-# Build everything
-./mvnw compile
-
-# Build a specific module
-./mvnw compile -pl module-04-simple-jury
-
-# Run a specific module
-./mvnw exec:java -pl module-04-simple-jury
+./mvnw test
 ```
 
-## Integration Testing
+## Integration testing
 
-The tutorial includes a credential-free automated test suite.
-Its required-output assertions are the default gate.
-Optional Claude validation runs only when `AGENT_JUDGE_TUTORIAL_AI_VALIDATE=true` is explicitly set.
-Candidate verification can select an isolated Maven repository and exact pre-release artifact with
-`AGENT_JUDGE_TUTORIAL_MAVEN_REPO` and `AGENT_JUDGE_TUTORIAL_AGENT_JUDGE_VERSION`; committed examples
-continue to target 0.15.2.
+A credential-free suite that runs each module and asserts its required output.
 
 ```bash
 cd integration-testing
-
-# Run all tests
-./scripts/run-integration-tests.sh
-
-# Run core evaluation tests only
-./scripts/run-integration-tests.sh --core
-
-# Run a single module test
-jbang RunIntegrationTest.java module-01-single-judge
+./scripts/run-integration-tests.sh            # everything
+./scripts/run-integration-tests.sh --demo     # the live path only
+jbang RunIntegrationTest.java module-01-oracle-boundary
 ```
 
-## Project Structure
+Optional Claude validation runs only when `AGENT_JUDGE_TUTORIAL_AI_VALIDATE=true`.
+Candidate verification can select an isolated repository and pre-release artifact with
+`AGENT_JUDGE_TUTORIAL_MAVEN_REPO` and `AGENT_JUDGE_TUTORIAL_AGENT_JUDGE_VERSION`; the
+committed examples target 0.15.2.
 
-```
-agent-judge-tutorial/
-├── test-workspace/                  # Shared Maven project for judges to evaluate
-├── module-01-single-judge/          # FileExistsJudge, JudgmentContext
-├── module-02-build-judge/           # BuildSuccessJudge with real builds
-├── module-03-composition/           # Boolean judge composition
-├── module-04-simple-jury/           # SimpleJury with voting strategies
-├── module-05-cascaded-jury/         # CascadedJury with tiered evaluation
-├── module-06-lambda-judge/          # Lambda and named lambda judges
-├── module-07-deterministic-judge/   # DeterministicJudge subclass with Checks
-├── module-08-model-backed-judge/    # ModelBackedJudge composed pipeline
-├── module-09-koog-evaluation/       # Credential-free Koog bridge example
-├── module-10-langchain4j-evaluation/# Credential-free LangChain4j bridge example
-└── integration-testing/             # Credential-free deterministic test suite
-```
+## Related
 
-## Related Projects
-
-- [Agent Judge](https://github.com/markpollack/agent-judge) — The evaluation library this tutorial teaches
-- [Agent Judge Documentation](https://lab.pollack.ai/docs/agent-judge/getting-started) — Full docs with getting started guide
-- [Agent Experiment](https://github.com/markpollack/agent-experiment) — Experiment runner that uses Agent Judge juries
+- [Agent Judge](https://github.com/markpollack/agent-judge) — the library
+- [Documentation](https://lab.pollack.ai/docs/agent-judge/getting-started)
+- [Agent Experiment](https://github.com/markpollack/agent-experiment) — the runner that uses these juries

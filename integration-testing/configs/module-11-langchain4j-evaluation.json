@@ -1,0 +1,13 @@
+{
+  "moduleId": "module-11-langchain4j-evaluation",
+  "displayName": "Module 11: LangChain4j Evaluation",
+  "timeoutSec": 120,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "LangChain4jEvaluator adapts a directly constructed Result<String> into a JudgmentContext and applies an ordinary Judge, which must PASS.",
+  "requiredOutput": [
+    "=== Module 11: Evaluating a LangChain4j result ===",
+    "Status:    PASS",
+    "Done."
+  ]
+}

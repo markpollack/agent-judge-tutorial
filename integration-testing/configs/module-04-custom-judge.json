@@ -1,0 +1,17 @@
+{
+  "moduleId": "module-04-custom-judge",
+  "displayName": "Module 04: Write a Judge",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Show a lambda judge with no metadata, the same lambda named via Judges.named, and three separate criteria composed as a conjunction rather than a vote.",
+  "requiredOutput": [
+    "=== Module 04: Write a judge ===",
+    "Lambda Judge",
+    "Named Lambda",
+    "pom-check",
+    "Three criteria, all required",
+    "all three hold: true",
+    "Done."
+  ]
+}

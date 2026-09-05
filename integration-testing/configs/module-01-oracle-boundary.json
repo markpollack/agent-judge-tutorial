@@ -1,0 +1,18 @@
+{
+  "moduleId": "module-01-oracle-boundary",
+  "displayName": "Module 01: The Oracle Boundary",
+  "timeoutSec": 120,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Show four known-oracle criteria answered with ordinary Java assertions, all PASS, then ask the architectural-fit question that has no expected value. ArchitecturalFitJudge must FAIL ReportController with one Check per criterion, and must PASS the idiomatic HelloController.",
+  "requiredOutput": [
+    "=== Module 01: Where JUnit stops ===",
+    "Known oracle",
+    "PASS  the file exists",
+    "architectural-fit  FAIL",
+    "layering",
+    "sql-construction",
+    "architectural-fit  PASS",
+    "Done."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "moduleId": "module-10-koog-evaluation",
+  "displayName": "Module 10: Koog Evaluation",
+  "timeoutSec": 120,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "KoogEvaluator adapts a deterministic mocked AIAgent execution into a JudgmentContext and applies an ordinary Judge, which must PASS.",
+  "requiredOutput": [
+    "=== Module 10: Evaluating a Koog agent ===",
+    "Status:    PASS",
+    "Done."
+  ]
+}

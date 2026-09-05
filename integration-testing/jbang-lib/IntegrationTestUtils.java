@@ -86,11 +86,15 @@ public class IntegrationTestUtils {
 
     public static void buildModule(ExampleInfo cfg) throws Exception {
         Path repoRoot = findRepoRoot();
-        String goal = cfg.requiresPackage() ? "package" : "compile";
+        // install rather than compile, and -am so reactor siblings are built too:
+        // judge-junit and the modules that reuse judges from earlier modules are
+        // SNAPSHOT dependencies, and exec:java resolves them from the local
+        // repository rather than from the reactor.
+        String goal = "install";
         out.println("Building " + cfg.moduleId() + " (" + goal + ")...");
 
         ProcessResult result = new ProcessExecutor()
-            .command(mavenCommand(goal, "-DskipTests", "-pl", cfg.moduleId(), "-q"))
+            .command(mavenCommand(goal, "-DskipTests", "-pl", cfg.moduleId(), "-am", "-q"))
             .directory(repoRoot.toFile())
             .timeout(300, TimeUnit.SECONDS)
             .redirectOutput(out)

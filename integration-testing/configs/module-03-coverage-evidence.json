@@ -1,0 +1,18 @@
+{
+  "moduleId": "module-03-coverage-evidence",
+  "displayName": "Module 03: Coverage as Measured Evidence",
+  "timeoutSec": 300,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Read a real JaCoCo report, print the measurement (100.00 -> 36.00, -64.0 pp), show the normalized score flooring at 0.0, show FAIL from CoveragePreservationJudge against a stated bar, and show ERROR (not FAIL, not 0.0) for a workspace with no report.",
+  "requiredOutput": [
+    "=== Module 03: Coverage as measured evidence ===",
+    "baseline",
+    "current",
+    "delta",
+    "score      0.0",
+    "FAIL",
+    "ERROR",
+    "Done."
+  ]
+}

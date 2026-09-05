@@ -1,0 +1,20 @@
+{
+  "moduleId": "module-09-error-and-escalation",
+  "displayName": "Module 09: Error, Abstention, and Escalation",
+  "timeoutSec": 120,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "A real ERROR from CoveragePreservationJudge on a workspace with no report, run under all four error policies. PROPAGATE must be ERROR and the other three must be PASS. Show the roster mismatch under IGNORE, show ABSTAIN is not agreement, and show a cascade where the second subject never reaches the content tier.",
+  "requiredOutput": [
+    "=== Module 09: Error, abstention, and escalation ===",
+    "PROPAGATE",
+    "TREAT_AS_FAIL",
+    "TREAT_AS_ABSTAIN",
+    "IGNORE",
+    "inputCount:       3",
+    "eligibleCount:    2",
+    "ABSTAIN",
+    "/structural",
+    "Done."
+  ]
+}

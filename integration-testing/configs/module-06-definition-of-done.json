@@ -1,0 +1,19 @@
+{
+  "moduleId": "module-06-definition-of-done",
+  "displayName": "Module 06: The Definition of Done",
+  "timeoutSec": 300,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Evaluate five criteria across three kinds of oracle and print every row. done must be false. Show that 3 of 5 = 0.60 is the wrong rule, and that Judges.allOf short-circuits after 3 of 5 judges. Show the empty definition of done returning false rather than true.",
+  "requiredOutput": [
+    "=== Module 06: The definition of done ===",
+    "CRITERION",
+    "architectural-fit",
+    "done: false",
+    "Would you merge this?",
+    "3 of 5 passed",
+    "judges invoked: 3 of 5",
+    "isDone(List.of()) = false",
+    "Done."
+  ]
+}

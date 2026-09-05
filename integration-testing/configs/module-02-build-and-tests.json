@@ -1,0 +1,16 @@
+{
+  "moduleId": "module-02-build-and-tests",
+  "displayName": "Module 02: Build and Tests",
+  "timeoutSec": 300,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Run a real Maven compile and a real Maven test in test-workspace, both PASS, then run a goal that does not exist and show FAIL from the non-zero exit code.",
+  "requiredOutput": [
+    "=== Module 02: The build and the tests are already oracles ===",
+    "Does it compile?",
+    "Do the tests pass?",
+    "PASS",
+    "FAIL",
+    "Done."
+  ]
+}

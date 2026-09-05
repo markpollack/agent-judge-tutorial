@@ -4,8 +4,8 @@
 #
 # Usage:
 #   ./scripts/run-integration-tests.sh              # Run all tests
-#   ./scripts/run-integration-tests.sh --core       # Run only core evaluation (01-05)
-#   ./scripts/run-integration-tests.sh --custom     # Run only custom/bridge modules (06-10)
+#   ./scripts/run-integration-tests.sh --demo       # Run only the live demo path (01-03, 06)
+#   ./scripts/run-integration-tests.sh --rest       # Run everything else (04, 05, 07-11)
 #
 
 set -e
@@ -24,15 +24,15 @@ FAILED=0
 SKIPPED=0
 
 # Parse arguments
-RUN_CORE=true
-RUN_CUSTOM=true
+RUN_DEMO=true
+RUN_REST=true
 
-if [ "$1" == "--core" ]; then
-    RUN_CUSTOM=false
-    echo -e "${YELLOW}Running only core evaluation tests (modules 01-05)${NC}"
-elif [ "$1" == "--custom" ]; then
-    RUN_CORE=false
-    echo -e "${YELLOW}Running only custom judge and bridge tests (modules 06-10)${NC}"
+if [ "$1" == "--demo" ]; then
+    RUN_REST=false
+    echo -e "${YELLOW}Running only the live demo path${NC}"
+elif [ "$1" == "--rest" ]; then
+    RUN_DEMO=false
+    echo -e "${YELLOW}Running only the modules outside the demo path${NC}"
 fi
 
 echo "================================================================"
@@ -40,22 +40,23 @@ echo "   Agent Judge Tutorial - Integration Test Suite"
 echo "================================================================"
 echo ""
 
-# Core evaluation modules (no API key)
-CORE_MODULES=(
-    "module-01-single-judge"
-    "module-02-build-judge"
-    "module-03-composition"
-    "module-04-simple-jury"
-    "module-05-cascaded-jury"
+# The conference path: the oracle boundary through the definition of done.
+DEMO_MODULES=(
+    "module-01-oracle-boundary"
+    "module-02-build-and-tests"
+    "module-03-coverage-evidence"
+    "module-06-definition-of-done"
 )
 
-# Custom judge and framework bridge modules (no API key)
-CUSTOM_MODULES=(
-    "module-06-lambda-judge"
-    "module-07-deterministic-judge"
-    "module-08-model-backed-judge"
-    "module-09-koog-evaluation"
-    "module-10-langchain4j-evaluation"
+# The learning path: everything else, in sequence.
+REST_MODULES=(
+    "module-04-custom-judge"
+    "module-05-derived-judge"
+    "module-07-model-backed-judge"
+    "module-08-jury"
+    "module-09-error-and-escalation"
+    "module-10-koog-evaluation"
+    "module-11-langchain4j-evaluation"
 )
 
 run_test() {
@@ -74,11 +75,11 @@ run_test() {
     fi
 }
 
-if [ "$RUN_CORE" == "true" ]; then
+if [ "$RUN_DEMO" == "true" ]; then
     echo ""
-    echo "Core Evaluation Tests (no API key required)"
+    echo "Live demo path (no API key required)"
     echo "--------------------------------------------"
-    for module in "${CORE_MODULES[@]}"; do
+    for module in "${DEMO_MODULES[@]}"; do
         if [ -f "configs/${module}.json" ]; then
             run_test "$module"
         else
@@ -88,11 +89,11 @@ if [ "$RUN_CORE" == "true" ]; then
     done
 fi
 
-if [ "$RUN_CUSTOM" == "true" ]; then
+if [ "$RUN_REST" == "true" ]; then
     echo ""
-    echo "Custom Judge Tests"
+    echo "Learning path (no API key required)"
     echo "------------------"
-    for module in "${CUSTOM_MODULES[@]}"; do
+    for module in "${REST_MODULES[@]}"; do
         if [ -f "configs/${module}.json" ]; then
             run_test "$module"
         else

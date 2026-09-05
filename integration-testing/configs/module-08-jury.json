@@ -1,0 +1,19 @@
+{
+  "moduleId": "module-08-jury",
+  "displayName": "Module 08: Jury",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Three independent reviewers estimate one property and disagree two to one. Majority must return FAIL; Consensus must return ABSTAIN because a split vote is indeterminate. Individual estimates must survive in the verdict.",
+  "requiredOutput": [
+    "=== Module 08: When aggregation is the right answer ===",
+    "reviewer-a",
+    "reviewer-c",
+    "Majority",
+    "FAIL",
+    "Consensus",
+    "ABSTAIN",
+    "weights:",
+    "Done."
+  ]
+}

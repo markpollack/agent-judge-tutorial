@@ -1,0 +1,18 @@
+{
+  "moduleId": "module-05-derived-judge",
+  "displayName": "Module 05: The Derived Oracle",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "PackageStructureJudge derives one finding from three objective facts and keeps all three as Checks. ReportController passes; a class that is not there fails with the binding checks visible.",
+  "requiredOutput": [
+    "=== Module 05: The derived oracle ===",
+    "package-structure",
+    "package_dir",
+    "file_exists",
+    "package_decl",
+    "A class that is not there",
+    "FAIL",
+    "Done."
+  ]
+}

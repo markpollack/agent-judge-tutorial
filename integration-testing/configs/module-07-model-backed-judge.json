@@ -1,0 +1,17 @@
+{
+  "moduleId": "module-07-model-backed-judge",
+  "displayName": "Module 07: Inside the Judgment Oracle",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Print the rendered prompt, then classify a recognised PASS reply, a recognised FAIL reply, and an unrecognised reply that must produce ABSTAIN rather than a guess or a default PASS.",
+  "requiredOutput": [
+    "=== Module 07: Inside the judgment oracle ===",
+    "The prompt, rendered from the context",
+    "SATISFIED",
+    "status:    PASS",
+    "status:    FAIL",
+    "status:    ABSTAIN",
+    "Done."
+  ]
+}
