@@ -21,8 +21,9 @@ here.
 None. The `AIAgent` is a deterministic Mockito mock, so its output is fixed. The evaluation
 path around it is real adapter code.
 
-Mockito's dynamic agent loading prints a JVM warning on Java 21. It is noise, not a
-failure; this module is a leave-behind rather than part of the live demo path.
+Mockito's inline mock maker loads a Java agent dynamically, which makes Java 21 print four
+warnings and a CDS notice. `.mvn/jvm.config` at the repository root turns them off
+(`-XX:+EnableDynamicAgentLoading -Xshare:off`) so the output stays readable.
 
 ## The committed target
 

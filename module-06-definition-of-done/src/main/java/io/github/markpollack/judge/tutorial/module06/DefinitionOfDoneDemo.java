@@ -77,7 +77,7 @@ public class DefinitionOfDoneDemo {
             .toList();
 
         System.out.printf("  %-18s %-10s %s%n", "CRITERION", "ORACLE", "STATUS");
-        System.out.printf("  %-18s %-10s %s%n", "─".repeat(18), "─".repeat(10), "──────");
+        System.out.printf("  %-18s %-10s %s%n", "-".repeat(18), "-".repeat(10), "------");
         for (int i = 0; i < definitionOfDone.size(); i++) {
             Criterion criterion = definitionOfDone.get(i);
             System.out.printf("  %-18s %-10s %s%n",

@@ -69,9 +69,9 @@ public class ErrorAndEscalationDemo {
         System.out.println("--- Three judges, one of which cannot run ---\n");
         for (Judge judge : new Judge[] { build, tests, coverage }) {
             Judgment judgment = judge.judge(context);
-            System.out.printf("  %-10s %-8s %s%n",
-                Judges.tryMetadata(judge).map(m -> m.name()).orElse("?"),
-                judgment.status(), judgment.reasoning());
+            System.out.printf("  %-10s %s%n",
+                Judges.tryMetadata(judge).map(m -> m.name()).orElse("?"), judgment.status());
+            wrap(judgment.reasoning());
         }
 
         // ---------------------------------------------------------------
@@ -248,6 +248,19 @@ public class ErrorAndEscalationDemo {
     private static Map<String, Object> aggregation(Judgment judgment) {
         Object block = judgment.metadata().get(Judgment.AGGREGATION_KEY);
         return block instanceof Map<?, ?> map ? new LinkedHashMap<>((Map<String, Object>) map) : Map.of();
+    }
+
+    /** Wrap long reasoning so it stays readable in an 80-column terminal. */
+    private static void wrap(String text) {
+        StringBuilder line = new StringBuilder("    ");
+        for (String word : text.split(" ")) {
+            if (line.length() + word.length() > 76) {
+                System.out.println(line.toString().stripTrailing());
+                line = new StringBuilder("    ");
+            }
+            line.append(word).append(' ');
+        }
+        System.out.println(line.toString().stripTrailing());
     }
 
     private static void para(String text) {

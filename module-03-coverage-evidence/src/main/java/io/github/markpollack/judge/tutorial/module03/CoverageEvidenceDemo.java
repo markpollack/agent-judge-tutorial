@@ -108,7 +108,8 @@ public class CoverageEvidenceDemo {
 
         System.out.printf("  bar        %.1f pp drop, at most%n", MAX_ACCEPTABLE_DROP);
         System.out.println("  status     " + accepted.status());
-        System.out.println("  reasoning  " + accepted.reasoning());
+        System.out.println("  reasoning");
+        wrap(accepted.reasoning());
         accepted.checks().forEach(check ->
             System.out.printf("    %-4s %-24s %s%n",
                 check.passed() ? "PASS" : "FAIL", check.name(), check.message()));
@@ -128,7 +129,8 @@ public class CoverageEvidenceDemo {
             .build());
 
         System.out.println("  status     " + missing.status());
-        System.out.println("  reasoning  " + missing.reasoning());
+        System.out.println("  reasoning");
+        wrap(missing.reasoning());
         para("""
             ERROR, not FAIL and not 0.0. The workspace was never judged; the judge
             could not run. Scoring it zero would blame the subject for a missing
@@ -148,6 +150,19 @@ public class CoverageEvidenceDemo {
             throw new IllegalStateException("Judgment carried no numeric '" + key + "': " + judgment.metadata().keySet());
         }
         return number.doubleValue();
+    }
+
+    /** Wrap long reasoning so it stays readable in an 80-column terminal. */
+    private static void wrap(String text) {
+        StringBuilder line = new StringBuilder("    ");
+        for (String word : text.split(" ")) {
+            if (line.length() + word.length() > 76) {
+                System.out.println(line.toString().stripTrailing());
+                line = new StringBuilder("    ");
+            }
+            line.append(word).append(' ');
+        }
+        System.out.println(line.toString().stripTrailing());
     }
 
     private static void para(String text) {
