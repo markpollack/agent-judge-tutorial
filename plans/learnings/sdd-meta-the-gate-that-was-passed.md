@@ -86,6 +86,50 @@ the same codebase.
 
 That is the whole finding in one file.
 
+## And one turn worse: a test that defends the defect
+
+`LockCoordinatorTests` is a correct test that cannot see the violation. `AIInterpretationClientTests`
+is a test that *requires* it.
+
+`tasks.yaml:172` specifies the validation for the audit-and-logging task:
+
+> "...and capture logs to prove passwords and request text are **absent**."
+
+The shipped test captures logs — the technique is right, `CapturedOutput` and all
+(`AIInterpretationClientTests.java:209`) — and then asserts at `:252-255`:
+
+```java
+assertThat(output).contains("Current clinic date: 2026-08-27")
+    .contains("Pet owner text: \"Leo has running eyes.")
+    .contains("Received AI interpretation response from model gemma4:latest:")
+```
+
+**The guardrail's polarity is inverted.** The test that was specified to prove the owner's raw
+request text never reaches the log instead asserts that it does, which means any fix to RULE-10 now
+breaks the suite. The privacy leak is not merely unguarded; it is pinned in place by the test that
+was supposed to prevent it.
+
+This is the same mechanism as the `LockCoordinator` case, one step further along:
+
+```
+LockCoordinatorTests          a correct test, blind to the violation
+AIInterpretationClientTests   a test that enforces the violation
+```
+
+Both are green. Both satisfy an approved checkpoint criterion. Neither could ever have failed on the
+defect it was written to catch.
+
+## The deviation that cites a document which does not exist
+
+The RULE-10 entry in `Deviations` claims authority from a "follow-up request." No such document
+exists anywhere in the fixture — searches for it, and for `waiver`, `accepted risk`, `known-issue`
+and `backlog` across the spec tree, all return nothing. The register's own template requires a task
+id and a reason; the entry carries neither.
+
+Meanwhile the rule was never amended. `rules.md` RULE-10, `UC7-RULE7`, `UC7-AC25` and `UC7-B20` all
+still state the opposite of what ships. The specification and the code now disagree, in writing, and
+nothing in the pipeline compares them.
+
 ## Why the approvals were given
 
 The `Notes` section shows what approval was based on:
