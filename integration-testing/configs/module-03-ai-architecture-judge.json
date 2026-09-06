@@ -4,7 +4,7 @@
   "timeoutSec": 180,
   "requiredEnv": [],
   "requiresPackage": false,
-  "expectedBehavior": "Assess the agent's city-search change against a FIXED set of five named conformance criteria, supplied by the tutorial rather than invented by the model. The model states no verdict; the rollup is done in code with AllMustPassStrategy. Four criteria pass and persistence-tests fails, because ClinicServiceTests exercises every other repository finder against the database and not this one. In the default recorded mode this replays a verbatim captured answer from a real AgentClient run.",
+  "expectedBehavior": "Assess the agent's city-search change against a FIXED set of five named conformance criteria, supplied by the tutorial rather than invented by the model. The model states no verdict; the rollup is done in code with AllMustPassStrategy. Four criteria pass and persistence-tests fails, because ClinicServiceTests exercises every other repository finder against the database and not this one. In the default recorded mode this replays a verbatim captured answer from a real AgentClient run. The judgment also reports a count of criteria met, derived from the checks at read time, stated explicitly as a measurement that reports rather than gates.",
   "requiredOutput": [
     "=== Module 03: Does the change fit? ===",
     "Backend: recorded",
@@ -14,6 +14,7 @@
     "search-form",
     "web-tests",
     "persistence-tests",
+    "4 of 5 criteria met",
     "Done."
   ]
 }

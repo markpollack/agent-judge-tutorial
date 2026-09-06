@@ -57,6 +57,30 @@ public class ArchitectureJudgeDemo {
             wrap(check.message());
         });
 
+        // A count over criteria the judge actually assessed. Derived here at read
+        // time from the checks, not stored: an aggregate is cheap to recompute from
+        // parts, and parts cannot be recovered from an aggregate.
+        long met = judgment.checks().stream().filter(check -> check.passed()).count();
+        System.out.printf("%n  %d of %d criteria met%n", met, judgment.checks().size());
+
+        para("""
+            That count is a measurement, and it is the one number this judge is
+            entitled to. It was computed from criteria the judge actually assessed,
+            it is reproducible, and it can be traced back to the criterion that
+            failed. Compare that to asking a model for "conformance: 0.85", which
+            is a number with no procedure behind it and no way to say what would
+            have made it 0.86.
+
+            It reports. It does not decide. Four of five is not eighty percent of
+            done, and a strong criterion must not pay for a weak one, so the gate
+            stays conjunctive.
+
+            What the count is for is movement. PASS and FAIL cannot tell one gap
+            remaining from ignoring the pattern entirely, so with a Boolean alone
+            you cannot tell whether a change to your agent improved anything. Four
+            of five becoming five of five is a signal.
+            """);
+
         para("""
             The judgment kept its criteria. Nothing was averaged into a score,
             because a number cannot say which criterion binds and that is the only
