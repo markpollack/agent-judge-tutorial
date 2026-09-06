@@ -49,7 +49,15 @@ places before checking `status.md`.
 ```
 
 There are six human checkpoints with written review criteria, and five were approved. So the gate
-was not missing. A person read a summary and said yes, five times.
+was not missing. Five phases are recorded as APPROVED.
+
+⚠️ **What the artifacts do not say.** `status.md` records `APPROVED` with **no actor, no date, and
+no link to evidence**. Nothing in the tree establishes whether a human or an automated step wrote
+those lines, what was shown to whoever did, or what they believed. This document therefore makes no
+claim about anyone's beliefs, diligence, or good faith. We have the artifacts, not the decision.
+
+That the approval record itself carries no provenance is worth noting on its own, given what the
+rest of this document is about.
 
 And the criteria were **right**. They name the exact properties that failed:
 
@@ -81,8 +89,8 @@ covered by a focused test.
 
 The violation is in the *callers*, which the test does not look at, and which the criterion did
 not ask about. A correct test, on a correct component, satisfying a correctly-worded criterion,
-approved in good faith — while the property the criterion exists to protect is broken elsewhere in
-the same codebase.
+and recorded as approved — while the property the criterion exists to protect is broken elsewhere
+in the same codebase.
 
 That is the whole finding in one file.
 
@@ -145,9 +153,12 @@ A growing green suite, at every checkpoint. That is real evidence and it is evid
 thing. **No test in that suite can fail because locks were taken in the wrong order, because a
 parameter is never read, because a prompt was logged, or because a CI workflow lacks a matrix.**
 
-The human checkpoint inherited precisely the blind spot of the automated one. The reviewer was
-shown the strongest available signal, in good faith, and that signal could not bear on four of the
-six criteria they were approving.
+The checkpoint inherited precisely the blind spot of the automated one. The evidence the status
+file records is a test count, and a test count cannot bear on four of the six criteria the
+checkpoints state.
+
+Note the form of that claim: it is about what the recorded evidence *could* establish, not about
+what anyone concluded from it. That is the whole of what the artifacts support, and it is enough.
 
 ## The one that was decided, not drifted
 
@@ -197,10 +208,19 @@ Not "SDD skipped review." SDD reviewed, six ways, and approved.
   new feature.
 - The checkpoints check what the tests report, so they inherit the test suite's blind spot.
 - `rules.md` — the one artifact that describes the architecture, in numbered MUST form with
-  reasons and traceability — is the only thing in the pipeline nothing consumes at all.
+  reasons and traceability — is referenced nowhere in the spec tree except by the `rules.md` files
+  themselves and the task list. No artifact records anything having compared code against it.
 
 The rubric for the audit that would have caught eight defects was sitting in the repository the
-entire time, written by the pipeline itself, and no stage was pointed at it.
+entire time, and no artifact in the tree records any stage having been pointed at it.
+
+The verifiable form of the whole finding, with no appeal to anyone's state of mind:
+
+> **Every artifact this pipeline produced as a check is one that could not have detected these
+> eight defects.** `review.md` names zero source files (`grep -cE "\.java|src/main|src/test"` → 0).
+> The evidence recorded at each phase is a passing test count, and no test in the suite can fail on
+> lock ordering, an unread parameter, a logged prompt, or an absent CI matrix. And the one document
+> that states the architecture is referenced by nothing that reads code.
 
 ## What it means for the tutorial
 
