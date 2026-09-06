@@ -1,0 +1,17 @@
+{
+  "moduleId": "module-03-ai-architecture-judge",
+  "displayName": "Module 03: First AI Architectural Judge",
+  "timeoutSec": 180,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Ask whether the agent's city-search change follows the conventions the surrounding owner-search code already uses. In the default recorded mode this replays a verbatim captured answer from a real AgentClient run, so the result is deterministic and needs no credentials. The judgment must carry one Check per named criterion rather than a score, and the verdict must be PASS.",
+  "requiredOutput": [
+    "=== Module 03: Does the change fit? ===",
+    "Backend: recorded",
+    "architectural-conformance  PASS",
+    "repository-query-convention",
+    "template-form-convention",
+    "test-convention",
+    "Done."
+  ]
+}

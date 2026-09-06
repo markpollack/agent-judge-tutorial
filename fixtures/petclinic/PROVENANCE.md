@@ -52,13 +52,14 @@ The script copies `baseline/` and applies `city-search.patch`. The baseline is n
 
 ### What the patch contains
 
-3 files, 66 added lines, 0 removed:
+4 files, 85 added lines, 0 removed:
 
 | File | Change |
 |---|---|
 | `owner/OwnerRepository.java` | `Page<Owner> findByCityStartingWith(String, Pageable)`, mirroring `findByLastNameStartingWith` |
 | `owner/OwnerController.java` | `@GetMapping("/owners/by-city")` mirroring `processFindForm`, plus `findPaginatedForOwnersCity`, reusing the existing `addPaginationModel` |
 | `owner/OwnerControllerTests.java` | 3 tests mirroring the existing find-form tests |
+| `templates/owners/findOwners.html` | A city search form mirroring the existing last-name form, so the endpoint is reachable the way the convention reaches its own |
 
 It deliberately follows the existing owner-search conventions rather than inventing a new
 pattern. Modules 03 and 04 ask whether it does, and the answer needs to be independently

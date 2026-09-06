@@ -56,7 +56,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.architecture.AgentClientSmokeCheck</mainClass>
+                    <mainClass>io.github.markpollack.judge.tutorial.architecture.ArchitectureJudgeDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>

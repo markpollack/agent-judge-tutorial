@@ -1,6 +1,6 @@
 diff -ruN -x target -x .git baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java
 --- baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java	2026-09-05 20:50:45.782615384 -0400
-+++ candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java	2026-09-05 20:53:13.617515436 -0400
++++ candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java	2026-09-05 21:16:37.534134646 -0400
 @@ -121,6 +121,36 @@
  		return addPaginationModel(page, model, ownersResults);
  	}
@@ -53,27 +53,55 @@ diff -ruN -x target -x .git baseline/src/main/java/org/springframework/samples/p
  		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 diff -ruN -x target -x .git baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java
 --- baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java	2026-09-05 20:50:45.782635402 -0400
-+++ candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java	2026-09-05 20:53:31.428533573 -0400
-@@ -57,6 +57,16 @@
- 	 * @throws IllegalArgumentException if the id is null (assuming null is not a valid
- 	 * input for id)
++++ candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java	2026-09-05 21:16:37.534485247 -0400
+@@ -59,4 +59,13 @@
  	 */
+ 	Optional<Owner> findById(Integer id);
+ 
 +	/**
 +	 * Retrieve {@link Owner}s from the data store by city, returning all owners whose
 +	 * city <i>starts</i> with the given name.
 +	 * @param city Value to search for
-+	 * @param pageable the pagination information
 +	 * @return a Collection of matching {@link Owner}s (or an empty Collection if none
 +	 * found)
 +	 */
 +	Page<Owner> findByCityStartingWith(String city, Pageable pageable);
 +
- 	Optional<Owner> findById(Integer id);
- 
  }
+diff -ruN -x target -x .git baseline/src/main/resources/templates/owners/findOwners.html candidate/src/main/resources/templates/owners/findOwners.html
+--- baseline/src/main/resources/templates/owners/findOwners.html	2026-09-05 20:50:45.784744658 -0400
++++ candidate/src/main/resources/templates/owners/findOwners.html	2026-09-05 21:24:04.092454164 -0400
+@@ -6,6 +6,27 @@
+ 
+   <h2 th:text="#{findOwners}">Find Owners</h2>
+ 
++  <form th:object="${owner}" th:action="@{/owners/by-city}" method="get" class="form-horizontal" id="search-owner-by-city-form">
++    <div class="form-group">
++      <div class="control-group" id="cityGroup">
++        <label class="col-sm-2 control-label" th:text="#{city}">City </label>
++        <div class="col-sm-10">
++          <input class="form-control" th:field="*{city}" size="30" maxlength="80" />
++          <span class="help-inline">
++            <div th:if="${#fields.hasAnyErrors()}">
++              <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
++            </div>
++          </span>
++        </div>
++      </div>
++    </div>
++    <div class="form-group">
++      <div class="col-sm-offset-2 col-sm-10">
++        <button type="submit" class="btn btn-primary" th:text="#{findOwner}">Find Owner</button>
++      </div>
++    </div>
++  </form>
++
+   <form th:object="${owner}" th:action="@{/owners}" method="get" class="form-horizontal" id="search-owner-form">
+     <div class="form-group">
+       <div class="control-group" id="lastNameGroup">
 diff -ruN -x target -x .git baseline/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java candidate/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java
 --- baseline/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java	2026-09-05 20:50:45.785560693 -0400
-+++ candidate/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java	2026-09-05 20:54:16.087208524 -0400
++++ candidate/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java	2026-09-05 21:16:37.534379157 -0400
 @@ -158,6 +158,35 @@
  	}
  

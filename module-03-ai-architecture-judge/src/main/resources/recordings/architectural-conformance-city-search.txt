@@ -1,0 +1,9 @@
+Captured 2026-09-05 from a live AgentClient run. Verbatim agent output follows the blank line.
+
+owner-search-handler-shape: PASS - `processFindByCityForm` mirrors `processFindForm` step for step (null → `""`, `strip()`, empty page → `result.rejectValue("city", "notFound", "not found")` + `owners/findOwners`, single hit → `redirect:/owners/{id}`, else `addPaginationModel`), and `findPaginatedForOwnersCity` copies `findPaginatedForOwnersLastName` including the `pageSize = 5` / `PageRequest.of(page - 1, pageSize)` body.
+repository-query-convention: PASS - `Page<Owner> findByCityStartingWith(String city, Pageable pageable)` is a Spring Data derived name matching `findByLastNameStartingWith`, with a Javadoc block in the same wording and structure as the existing one.
+routing-and-view-reuse: PASS - `/owners/by-city` is a literal sub-path in the same family as the existing `/owners/find` and `/owners/new`, and it reuses the established `owners/findOwners` and `owners/ownersList` views rather than introducing new ones.
+template-form-convention: PASS - the added form copies the existing `search-owner-form` markup exactly (`th:object="${owner}"`, `form-horizontal`, `control-group` + `col-sm-2`/`col-sm-10`, `help-inline` error block, `btn btn-primary`) and uses the `#{city}` and `#{findOwner}` keys that already exist in every `messages*.properties` bundle.
+test-convention: PASS - the three added tests follow the file's naming and assertion idiom (`PageImpl`, `when(...).thenReturn`, `anyString()`/`eq(...)` with `any(Pageable.class)`, `attributeHasFieldErrorCode("owner", "city", "notFound")`), directly paralleling `processFindFormSuccess`, `processFindFormByLastName`, and `processFindFormNoOwnersFound`.
+VERDICT: PASS
+SUMMARY: The city search is a faithful mirror of the existing last-name search at every layer — handler, repository query, routing, template form, and web-layer tests — with no deviation from the established shape.

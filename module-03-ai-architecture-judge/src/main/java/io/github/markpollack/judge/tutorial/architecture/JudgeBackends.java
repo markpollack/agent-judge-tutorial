@@ -1,5 +1,8 @@
 package io.github.markpollack.judge.tutorial.architecture;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 
@@ -46,8 +49,8 @@ public final class JudgeBackends {
     /** Human-readable description of which backend a run will use, and why. */
     public static String describe() {
         return live()
-            ? "live: AgentClient over Claude, investigating the workspace"
-            : "recorded: replaying a captured answer (set " + MODE + "=live for a real run)";
+            ? "live, AgentClient over Claude"
+            : "recorded, replaying a captured answer\n         (set " + MODE + "=live for a real run)";
     }
 
     /**
@@ -83,5 +86,35 @@ public final class JudgeBackends {
     /** The live backend: a real agent, reachable only through AgentClient. */
     public static JudgeModel liveBackend(Path workspace, Duration timeout) {
         return new AgentClientJudgeModel(judgingAgent(workspace, timeout));
+    }
+
+    /**
+     * The live backend, capturing what the agent said into a recording file.
+     *
+     * <p>Set {@code AGENT_JUDGE_TUTORIAL_CAPTURE=<name>} alongside {@code =live} to refresh
+     * the recording CI replays. The captured text is verbatim, so a recording is evidence of
+     * what a real run produced rather than something written to make a module pass.
+     */
+    public static JudgeModel capturing(JudgeModel backend, String recording) {
+        String capture = System.getenv("AGENT_JUDGE_TUTORIAL_CAPTURE");
+        if (capture == null || !capture.equals(recording)) {
+            return backend;
+        }
+        return request -> {
+            var response = backend.generate(request);
+            Path file = Path.of("module-03-ai-architecture-judge/src/main/resources/recordings",
+                recording + ".txt");
+            try {
+                Files.createDirectories(file.getParent());
+                Files.writeString(file, "Captured " + java.time.LocalDate.now()
+                    + " from a live AgentClient run. Verbatim agent output follows the blank line.\n\n"
+                    + response.text().strip() + "\n");
+                System.out.println("  [captured] " + file);
+            }
+            catch (IOException e) {
+                throw new UncheckedIOException("Could not write recording", e);
+            }
+            return response;
+        };
     }
 }
