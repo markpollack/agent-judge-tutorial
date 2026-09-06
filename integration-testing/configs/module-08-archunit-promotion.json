@@ -1,0 +1,26 @@
+{
+  "moduleId": "module-08-archunit-promotion",
+  "displayName": "Module 08: Which findings deserve to become policy?",
+  "timeoutSec": 300,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Take module 07's eight verified architectural violations and decide which deserve to become deterministic policy. Two of the thirteen rules are promoted to ArchUnit and must reproduce the judge's findings from bytecode alone, in under a second, with no model or network. Two more are shown as shadows: the rule a competent engineer would write for a finding that should not have been promoted, one passing on code the judge correctly failed and one reporting false positives while missing the real violation. Two more are deterministic without being ArchUnit's business and are answered by reading a properties file and a workflow file. The module must show that nine of thirteen stay with the judge, including the most serious findings, and that this is the answer rather than a shortfall.",
+  "requiredOutput": [
+    "=== Module 08: Which findings deserve to become policy? ===",
+    "Backend: none. ArchUnit reads bytecode.",
+    "--- Promoted: decidable from bytecode, and it caught something ---",
+    "archunit-promoted  FAIL",
+    "FAIL  RULE-1  aggregates have no public status setter: 5 violation(s)",
+    "FAIL  RULE-2  current time comes from a Clock: 13 violation(s)",
+    "--- Not promoted: the rule you would write, and what it does ---",
+    "RULE-4 shadow  PASS",
+    "RULE-8 shadow  FAIL",
+    "getAuthenticatedOwner",
+    "--- Deterministic, and not ArchUnit's business ---",
+    "PASS  RULE-9",
+    "FAIL  RULE-11",
+    "two became ArchUnit rules, two",
+    "became file assertions, and nine stayed with the judge",
+    "Done."
+  ]
+}

@@ -86,7 +86,7 @@ public class ArchitectureRulesDemo {
     private static void wrap(String text) {
         StringBuilder line = new StringBuilder("        ");
         for (String word : text.split(" ")) {
-            if (line.length() + word.length() > 76) {
+            if (line.length() + word.length() > 76 && line.length() > 8) {
                 System.out.println(line.toString().stripTrailing());
                 line = new StringBuilder("        ");
             }
