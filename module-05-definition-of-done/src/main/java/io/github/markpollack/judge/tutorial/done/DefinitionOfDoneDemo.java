@@ -22,9 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.markpollack.judge.Judge;
+import io.github.markpollack.judge.Judges;
 import io.github.markpollack.judge.context.JudgmentContext;
 import io.github.markpollack.judge.coverage.CoveragePreservationJudge;
 import io.github.markpollack.judge.exec.BuildSuccessJudge;
+import io.github.markpollack.judge.jury.AllMustPassStrategy;
+import io.github.markpollack.judge.jury.MajorityVotingStrategy;
+import io.github.markpollack.judge.jury.SimpleJury;
+import io.github.markpollack.judge.jury.Verdict;
 import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.result.JudgmentStatus;
 import io.github.markpollack.judge.tutorial.agentic.InvestigatingArchitectureJudge;
@@ -68,19 +73,52 @@ public class DefinitionOfDoneDemo {
                 requirement.name(), requirement.oracle(), results.get(requirement.name()).status());
         }
 
-        boolean done = isDone(results.values());
-        System.out.println("\n  done: " + done);
-        para("Would you merge this?");
+        // The same three requirements, through two aggregation rules.
+        //
+        // Nothing about the judges changes. Only the rule for combining them
+        // changes, and the two rules disagree about whether this is mergeable.
+        SimpleJury.Builder shared = SimpleJury.builder();
+        for (Requirement requirement : definitionOfDone) {
+            shared.judge(Judges.named(requirement.judge(), requirement.name()), 1.0);
+        }
 
-        System.out.println("--- Why not ---\n");
-        results.forEach((name, judgment) -> {
-            if (judgment.status() != JudgmentStatus.PASS) {
-                System.out.println("  " + name + ":");
-                wrap(judgment.reasoning());
-                judgment.checks().stream().filter(check -> !check.passed()).forEach(check ->
-                    System.out.println("      FAIL  " + check.name()));
-            }
-        });
+        Verdict majority = SimpleJury.builder()
+            .judge(named(definitionOfDone, 0), 1.0)
+            .judge(named(definitionOfDone, 1), 1.0)
+            .judge(named(definitionOfDone, 2), 1.0)
+            .votingStrategy(new MajorityVotingStrategy())
+            .build()
+            .vote(context);
+
+        Verdict allMustPass = SimpleJury.builder()
+            .judge(named(definitionOfDone, 0), 1.0)
+            .judge(named(definitionOfDone, 1), 1.0)
+            .judge(named(definitionOfDone, 2), 1.0)
+            .votingStrategy(new AllMustPassStrategy())
+            .build()
+            .vote(context);
+
+        System.out.printf("%n  %-24s %s%n", "MajorityVotingStrategy", majority.aggregated().status());
+        System.out.printf("  %-24s %s%n", "AllMustPassStrategy", allMustPass.aggregated().status());
+
+        para("""
+            Same three judges. Same evidence. Opposite answers.
+
+            Majority counts votes, so two requirements outvote one and the change
+            is mergeable. That is the right rule when several judges estimate the
+            same uncertain quantity, and it is the wrong one here, because "the
+            tests pass" cannot make up for "it does not follow the conventions it
+            was asked to follow".
+
+            AllMustPassStrategy is the rule a definition of done needs: every
+            requirement must be met, and a mixed panel is a FAIL rather than a
+            shrug. Until recently the library had no name for it and this module
+            wrote the conjunction by hand.
+            """);
+
+        boolean done = allMustPass.aggregated().status() == JudgmentStatus.PASS;
+        System.out.println("  done: " + done);
+        para("Would you merge this?");
 
         long passed = results.values().stream().filter(Judgment::pass).count();
         System.out.printf("%n--- What this must not become ---%n%n  %d of %d passed = %.2f%n",
@@ -96,11 +134,23 @@ public class DefinitionOfDoneDemo {
             """);
 
         System.out.println("--- The denominator ---\n");
-        System.out.println("  isDone(no requirements at all) = " + isDone(List.of()));
+        // Every requirement declined to apply, so nothing was actually checked.
+        // Not the same as passing, and not a coding error either: a real panel can
+        // abstain its way to an empty population.
+        Judgment nothingApplied = new AllMustPassStrategy().aggregate(
+            List.of(Judgment.abstain("no baseline recorded"),
+                    Judgment.abstain("not applicable to this change")),
+            Map.of());
+        System.out.println("  AllMustPassStrategy, every requirement abstained = "
+            + nothingApplied.status());
         para("""
-            allMatch over an empty collection returns true, so a definition of done
-            that lost its requirements would report done. A pass over an empty input
-            set is not a pass; it is an abstention wearing one.
+            ABSTAIN, not PASS. An empty conjunction is vacuously true, so allMatch
+            over an empty collection returns true and a definition of done that
+            lost its requirements would report done. The strategy refuses to,
+            and this module used to carry that guard by hand.
+
+            A pass over an empty input set is not a pass; it is an abstention
+            wearing one.
 
             Next: this is credible for a change of 85 lines that one person can read.
             What happens when an agent writes two hundred files from a specification?
@@ -109,17 +159,9 @@ public class DefinitionOfDoneDemo {
         System.out.println("Done.");
     }
 
-    /**
-     * The composition rule.
-     *
-     * <p>Conjunctive: every requirement must hold, and only PASS counts. ABSTAIN and ERROR are
-     * not quiet successes. The emptiness guard is not tidiness: {@code allMatch} over an empty
-     * collection is {@code true}, so without it a definition of done that lost its requirements
-     * would report done.
-     */
-    private static boolean isDone(java.util.Collection<Judgment> results) {
-        return !results.isEmpty()
-            && results.stream().allMatch(result -> result.status() == JudgmentStatus.PASS);
+    private static Judge named(List<Requirement> requirements, int index) {
+        Requirement requirement = requirements.get(index);
+        return Judges.named(requirement.judge(), requirement.name());
     }
 
     private static void wrap(String text) {

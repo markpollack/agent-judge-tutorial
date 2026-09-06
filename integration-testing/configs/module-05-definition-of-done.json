@@ -4,17 +4,19 @@
   "timeoutSec": 420,
   "requiredEnv": [],
   "requiresPackage": false,
-  "expectedBehavior": "Evaluate three independent requirements over the PetClinic city-search change: a real Maven build, a real coverage measurement, and the recorded architectural conformance judgment. Every row stays visible with its own status. The overall result is conjunctive and must be false because conventions were not followed. The module must show that 2 of 3 equals 0.67 is the wrong rule, and that an empty definition of done reports not-done rather than done.",
+  "expectedBehavior": "Evaluate three independent requirements over the PetClinic city-search change: a real Maven build, a real coverage measurement, and the recorded architectural conformance judgment. Every row stays visible with its own status. The same three judges are then aggregated two ways: MajorityVotingStrategy returns PASS because two outvote one, and AllMustPassStrategy returns FAIL because a requirement was not met. The module must show that 2 of 3 equals 0.67 is the wrong rule, and that a panel whose requirements all abstained returns ABSTAIN rather than a vacuous PASS.",
   "requiredOutput": [
     "=== Module 05: What is our definition of done? ===",
     "REQUIREMENT",
     "build-and-tests      known      PASS",
     "coverage-preserved   measured   PASS",
     "follows-conventions  judgment   FAIL",
+    "MajorityVotingStrategy   PASS",
+    "AllMustPassStrategy      FAIL",
     "done: false",
     "Would you merge this?",
     "2 of 3 passed",
-    "isDone(no requirements at all) = false",
+    "every requirement abstained = ABSTAIN",
     "Done."
   ]
 }

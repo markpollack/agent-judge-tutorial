@@ -68,3 +68,50 @@ properties:
 | Output fits 80 columns | Yes, 0 over |
 | Runtime | 21.1s |
 | Integration test | Passes, 10 of 10 required strings |
+
+---
+
+## Amendment: the hand-written conjunction is now a library strategy
+
+`agent-judge` added `AllMustPassStrategy` after this module demonstrated the gap by writing the
+conjunction by hand. The module now uses it, and the module got better rather than shorter.
+
+`ConjunctiveStrategy`, added first, did **not** close the gap. It is threshold-based, and all three
+requirements here carry no score: `BuildSuccessJudge`, `CoveragePreservationJudge` and the
+architectural classifier all return status only. Applying it would fall through `effectiveScore()`
+to 1.0 for PASS and 0.0 for FAIL and compare that to a bar, which is the duplicate-a-Boolean
+anti-pattern this tutorial rejects three modules earlier. What a definition of done needs is
+conjunction over **status**, which is what `AllMustPassStrategy` does.
+
+### The demonstration is stronger than the workaround was
+
+The same three judges now run through two aggregation rules:
+
+```
+  MajorityVotingStrategy   PASS
+  AllMustPassStrategy      FAIL
+```
+
+Same judges, same evidence, opposite answers, and only the combining rule differs. That is a
+sharper statement of the module's thesis than the `2 of 3 = 0.67` arithmetic alone, because it is
+two real library strategies disagreeing rather than a number being described as wrong.
+
+### The empty case moved into the library, and the demonstration had to change with it
+
+The guard is now `AllMustPassStrategy`'s. Demonstrating it needs care:
+
+| Call | Result |
+|---|---|
+| `aggregate(List.of(), ...)` | **throws** `Cannot aggregate empty judgment list` |
+| `aggregate([ABSTAIN, ABSTAIN], ...)` | `ABSTAIN` |
+
+Both are defensible. Zero judges configured is a programming error; a panel that abstained its way
+to an empty eligible population is a runtime condition. The module demonstrates the second, which is
+the realistic one, and the Javadoc sentence "with nothing eligible the result is ABSTAIN, never
+PASS" is about the second case rather than the first. Worth knowing before someone reads that
+sentence and calls the first.
+
+### Verified
+
+Full reactor green, 15 unit tests, module 05 integration passing on 12 required strings, output
+still 0 lines over 80 columns.
