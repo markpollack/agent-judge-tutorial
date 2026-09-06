@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * judge that answers five of them has not evaluated the specification: it has sampled it. Report
  * the number you were asked and the number you answered, always.
  */
-public record SpecCriteria(String id, String title, String requirement) {
+public record SpecCriteria(String id, String title, String requirement) implements Criterion {
 
     /** {@code ### UC6-AC5: Permit adjacent future appointments} */
     private static final Pattern HEADING = Pattern.compile("^### (UC\\d+-AC\\d+): (.+)$");
@@ -59,7 +59,7 @@ public record SpecCriteria(String id, String title, String requirement) {
         return List.copyOf(criteria);
     }
 
-    /** The criterion as the judge is asked to assess it. */
+    @Override
     public String asPrompt() {
         return id + ": " + requirement;
     }

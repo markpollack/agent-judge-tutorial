@@ -48,6 +48,38 @@ public final class PetClinic {
         return workspace;
     }
 
+    /**
+     * The large spec-driven candidate, materialized so it builds.
+     *
+     * <p>The vendored fixture does not build: it fails spring-javaformat on one file, which is a
+     * finding recorded in PROVENANCE.md rather than repaired in place. The script derives a
+     * buildable copy and reports what it had to change.
+     */
+    public static Path largeCandidate() {
+        Path workspace = FIXTURES.resolve("build/large-candidate");
+        if (!Files.isDirectory(workspace)) {
+            System.out.println("Materializing the large candidate from the pinned fixture...");
+            run(FIXTURES, "./materialize-large-candidate.sh");
+        }
+        return workspace;
+    }
+
+    /**
+     * The same candidate with one seeded defect, for module 06's negative control.
+     *
+     * <p>It differs from {@link #largeCandidate()} by a single comparison operator, on a boundary
+     * the 290-test suite does not test. The suite stays green and one acceptance criterion is no
+     * longer met, which is the only condition under which a spec-conformance judge earns its keep.
+     */
+    public static Path seededCandidate() {
+        Path workspace = FIXTURES.resolve("build/seeded-candidate");
+        if (!Files.isDirectory(workspace)) {
+            System.out.println("Materializing the seeded candidate from the pinned fixture...");
+            run(FIXTURES, "./materialize-seeded-candidate.sh");
+        }
+        return workspace;
+    }
+
     /** The unchanged code the agent started from. */
     public static Path baselineWorkspace() {
         return FIXTURES.resolve("baseline");

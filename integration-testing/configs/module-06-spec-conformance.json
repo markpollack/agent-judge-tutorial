@@ -1,0 +1,22 @@
+{
+  "moduleId": "module-06-spec-conformance",
+  "displayName": "Module 06: Did it build what was asked?",
+  "timeoutSec": 600,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Read all 52 UC6 acceptance criteria verbatim from the pinned specification and audit the large spec-driven candidate against every one of them, then repeat the audit against the same code with a single seeded comparison-operator defect. The delivered code must PASS with one criterion undetermined; the seeded code must FAIL on UC6-AC8 alone, with the same criterion undetermined. Both runs replay captured agent output, so the pair must be reproducible offline. The module must show that a green 290-test suite and an unmet acceptance criterion are not a contradiction.",
+  "requiredOutput": [
+    "=== Module 06: Did it build what was asked? ===",
+    "Criteria:      52, read verbatim with their own identifiers",
+    "--- The code the agent delivered ---",
+    "spec-conformance  PASS",
+    "51 of 52 criteria pass, 0 fail, 1 could not be determined",
+    "--- The same code with one operator changed ---",
+    "spec-conformance  FAIL",
+    "50 of 52 criteria pass, 1 fail, 1 could not be determined",
+    "FAIL  UC6-AC8",
+    "could not be determined: UC6-AC41",
+    "delivered  PASS      seeded  FAIL",
+    "Done."
+  ]
+}

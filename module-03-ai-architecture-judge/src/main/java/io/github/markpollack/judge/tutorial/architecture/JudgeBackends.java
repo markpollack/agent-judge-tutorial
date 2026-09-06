@@ -89,6 +89,25 @@ public final class JudgeBackends {
     }
 
     /**
+     * The backend a module should use for one named recording.
+     *
+     * <p>Recorded unless the run is live. Live runs are expensive enough that naming a single
+     * recording in {@code AGENT_JUDGE_TUTORIAL_CAPTURE} means <em>refresh that one</em>: the
+     * other recordings replay rather than being re-earned at twenty minutes apiece. With no
+     * capture named, a live run is live throughout, which is what a demo wants.
+     */
+    public static JudgeModel backendFor(Path workspace, Duration timeout, String recording) {
+        if (!live()) {
+            return new RecordedJudgeModel(recording);
+        }
+        String capture = System.getenv("AGENT_JUDGE_TUTORIAL_CAPTURE");
+        if (capture != null && !capture.equals(recording)) {
+            return new RecordedJudgeModel(recording);
+        }
+        return capturing(liveBackend(workspace, timeout), recording);
+    }
+
+    /**
      * The live backend, capturing what the agent said into a recording file.
      *
      * <p>Set {@code AGENT_JUDGE_TUTORIAL_CAPTURE=<name>} alongside {@code =live} to refresh
