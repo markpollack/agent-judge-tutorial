@@ -18,6 +18,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <agent-judge.version>0.15.2</agent-judge.version>
+        <agent-client.version>0.29.3</agent-client.version>
         <koog.version>1.1.1</koog.version>
         <langchain4j.version>1.19.0</langchain4j.version>
         <mockito.version>5.7.0</mockito.version>
@@ -34,6 +35,7 @@
         <!-- PetClinic evidence arc: the agent changed a real project -->
         <module>module-01-build-judge</module>
         <module>module-02-coverage-evidence</module>
+        <module>module-03-ai-architecture-judge</module>
 
         <!-- The JUnit bridge the modules assert through -->
         <module>judge-junit</module>
@@ -85,6 +87,11 @@
             <dependency>
                 <groupId>io.github.markpollack</groupId>
                 <artifactId>agent-judge-llm</artifactId>
+                <version>${agent-judge.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.markpollack</groupId>
+                <artifactId>agent-judge-agent-client</artifactId>
                 <version>${agent-judge.version}</version>
             </dependency>
             <dependency>

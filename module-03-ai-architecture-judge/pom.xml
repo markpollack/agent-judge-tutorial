@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.markpollack</groupId>
+        <artifactId>agent-judge-tutorial</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>module-03-ai-architecture-judge</artifactId>
+    <name>Module 03 - First AI Architectural Judge</name>
+    <description>The judgment oracle, backed by AgentClient rather than a model SDK</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-judge-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-judge-ai-core</artifactId>
+        </dependency>
+        <!--
+          The only AI backend the tutorial uses. No Spring AI, no OpenAI, no
+          Anthropic SDK, no provider client anywhere in this repository.
+        -->
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-judge-agent-client</artifactId>
+        </dependency>
+        <!-- provided scope upstream, so the consumer declares it -->
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-client-core</artifactId>
+            <version>${agent-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-claude</artifactId>
+            <version>${agent-client.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>module-01-build-judge</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>io.github.markpollack.judge.tutorial.architecture.AgentClientSmokeCheck</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
