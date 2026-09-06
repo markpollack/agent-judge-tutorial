@@ -37,6 +37,7 @@
         <module>module-02-coverage-evidence</module>
         <module>module-03-ai-architecture-judge</module>
         <module>module-04-agentic-architecture-judge</module>
+        <module>module-05-definition-of-done</module>
 
         <!-- The JUnit bridge the modules assert through -->
         <module>judge-junit</module>
