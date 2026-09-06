@@ -45,6 +45,7 @@ DEMO_MODULES=(
     "module-01-build-judge"
     "module-02-coverage-evidence"
     "module-03-ai-architecture-judge"
+    "module-04-agentic-architecture-judge"
     "module-01-oracle-boundary"
     "module-02-build-and-tests"
     "module-03-coverage-evidence"

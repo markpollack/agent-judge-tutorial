@@ -85,15 +85,28 @@ public final class ArchitecturalConformanceJudge {
 
     /** Build the judge. The backend is the only thing that differs between live and CI. */
     public static ModelBackedJudge create(Path workspace) {
-        String recording = "architectural-conformance-city-search";
+        return judge("architectural-conformance",
+            "Does this change follow the conventions the surrounding code uses?",
+            TEMPLATE, workspace, "architectural-conformance-city-search", Duration.ofMinutes(5));
+    }
+
+    /**
+     * Assemble one stage of this judge.
+     *
+     * <p>Module 04 uses the same classifier and the same backend selection with a different
+     * prompt, because it is the same judge investigating rather than being handed evidence.
+     * The concept grows; it does not fork.
+     */
+    public static ModelBackedJudge judge(String name, String description, JudgePromptTemplate template,
+            Path workspace, String recording, Duration timeout) {
         JudgeModel backend = JudgeBackends.live()
-            ? JudgeBackends.capturing(JudgeBackends.liveBackend(workspace, Duration.ofMinutes(5)), recording)
+            ? JudgeBackends.capturing(JudgeBackends.liveBackend(workspace, timeout), recording)
             : new RecordedJudgeModel(recording);
 
         return ModelBackedJudge.builder()
-            .name("architectural-conformance")
-            .description("Does this change follow the conventions the surrounding code uses?")
-            .promptTemplate(TEMPLATE)
+            .name(name)
+            .description(description)
+            .promptTemplate(template)
             .model(backend)
             .judgmentClassifier(classifier())
             .build();
@@ -123,9 +136,20 @@ public final class ArchitecturalConformanceJudge {
             List<Check> checks = new ArrayList<>();
             Boolean passed = null;
             String summary = null;
+            String pattern = null;
+            String population = null;
 
             for (String line : text.lines().map(String::strip).toList()) {
-                if (line.startsWith("VERDICT:")) {
+                if (line.startsWith("PATTERN:")) {
+                    pattern = line.substring("PATTERN:".length()).strip();
+                }
+                else if (line.startsWith("POPULATION:")) {
+                    // The denominator. A claim about "the convention" that examined
+                    // nothing is not a finding, and without this the judge can assert
+                    // a dominant pattern from a single file.
+                    population = line.substring("POPULATION:".length()).strip();
+                }
+                else if (line.startsWith("VERDICT:")) {
                     passed = line.substring("VERDICT:".length()).strip().toUpperCase().startsWith("PASS");
                 }
                 else if (line.startsWith("SUMMARY:")) {
@@ -151,10 +175,16 @@ public final class ArchitecturalConformanceJudge {
                 // A verdict with no criteria behind it is an opinion, not evidence.
                 return Judgment.error("The review stated a verdict but named no criteria");
             }
-            return Judgment.verdict(passed)
+            var builder = Judgment.verdict(passed)
                 .reasoning(summary != null ? summary : "No summary given")
-                .checks(checks)
-                .build();
+                .checks(checks);
+            if (pattern != null) {
+                builder = builder.metadata("dominantPattern", pattern);
+            }
+            if (population != null) {
+                builder = builder.metadata("population", population);
+            }
+            return builder.build();
         };
     }
 

@@ -1,0 +1,18 @@
+{
+  "moduleId": "module-04-agentic-architecture-judge",
+  "displayName": "Module 04: Let the Judge Investigate",
+  "timeoutSec": 300,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "The same architectural-conformance judge as module 03, with no curated evidence. It must report the dominant pattern it found and the population it examined, judge the change, then judge it again with one seeded exception applied to the city handler and reverted afterwards. In recorded mode both runs replay verbatim captured answers from real AgentClient runs. The seeded run must FAIL on the abandoned pagination helper.",
+  "requiredOutput": [
+    "=== Module 04: Let the judge investigate ===",
+    "The change as the agent left it",
+    "examined",
+    "Seeded one exception",
+    "pagination-model-helper",
+    "architectural-conformance  FAIL",
+    "seed reverted, workspace restored",
+    "Done."
+  ]
+}
