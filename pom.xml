@@ -33,6 +33,7 @@
 
         <!-- PetClinic evidence arc: the agent changed a real project -->
         <module>module-01-build-judge</module>
+        <module>module-02-coverage-evidence</module>
 
         <!-- The JUnit bridge the modules assert through -->
         <module>judge-junit</module>

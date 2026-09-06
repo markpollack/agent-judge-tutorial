@@ -39,10 +39,10 @@ public class BuildJudgeDemo {
         // to mvn on PATH. It runs the real command and reads the exit code.
         //
         // -o keeps the run offline, so the answer cannot depend on the network.
-        Judge buildsAndTests = BuildSuccessJudge.maven("-o", "test");
+        Judge buildsAndTests = BuildSuccessJudge.maven("-o", "test", "jacoco:report");
 
         System.out.println("Workspace: " + workspace);
-        System.out.println("Command:   ./mvnw -o test");
+        System.out.println("Command:   ./mvnw -o test jacoco:report");
         System.out.println("\nRunning the real build. This takes about 18 seconds.\n");
 
         long started = System.currentTimeMillis();
@@ -61,6 +61,9 @@ public class BuildJudgeDemo {
             the change compiles, it satisfies the formatter the project enforces
             at build time, and all 74 tests pass, including the 3 the agent added
             and the 71 that were already there.
+
+            The command also asks JaCoCo to write its report. That costs nothing
+            here and leaves the evidence module 02 measures.
             """);
 
         // A judge nobody has watched fail is not yet evidence of anything. This

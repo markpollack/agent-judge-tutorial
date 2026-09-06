@@ -43,6 +43,7 @@ echo ""
 # The conference path: the oracle boundary through the definition of done.
 DEMO_MODULES=(
     "module-01-build-judge"
+    "module-02-coverage-evidence"
     "module-01-oracle-boundary"
     "module-02-build-and-tests"
     "module-03-coverage-evidence"

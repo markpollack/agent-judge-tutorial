@@ -1,6 +1,7 @@
 package io.github.markpollack.judge.tutorial.build;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -53,19 +54,51 @@ public final class PetClinic {
     }
 
     private static void materialize() {
+        System.out.println("Materializing the candidate workspace from the pinned baseline...");
+        run(FIXTURES, "./materialize-city-search.sh");
+    }
+
+    private static void run(Path directory, String... command) {
         try {
-            System.out.println("Materializing the candidate workspace from the pinned baseline...");
-            Process process = new ProcessBuilder("./materialize-city-search.sh")
-                .directory(FIXTURES.toFile())
+            Process process = new ProcessBuilder(command)
+                .directory(directory.toFile())
                 .redirectErrorStream(true)
                 .start();
-            if (!process.waitFor(5, TimeUnit.MINUTES) || process.exitValue() != 0) {
-                throw new IllegalStateException("materialize-city-search.sh failed");
+            process.getInputStream().transferTo(OutputStream.nullOutputStream());
+            if (!process.waitFor(15, TimeUnit.MINUTES) || process.exitValue() != 0) {
+                throw new IllegalStateException(String.join(" ", command) + " failed in " + directory);
             }
         }
         catch (IOException | InterruptedException e) {
-            throw new IllegalStateException("Could not materialize the candidate workspace", e);
+            throw new IllegalStateException("Could not run " + String.join(" ", command), e);
         }
+    }
+
+    /**
+     * Line coverage of the pinned baseline, measured, not assumed.
+     *
+     * <p>296 of 314 lines, from {@code ./mvnw -o test jacoco:report} on
+     * {@code fixtures/petclinic/baseline} at commit {@code 88e37c15}. Reproduce it with the
+     * command in {@code fixtures/petclinic/evidence/README.md}.
+     */
+    public static final double BASELINE_LINE_COVERAGE = 94.27;
+
+    /** The JaCoCo report path {@code JaCoCoReportParser} reads, relative to a workspace. */
+    public static final String COVERAGE_REPORT = "target/site/jacoco/jacoco.xml";
+
+    /**
+     * Guarantee a coverage report exists in the candidate workspace.
+     *
+     * <p>Module 01 leaves one behind. If module 02 is run on its own, the build has to happen
+     * here instead, because a measurement with no evidence behind it is not a measurement.
+     */
+    public static Path candidateWithCoverage() {
+        Path workspace = candidateWorkspace();
+        if (!Files.isRegularFile(workspace.resolve(COVERAGE_REPORT))) {
+            System.out.println("No coverage report yet. Producing the evidence first...");
+            run(workspace, "./mvnw", "-o", "-q", "test", "jacoco:report");
+        }
+        return workspace;
     }
 
     /** A context describing what the agent was asked to do and where its work landed. */

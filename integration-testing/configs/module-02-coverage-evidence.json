@@ -1,0 +1,21 @@
+{
+  "moduleId": "module-02-coverage-evidence",
+  "displayName": "Module 02: Coverage as Gathered Evidence",
+  "timeoutSec": 420,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Read the real JaCoCo report from the PetClinic city-search candidate, producing it first if absent. Compare against the measured baseline of 94.27 percent under a derived zero percentage point policy and PASS. Then FAIL against a recorded real report from the same change with its test class deleted, an 11.9 point drop. Then ERROR on a workspace with no report at all. Baseline, current, drop and threshold must all be visible.",
+  "requiredOutput": [
+    "=== Module 02: What does the measured evidence say? ===",
+    "Baseline:  94.27%",
+    "status     PASS",
+    "baselineLineCoverage",
+    "currentLineCoverage",
+    "coverageDrop",
+    "with no tests",
+    "status     FAIL",
+    "no evidence at all",
+    "status     ERROR",
+    "Done."
+  ]
+}
