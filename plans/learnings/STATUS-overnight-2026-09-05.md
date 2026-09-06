@@ -102,27 +102,19 @@ nothing in the API forces you to pin it.
 4. **Working-directory shadowing** between `AgentClient` and `AgentModel` defaults, described above.
 5. **A library reasoning string contains an em dash**, which reaches the terminal.
 
-## Open obligation with a date attached
+## Release obligation: ruled not required
 
-**Agent Judge must be released before the talk recording is published.**
+An earlier draft of this file recorded that Agent Judge must be released before the talk recording
+is published. **The Project Owner has ruled otherwise:** demoing and recording happen on his
+machine, so a release is not a precondition for either.
 
-The Project Owner ruled that a snapshot dependency is acceptable for now, because the recording
-will not be released for weeks, so the audience that would clone this repository off the back of
-the talk does not exist yet. That is correct and it closes the Tuesday question.
+The tutorial tracks the latest Agent Judge snapshot on purpose. The standing direction is that
+tutorial development drives and the library adds what the tutorial needs, so pinning to a release
+would put the tutorial behind the library it is teaching.
 
-What it does not close: the tutorial currently depends on `0.16.0-SNAPSHOT`, and a snapshot under a
-public repository that strangers clone is a real problem the moment those strangers exist. The
-deadline is therefore "before the recording ships", not "before Tuesday".
-
-This is easy to lose because nothing fails in the meantime. Nobody is watching a clock, the build
-stays green, and the failure arrives on somebody else's schedule. Recorded here so it is a tracked
-obligation rather than an intention.
-
-Two things satisfy it, either one sufficient:
-
-- Agent Judge 0.16.0 is released and the tutorial pins the release; or
-- the tutorial pins the exact timestamped build `0.16.0-20260906.101835-10` and declares
-  central-snapshots, so a clone resolves the bytes that were tested rather than whatever is newest.
+The residual risk is stated once and not re-argued: a stranger cloning this repository resolves
+whatever snapshot is current, not the bytes any module was verified against. The `<repositories>`
+block makes that resolvable rather than broken, which is the part that matters.
 
 ## To resume
 

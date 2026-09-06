@@ -64,6 +64,21 @@
         <module>module-11-langchain4j-evaluation</module>
     </modules>
 
+    <!--
+      Agent Judge is developed alongside this tutorial and the tutorial tracks its
+      latest snapshot on purpose: when a module has to hand-roll something the
+      library cannot express, that is a library gap with evidence attached, and the
+      fix arrives here as soon as it lands.
+    -->
+    <repositories>
+        <repository>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

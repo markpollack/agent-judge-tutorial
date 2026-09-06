@@ -64,6 +64,8 @@ public final class InvestigatingArchitectureJudge {
         return ArchitecturalConformanceJudge.judge(
             "architectural-conformance",
             "Find the convention, then judge the change against it",
-            TEMPLATE, workspace, recording, Duration.ofMinutes(8));
+            TEMPLATE, workspace, recording, Duration.ofMinutes(8),
+            // Discovery names its own criteria, so it cannot be held to module 03's roster.
+            ArchitecturalConformanceJudge.discoveryClassifier());
     }
 }

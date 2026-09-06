@@ -125,6 +125,21 @@ public final class ArchitecturalConformanceJudge {
      */
     public static ModelBackedJudge judge(String name, String description, JudgePromptTemplate template,
             Path workspace, String recording, Duration timeout) {
+        return judge(name, description, template, workspace, recording, timeout, classifier());
+    }
+
+    /**
+     * Assemble a stage with an explicit classifier.
+     *
+     * <p>Discovery and assessment need different ones, and that is not an accident of
+     * implementation. An assessment judge is handed a fixed criteria set and must answer exactly
+     * it, so its classifier enforces the roster. A discovery judge is asked to find the
+     * convention itself, so it cannot be told the criteria in advance and its classifier has to
+     * accept whatever it names. Sharing one classifier between them made the roster guard reject
+     * the discovery judge's own output, which is how this distinction was found.
+     */
+    public static ModelBackedJudge judge(String name, String description, JudgePromptTemplate template,
+            Path workspace, String recording, Duration timeout, JudgmentClassifier classifier) {
         JudgeModel backend = JudgeBackends.live()
             ? JudgeBackends.capturing(JudgeBackends.liveBackend(workspace, timeout), recording)
             : new RecordedJudgeModel(recording);
@@ -134,7 +149,7 @@ public final class ArchitecturalConformanceJudge {
             .description(description)
             .promptTemplate(template)
             .model(backend)
-            .judgmentClassifier(classifier())
+            .judgmentClassifier(classifier)
             .build();
     }
 
@@ -210,6 +225,76 @@ public final class ArchitecturalConformanceJudge {
                 .reasoning(rolled.reasoning())
                 .checks(CRITERIA.stream().map(found::get).toList())
                 .build();
+        };
+    }
+
+    /**
+     * Classifier for a discovery judge, which names its own criteria.
+     *
+     * <p>No roster guard is possible here: there is no roster to check against. It reads whatever
+     * criteria the judge named plus its VERDICT line, which is why a discovery judge is less
+     * repeatable than an assessment judge and why its output is a proposal for a human to freeze
+     * rather than a gate to run on every change.
+     */
+    public static JudgmentClassifier discoveryClassifier() {
+        return response -> {
+            Object successful = response.metadata() == null ? null : response.metadata().get("successful");
+            if (Boolean.FALSE.equals(successful)) {
+                return Judgment.error("The judging agent did not complete its run");
+            }
+            String text = response.text() == null ? "" : response.text().strip();
+            if (text.isEmpty() || RecordedJudgeModel.NO_RECORDING.equals(text)) {
+                return Judgment.error("No review was produced for this subject");
+            }
+
+            List<Check> checks = new java.util.ArrayList<>();
+            Boolean passed = null;
+            String summary = null;
+            String pattern = null;
+            String population = null;
+
+            for (String line : text.lines().map(String::strip).toList()) {
+                if (line.startsWith("PATTERN:")) {
+                    pattern = line.substring("PATTERN:".length()).strip();
+                }
+                else if (line.startsWith("POPULATION:")) {
+                    population = line.substring("POPULATION:".length()).strip();
+                }
+                else if (line.startsWith("VERDICT:")) {
+                    passed = line.substring("VERDICT:".length()).strip().toUpperCase().startsWith("PASS");
+                }
+                else if (line.startsWith("SUMMARY:")) {
+                    summary = line.substring("SUMMARY:".length()).strip();
+                }
+                else if (line.contains(":") && (line.contains("PASS") || line.contains("FAIL"))) {
+                    String name = line.substring(0, line.indexOf(':')).strip()
+                        .replaceAll("</?[^>]+>", "").replaceAll("^[-*`\\s]+|[`\\s]+$", "").strip();
+                    String rest = line.substring(line.indexOf(':') + 1).strip();
+                    boolean ok = rest.toUpperCase().startsWith("PASS");
+                    int dash = rest.indexOf('-');
+                    String detail = dash < 0 ? rest : rest.substring(dash + 1).strip();
+                    if (!name.isEmpty() && name.length() < 60) {
+                        checks.add(ok ? Check.pass(name, detail) : Check.fail(name, detail));
+                    }
+                }
+            }
+
+            if (passed == null) {
+                return Judgment.error("The review did not state a VERDICT line");
+            }
+            if (checks.isEmpty()) {
+                return Judgment.error("The review stated a verdict but named no criteria");
+            }
+            var builder = Judgment.verdict(passed)
+                .reasoning(summary != null ? summary : "No summary given")
+                .checks(checks);
+            if (pattern != null) {
+                builder = builder.metadata("dominantPattern", pattern);
+            }
+            if (population != null) {
+                builder = builder.metadata("population", population);
+            }
+            return builder.build();
         };
     }
 
