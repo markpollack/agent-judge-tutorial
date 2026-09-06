@@ -10,4 +10,6 @@ target/
 integration-testing/logs/
 
 # Private planning and evidence live in the paired steward repository.
+# Exception: per-step learning notes are a deliverable of the PetClinic evidence arc.
 plans/
+!plans/learnings/
