@@ -1,0 +1,112 @@
+diff -ruN -x target -x .git baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java
+--- baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java	2026-09-05 20:50:45.782615384 -0400
++++ candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java	2026-09-05 20:53:13.617515436 -0400
+@@ -121,6 +121,36 @@
+ 		return addPaginationModel(page, model, ownersResults);
+ 	}
+ 
++	@GetMapping("/owners/by-city")
++	public String processFindByCityForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
++			Model model) {
++		// allow parameterless GET request for /owners/by-city to return all records
++		String city = owner.getCity();
++		if (city == null) {
++			city = ""; // empty string signifies broadest possible search
++		}
++		else {
++			city = city.strip();
++		}
++
++		// find owners by city
++		Page<Owner> ownersResults = findPaginatedForOwnersCity(page, city);
++		if (ownersResults.isEmpty()) {
++			// no owners found
++			result.rejectValue("city", "notFound", "not found");
++			return "owners/findOwners";
++		}
++
++		if (ownersResults.getTotalElements() == 1) {
++			// 1 owner found
++			owner = ownersResults.iterator().next();
++			return "redirect:/owners/" + owner.getId();
++		}
++
++		// multiple owners found
++		return addPaginationModel(page, model, ownersResults);
++	}
++
+ 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
+ 		List<Owner> listOwners = paginated.getContent();
+ 		model.addAttribute("currentPage", page);
+@@ -136,6 +166,12 @@
+ 		return owners.findByLastNameStartingWith(lastname, pageable);
+ 	}
+ 
++	private Page<Owner> findPaginatedForOwnersCity(int page, String city) {
++		int pageSize = 5;
++		Pageable pageable = PageRequest.of(page - 1, pageSize);
++		return owners.findByCityStartingWith(city, pageable);
++	}
++
+ 	@GetMapping("/owners/{ownerId}/edit")
+ 	public String initUpdateOwnerForm() {
+ 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+diff -ruN -x target -x .git baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java
+--- baseline/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java	2026-09-05 20:50:45.782635402 -0400
++++ candidate/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java	2026-09-05 20:53:31.428533573 -0400
+@@ -57,6 +57,16 @@
+ 	 * @throws IllegalArgumentException if the id is null (assuming null is not a valid
+ 	 * input for id)
+ 	 */
++	/**
++	 * Retrieve {@link Owner}s from the data store by city, returning all owners whose
++	 * city <i>starts</i> with the given name.
++	 * @param city Value to search for
++	 * @param pageable the pagination information
++	 * @return a Collection of matching {@link Owner}s (or an empty Collection if none
++	 * found)
++	 */
++	Page<Owner> findByCityStartingWith(String city, Pageable pageable);
++
+ 	Optional<Owner> findById(Integer id);
+ 
+ }
+diff -ruN -x target -x .git baseline/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java candidate/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java
+--- baseline/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java	2026-09-05 20:50:45.785560693 -0400
++++ candidate/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java	2026-09-05 20:54:16.087208524 -0400
+@@ -158,6 +158,35 @@
+ 	}
+ 
+ 	@Test
++	void processFindByCityFormSuccess() throws Exception {
++		Page<Owner> tasks = new PageImpl<>(List.of(george(), new Owner()));
++		when(this.owners.findByCityStartingWith(anyString(), any(Pageable.class))).thenReturn(tasks);
++		mockMvc.perform(get("/owners/by-city?page=1"))
++			.andExpect(status().isOk())
++			.andExpect(view().name("owners/ownersList"));
++	}
++
++	@Test
++	void processFindByCityFormByCity() throws Exception {
++		Page<Owner> tasks = new PageImpl<>(List.of(george()));
++		when(this.owners.findByCityStartingWith(eq("Madison"), any(Pageable.class))).thenReturn(tasks);
++		mockMvc.perform(get("/owners/by-city?page=1").param("city", "Madison"))
++			.andExpect(status().is3xxRedirection())
++			.andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
++	}
++
++	@Test
++	void processFindByCityFormNoOwnersFound() throws Exception {
++		Page<Owner> tasks = new PageImpl<>(List.of());
++		when(this.owners.findByCityStartingWith(eq("Unknown"), any(Pageable.class))).thenReturn(tasks);
++		mockMvc.perform(get("/owners/by-city?page=1").param("city", "Unknown"))
++			.andExpect(status().isOk())
++			.andExpect(model().attributeHasFieldErrors("owner", "city"))
++			.andExpect(model().attributeHasFieldErrorCode("owner", "city", "notFound"))
++			.andExpect(view().name("owners/findOwners"));
++	}
++
++	@Test
+ 	void processFindFormIgnoresSurroundingWhitespace() throws Exception {
+ 		Page<Owner> tasks = new PageImpl<>(List.of(george()));
+ 		when(this.owners.findByLastNameStartingWith(eq("Franklin"), any(Pageable.class))).thenReturn(tasks);

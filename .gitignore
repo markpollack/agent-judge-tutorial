@@ -10,6 +10,11 @@ target/
 integration-testing/logs/
 
 # Private planning and evidence live in the paired steward repository.
+# Anchored to the repository root: an unanchored rule also matched .junie/plans/
+# inside the vendored PetClinic fixtures and silently dropped it.
 # Exception: per-step learning notes are a deliverable of the PetClinic evidence arc.
-plans/
-!plans/learnings/
+/plans/*
+!/plans/learnings/
+
+# Materialized fixture workspaces are derived, never committed.
+fixtures/petclinic/build/
