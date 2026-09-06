@@ -4,14 +4,16 @@
   "timeoutSec": 180,
   "requiredEnv": [],
   "requiresPackage": false,
-  "expectedBehavior": "Ask whether the agent's city-search change follows the conventions the surrounding owner-search code already uses. In the default recorded mode this replays a verbatim captured answer from a real AgentClient run, so the result is deterministic and needs no credentials. The judgment must carry one Check per named criterion rather than a score, and the verdict must be PASS.",
+  "expectedBehavior": "Assess the agent's city-search change against a FIXED set of five named conformance criteria, supplied by the tutorial rather than invented by the model. The model states no verdict; the rollup is done in code with AllMustPassStrategy. Four criteria pass and persistence-tests fails, because ClinicServiceTests exercises every other repository finder against the database and not this one. In the default recorded mode this replays a verbatim captured answer from a real AgentClient run.",
   "requiredOutput": [
     "=== Module 03: Does the change fit? ===",
     "Backend: recorded",
-    "architectural-conformance  PASS",
-    "repository-query-convention",
-    "template-form-convention",
-    "test-convention",
+    "architectural-conformance  FAIL",
+    "repository-query",
+    "controller-handler",
+    "search-form",
+    "web-tests",
+    "persistence-tests",
     "Done."
   ]
 }
