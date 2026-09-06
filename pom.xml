@@ -31,6 +31,9 @@
         <!-- The oracle arc: each module is introduced by the evaluation problem it creates,
              not by the next Agent Judge API. -->
 
+        <!-- PetClinic evidence arc: the agent changed a real project -->
+        <module>module-01-build-judge</module>
+
         <!-- The JUnit bridge the modules assert through -->
         <module>judge-junit</module>
 

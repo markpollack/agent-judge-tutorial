@@ -1,0 +1,17 @@
+{
+  "moduleId": "module-01-build-judge",
+  "displayName": "Module 01: Can It Build",
+  "timeoutSec": 420,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Materialize the pinned PetClinic city-search candidate if absent, then run BuildSuccessJudge with an offline Maven test goal against it. The real build must PASS, establishing that the change compiles, satisfies spring-javaformat, and passes all 74 tests. A second judge invoking a nonexistent goal must FAIL from the non-zero exit code, proving the exit code is the oracle.",
+  "requiredOutput": [
+    "=== Module 01: Can it build? ===",
+    "Add a way to find owners by their city",
+    "status     PASS",
+    "command_execution",
+    "when the oracle says no",
+    "status     FAIL",
+    "Done."
+  ]
+}
