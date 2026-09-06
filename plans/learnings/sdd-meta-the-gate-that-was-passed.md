@@ -207,20 +207,35 @@ Not "SDD skipped review." SDD reviewed, six ways, and approved.
   wrote the code, from the same premises. Zero tests written by an independent author cover the
   new feature.
 - The checkpoints check what the tests report, so they inherit the test suite's blind spot.
-- `rules.md` — the one artifact that describes the architecture, in numbered MUST form with
-  reasons and traceability — is referenced nowhere in the spec tree except by the `rules.md` files
-  themselves and the task list. No artifact records anything having compared code against it.
+- `rules.md` **is** consumed, and I was wrong to say otherwise. The method is vendored at
+  `.claude/skills/` and `06-execute` reads it, maps `covers.rules` onto each of the 40 tasks
+  (`tasks.yaml` carries them, e.g. `rules: [RULE-9, RULE-11]`), instructs the implementer to
+  "apply every constraint listed in `covers.rules`", and requires every checkpoint report to state
+  **"Constraints (this phase's RULES): n/n satisfied"**.
 
-The rubric for the audit that would have caught eight defects was sitting in the repository the
-entire time, and no artifact in the tree records any stage having been pointed at it.
+  The gap is not that nobody pointed at the rules. It is that **the number behind that line is
+  self-reported by the implementer and retained nowhere** — `status.md` preserves the approvals and
+  free-text notes and none of the constraint counts. "n/n satisfied" is the implementing agent
+  grading its own compliance, in the same confident register as everything else, with no artifact
+  a reader could check. It is "270 tests" at pipeline scale.
+
+The rubric for the audit that would have caught eight defects was in the repository the entire
+time, mapped onto every task, and required to be reported against at every checkpoint. What was
+missing was an *independent* reading of it.
 
 The verifiable form of the whole finding, with no appeal to anyone's state of mind:
 
-> **Every artifact this pipeline produced as a check is one that could not have detected these
-> eight defects.** `review.md` names zero source files (`grep -cE "\.java|src/main|src/test"` → 0).
-> The evidence recorded at each phase is a passing test count, and no test in the suite can fail on
-> lock ordering, an unread parameter, a logged prompt, or an absent CI matrix. And the one document
-> that states the architecture is referenced by nothing that reads code.
+> **Every check this pipeline records is one the pipeline itself produced the evidence for.**
+> `review.md` stress-tests the spec artifacts against each other and the pre-existing codebase —
+> correctly, and by design, since the feature's code does not exist yet. Each phase records a
+> passing test count, and no test in the suite can fail on lock ordering, an unread parameter, a
+> logged prompt, or an absent CI matrix. And the constraint count that *would* have caught them is
+> the implementer's own assertion about its own work, preserved nowhere.
+
+⚠️ **Do not say `review.md` is deficient for naming no source files.** It is a spec review;
+reviewing the spec is its job, and it grounds against the *existing* codebase as its own
+"Codebase Grounding" section shows. The observation is about pipeline shape — the review is stage
+04 of 06, upstream of the code — not about that document falling short of its remit.
 
 ## What it means for the tutorial
 
