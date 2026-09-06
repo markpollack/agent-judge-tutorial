@@ -39,6 +39,7 @@
         <module>module-04-agentic-architecture-judge</module>
         <module>module-05-definition-of-done</module>
         <module>module-06-spec-conformance</module>
+        <module>module-07-architecture-rules</module>
 
         <!-- The JUnit bridge the modules assert through -->
         <module>judge-junit</module>

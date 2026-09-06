@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.markpollack</groupId>
+        <artifactId>agent-judge-tutorial</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>module-07-architecture-rules</artifactId>
+    <name>Module 07 - Architecture Rules</name>
+    <description>Does the code hold to the architecture the specification laid down</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>module-06-spec-conformance</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>io.github.markpollack.judge.tutorial.rules.ArchitectureRulesDemo</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-07-architecture-rules",
+  "displayName": "Module 07: Does the architecture hold?",
+  "timeoutSec": 300,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Read all 13 architectural rules verbatim from the feature's technical design and audit the large spec-driven candidate against every one of them. The same code that satisfied 51 of 52 acceptance criteria in module 06 must violate 8 of these 13 rules, with no rule left undetermined. The module must make the contrast visible: behaviour conformed, structure did not, and the two questions needed different documents to ask.",
+  "requiredOutput": [
+    "=== Module 07: Does the architecture hold? ===",
+    "Rules:   13, read verbatim with their own identifiers",
+    "architecture-rules  FAIL",
+    "5 of 13 requirements pass, 8 fail, 0 could not be determined",
+    "FAIL  RULE-1",
+    "FAIL  RULE-2",
+    "FAIL  RULE-4",
+    "FAIL  RULE-5",
+    "FAIL  RULE-8",
+    "FAIL  RULE-10",
+    "FAIL  RULE-11",
+    "FAIL  RULE-12",
+    "Done."
+  ]
+}

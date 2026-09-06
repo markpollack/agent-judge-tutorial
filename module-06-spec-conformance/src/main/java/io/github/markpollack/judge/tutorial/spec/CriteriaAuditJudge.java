@@ -197,7 +197,7 @@ public final class CriteriaAuditJudge {
             long passed = outcome.values().stream().filter(s -> s == JudgmentStatus.PASS).count();
             long failed = outcome.values().stream().filter(s -> s == JudgmentStatus.FAIL).count();
 
-            String reasoning = "%d of %d criteria pass, %d fail, %d could not be determined"
+            String reasoning = "%d of %d requirements pass, %d fail, %d could not be determined"
                 .formatted(passed, ids.size(), failed, abstained.size());
 
             if (rolled.status() != JudgmentStatus.PASS && rolled.status() != JudgmentStatus.FAIL) {

@@ -48,7 +48,7 @@ class CriteriaAuditJudgeTest {
 
         assertEquals(JudgmentStatus.PASS, judgment.status());
         assertEquals(3, judgment.checks().size(), "every answer is evidence and must be kept");
-        assertEquals("3 of 3 criteria pass, 0 fail, 0 could not be determined", judgment.reasoning());
+        assertEquals("3 of 3 requirements pass, 0 fail, 0 could not be determined", judgment.reasoning());
     }
 
     @Test
@@ -108,7 +108,7 @@ class CriteriaAuditJudgeTest {
             """);
 
         assertEquals(JudgmentStatus.FAIL, judgment.status());
-        assertEquals("0 of 3 criteria pass, 1 fail, 2 could not be determined", judgment.reasoning());
+        assertEquals("0 of 3 requirements pass, 1 fail, 2 could not be determined", judgment.reasoning());
     }
 
     @Test
