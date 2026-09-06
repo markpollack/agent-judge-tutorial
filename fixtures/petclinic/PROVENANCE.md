@@ -92,6 +92,29 @@ deterministic convention gate worth noticing in module 01.
 `review.md` is upstream spec-review evidence. It is not implementation-conformance evidence and
 must not be used as such by module 06.
 
+### It does not build as delivered
+
+The vendored tree fails `spring-javaformat:validate`, so it is kept exactly as generated and a
+buildable copy is derived instead:
+
+```bash
+./materialize-large-candidate.sh        # writes build/large-candidate
+```
+
+The script applies the formatter and reports which files it had to change, rather than repairing
+its subject silently. After that, 290 tests pass with 4 skipped, in about 37 seconds.
+
+The violation is worth stating precisely, because "fails formatting" undersells it. One file of
+166, `security/AccountBootstrapRunner.java`, uses the cuddled `} else {` that Spring's house style
+forbids, plus non-conforming continuation indents. Seventeen other files use Spring's
+`}` newline `else` correctly, and the offending file is an unremarkable 163 lines, neither the
+largest nor obviously special.
+
+So the generated system knew a non-obvious house style and applied it correctly seventeen times,
+then slipped once. That is not a systematic failure, it is a single lapse in 166 files, and it is
+exactly the class of defect a human reviewer misses and a deterministic formatter finds in
+thirteen seconds with certainty.
+
 ## Re-pinning
 
 Do not silently follow the upstream branch. To move to a newer commit, update the table above,

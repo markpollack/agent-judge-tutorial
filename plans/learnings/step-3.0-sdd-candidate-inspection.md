@@ -24,6 +24,31 @@ in this fixture, and it lands the least-interpretive-instrument rule harder than
 cheapest possible check rejects the change, and it says nothing at all about whether the system is
 correct. Both facts are true at once and they answer different questions.
 
+### The violation, stated precisely
+
+"Fails formatting" undersells it. Measured across the 166 generated main sources:
+
+| | |
+|---|---|
+| Files using cuddled `} else {`, which Spring's style forbids | **1** |
+| Files using Spring's `}` newline `else` correctly | 17 |
+| Length of the offending file | 163 lines, neither largest nor last |
+
+The generated system knew a non-obvious house style, applied it correctly seventeen times, and
+slipped once, in an unremarkable file. That is not "the agent cannot format Java". It is a single
+lapse in 166 files.
+
+Which makes it the ideal argument for the least-interpretive instrument. A human reviewing 166
+generated files would very plausibly miss one cuddled `else`. A formatter finds it in thirteen
+seconds, with certainty, and costs nothing. You would not ask a model this question.
+
+### Not a gate for stage 3
+
+The finding is worth keeping; blocking modules 06 to 08 on it is not. `materialize-large-candidate.sh`
+derives a buildable copy, applies the formatter, and **reports which files it had to change** rather
+than repairing its subject silently. The vendored fixture stays byte-identical to upstream, so the
+finding remains reproducible from the fixture itself.
+
 ## Shape of the implementation
 
 | Package | Java files |
