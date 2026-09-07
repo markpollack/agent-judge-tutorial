@@ -16,11 +16,11 @@ package io.github.markpollack.judge.tutorial.ears;
 import java.nio.file.Path;
 import java.util.List;
 
-import io.github.markpollack.judge.result.Check;
 import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
 import io.github.markpollack.judge.tutorial.support.EarsCriterion;
 import io.github.markpollack.judge.tutorial.support.EarsJudge;
+import io.github.markpollack.judge.tutorial.support.Observation;
 
 public class EarsSliceDemo {
 
@@ -60,6 +60,12 @@ public class EarsSliceDemo {
         System.out.println();
         System.out.println("  Overall: " + judgment.status());
         System.out.println("  " + judgment.reasoning());
+        List<Observation> observations = Observation.of(judgment);
+        if (!observations.isEmpty()) {
+            System.out.println();
+            System.out.println("  Also noticed, changing nothing above:");
+            observations.forEach(o -> labelled(o.requirementId(), lead(o)));
+        }
         System.out.println();
 
         para("""
@@ -73,6 +79,45 @@ public class EarsSliceDemo {
             Six is readable. Module 03 runs all 52.
             """);
         System.out.println("Done.");
+    }
+
+    /**
+     * Non-binding evidence the judge noticed on the way to a verdict. It changed nothing above:
+     * all six requirements passed and the observation takes no part in that.
+     */
+    /**
+     * The lead clause and one location. The full sentence is preserved in the judgment's metadata
+     * and verbatim in the recording; the stage does not need all of it.
+     *
+     * <p>Paths are evidence, not scenery: keep the file and line, drop the package ceremony.
+     */
+    private static String lead(Observation observation) {
+        String message = observation.message().replaceAll("\\s+", " ").strip();
+        int stop = message.indexOf(" \u2014 ");
+        if (stop < 0) {
+            stop = message.indexOf(", ");
+        }
+        String clause = (stop > 20 ? message.substring(0, stop) : message).replaceAll("\\s*\\(.*", "");
+        String location = observation.locations().isEmpty() ? ""
+            : "  " + observation.locations().get(0).replaceAll("src/(main|test)/java/(?:[A-Za-z0-9_]+/)+", "");
+        return clause + location;
+    }
+
+    /** An identifier in the left column, its text wrapped and hanging under itself. */
+    private static void labelled(String label, String body) {
+        String first = "    " + pad(label);
+        String hanging = " ".repeat(first.length());
+        StringBuilder line = new StringBuilder(first);
+        boolean started = false;
+        for (String word : body.strip().split("\\s+")) {
+            if (started && line.length() + word.length() > 80) {
+                System.out.println(line.toString().stripTrailing());
+                line = new StringBuilder(hanging);
+            }
+            line.append(word).append(' ');
+            started = true;
+        }
+        System.out.println(line.toString().stripTrailing());
     }
 
     private static String pad(String id) {

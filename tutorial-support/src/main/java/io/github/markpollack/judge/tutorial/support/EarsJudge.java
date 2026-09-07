@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.github.markpollack.judge.ai.JudgmentClassifier;
 import io.github.markpollack.judge.ai.ModelBackedJudge;
@@ -44,6 +46,9 @@ import io.github.markpollack.judge.result.JudgmentStatus;
  * criterion that bound the verdict and where.
  */
 public final class EarsJudge {
+
+    /** {@code AppointmentServiceTests.java:191} — the only part of a message we treat as structured. */
+    private static final Pattern LOCATION = Pattern.compile("[A-Za-z0-9_/.]*[A-Za-z0-9_]+\\.(?:java|xml|sql|html|yml|properties):\\d+");
 
     private EarsJudge() {
     }
@@ -93,6 +98,14 @@ public final class EarsJudge {
 
             Do not state an overall verdict. You assess each criterion; deciding what the set
             of assessments means is not your job.
+
+            OPTIONAL. If, while establishing a criterion, you notice something useful that the
+            criterion does not itself require, you may add a line:
+
+              OBSERVATION <criterion-id>: <one externally verifiable sentence, citing a file>
+
+            This does not change any answer. It is not a new criterion and it is not a
+            complaint. Omit it entirely if there is nothing worth saying.
 
             THE CRITERIA
 
@@ -161,18 +174,61 @@ public final class EarsJudge {
             String reasoning = summarize(passed, failed, abstained, roster.size());
 
             String unestablished = String.join(",", abstained);
+            // Non-binding: metadata takes no part in the rollup above.
+            List<Map<String, Object>> observations = observations(text, roster).stream()
+                .map(Observation::toMetadata).toList();
             return switch (verdict) {
                 case PASS -> Judgment.builder().pass().reasoning(reasoning).checks(checks)
                     .metadata("criteriaTotal", roster.size()).metadata("established", passed)
-                    .metadata("unestablished", unestablished).build();
+                    .metadata("unestablished", unestablished)
+                    .metadata(Observation.METADATA_KEY, observations).build();
                 case FAIL -> Judgment.builder().fail().reasoning(reasoning).checks(checks)
                     .metadata("criteriaTotal", roster.size()).metadata("established", passed)
-                    .metadata("unestablished", unestablished).build();
+                    .metadata("unestablished", unestablished)
+                    .metadata(Observation.METADATA_KEY, observations).build();
                 default -> Judgment.builder().abstain().reasoning(reasoning).checks(checks)
                     .metadata("criteriaTotal", roster.size()).metadata("established", passed)
-                    .metadata("unestablished", unestablished).build();
+                    .metadata("unestablished", unestablished)
+                    .metadata(Observation.METADATA_KEY, observations).build();
             };
         };
+    }
+
+    /**
+     * Optional, non-binding, and deliberately forgiving. An absent, malformed or unknown-id
+     * observation yields nothing at all — it must never turn a valid judgment into a failure,
+     * because a cosmetic change in model prose would then break the tutorial.
+     */
+    private static List<Observation> observations(String text, Map<String, String> roster) {
+        List<Observation> found = new ArrayList<>();
+        for (String line : text.lines().map(String::strip).toList()) {
+            if (!line.toUpperCase().startsWith("OBSERVATION")) {
+                continue;
+            }
+            int colon = line.indexOf(':');
+            if (colon < 0) {
+                continue;
+            }
+            String id = line.substring("OBSERVATION".length(), colon).strip().replaceAll("[^A-Za-z0-9-]", "");
+            String message = line.substring(colon + 1).strip();
+            if (!roster.containsKey(id) || message.isEmpty()) {
+                continue;
+            }
+            found.add(new Observation(id, message, locationsIn(message)));
+        }
+        return List.copyOf(found);
+    }
+
+    private static List<String> locationsIn(String message) {
+        List<String> locations = new ArrayList<>();
+        Matcher matcher = LOCATION.matcher(message);
+        while (matcher.find()) {
+            String location = matcher.group();
+            if (!locations.contains(location)) {
+                locations.add(location);
+            }
+        }
+        return locations;
     }
 
     private static void parse(String text, Iterable<String> ids,

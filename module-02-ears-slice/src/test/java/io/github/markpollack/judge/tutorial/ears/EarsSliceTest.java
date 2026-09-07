@@ -11,7 +11,13 @@ import io.github.markpollack.judge.tutorial.support.Candidate;
 import io.github.markpollack.judge.tutorial.support.EarsCriterion;
 import io.github.markpollack.judge.tutorial.support.EarsJudge;
 
+import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.tutorial.support.Observation;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The same judge the demo runs, as a gate.
@@ -35,6 +41,47 @@ class EarsSliceTest {
         JudgeAssertions.assertStatus(JudgmentStatus.PASS,
             EarsJudge.create("appointment-cancellation", workspace, slice, "ears-uc6-cancellation"),
             Candidate.contextFor(workspace));
+    }
+
+    @Test
+    void ac8PassesAndItsEvidenceGapIsKeptBesideIt() {
+        // The requirement says the implementation must reject cancellation at the exact start
+        // instant. It does. The requirement does not say a test must exist, so a missing test
+        // is not silently promoted into a criterion nobody wrote.
+        Judgment judgment = judge();
+
+        assertEquals(JudgmentStatus.PASS, judgment.status(), "all six requirements were established");
+        assertTrue(judgment.checks().stream()
+            .filter(c -> c.name().equals("UC6-AC8")).findFirst().orElseThrow().passed(),
+            "UC6-AC8 is satisfied by the implementation");
+
+        Observation gap = Observation.of(judgment).stream()
+            .filter(o -> o.requirementId().equals("UC6-AC8")).findFirst().orElseThrow();
+        assertTrue(gap.message().toLowerCase().contains("boundary"), gap.message());
+        assertTrue(gap.locations().stream().anyMatch(l -> l.contains("AppointmentServiceTests.java")),
+            "the observation keeps a location a reader can open: " + gap.locations());
+    }
+
+    @Test
+    void observationsSurviveOfflineReplayAndTakeNoPartInTheRoster() {
+        // The recording is the agent's verbatim text, so the whole Judgment -- including its
+        // non-binding metadata -- is re-derived on every replay.
+        Judgment judgment = judge();
+
+        assertEquals(6, judgment.checks().size(), "six requirements were asked; six answered");
+        assertEquals(6, judgment.metadata().get("criteriaTotal"));
+        assertFalse(Observation.of(judgment).isEmpty(), "the recording carries observations");
+        assertTrue(Observation.of(judgment).size() < judgment.checks().size()
+                || judgment.status() == JudgmentStatus.PASS,
+            "however many observations there are, the verdict is decided by the checks alone");
+        assertNull(judgment.score(), "no score is introduced by any of this");
+    }
+
+    private static Judgment judge() {
+        List<EarsCriterion> slice = EarsCriterion.select(EarsCriterion.from(CRITERIA), SLICE);
+        Path workspace = Candidate.workspace();
+        return EarsJudge.create("appointment-cancellation", workspace, slice, "ears-uc6-cancellation")
+            .judge(Candidate.contextFor(workspace));
     }
 
     @Test

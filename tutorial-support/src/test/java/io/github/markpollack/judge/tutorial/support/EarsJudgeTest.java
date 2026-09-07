@@ -196,6 +196,93 @@ class EarsJudgeTest {
             "the report counts requirements; it does not rate them");
     }
 
+    // --- Observations: useful evidence, and never a verdict -------------------------------
+
+    private static final String WITH_OBSERVATION = """
+        UC1-AC1: PASS - Foo.java:10 does it
+        UC1-AC2: PASS - Bar.java:20 does it
+        UC1-AC3: PASS - Baz.java:30 does it
+        OBSERVATION UC1-AC2: no existing test exercises the exact-equality boundary, only the after-start case at BarTests.java:191
+        """;
+
+    @Test
+    void anObservationDoesNotChangeTheVerdict() {
+        // The requirement says the implementation must behave correctly. It does not say a test
+        // must exist. So the criterion passes, and the gap is kept beside it, not inside it.
+        Judgment judgment = judge(WITH_OBSERVATION);
+
+        assertEquals(JudgmentStatus.PASS, judgment.status());
+        assertTrue(judgment.checks().stream().allMatch(c -> c.passed()));
+        assertEquals("all 3 requirements established", judgment.reasoning());
+    }
+
+    @Test
+    void theObservationIsPreservedAndAttributed() {
+        List<Observation> found = Observation.of(judge(WITH_OBSERVATION));
+
+        assertEquals(1, found.size());
+        assertEquals("UC1-AC2", found.get(0).requirementId(), "attributed to the criterion it was noticed under");
+        assertTrue(found.get(0).message().contains("exact-equality boundary"));
+    }
+
+    @Test
+    void aLocationIsExtractedWhenOneWasGiven() {
+        assertEquals(List.of("BarTests.java:191"), Observation.of(judge(WITH_OBSERVATION)).get(0).locations());
+    }
+
+    @Test
+    void anObservationDoesNotJoinTheRoster() {
+        // Three criteria were asked; three checks come back. An observation is not a fourth.
+        Judgment judgment = judge(WITH_OBSERVATION);
+
+        assertEquals(3, judgment.checks().size());
+        assertEquals(3, judgment.metadata().get("criteriaTotal"));
+        assertTrue(judgment.checks().stream().noneMatch(c -> c.name().startsWith("OBSERVATION")));
+    }
+
+    @Test
+    void anObservationCannotRescueOrDamageARollup() {
+        // Observed alongside a genuine failure, the verdict is still decided by the failure.
+        Judgment failing = judge("""
+            UC1-AC1: PASS - Foo.java:10 does it
+            UC1-AC2: FAIL - Bar.java:20 does the opposite
+            UC1-AC3: PASS - Baz.java:30 does it
+            OBSERVATION UC1-AC1: an aside about Foo.java:10
+            """);
+
+        assertEquals(JudgmentStatus.FAIL, failing.status());
+        assertEquals(1, Observation.of(failing).size());
+    }
+
+    @Test
+    void malformedOrUnknownObservationsAreDroppedNotFatal() {
+        // The roster parsing is strict. This channel is forgiving on purpose: a cosmetic change
+        // in non-binding model prose must never break a valid judgment.
+        Judgment judgment = judge("""
+            UC1-AC1: PASS - Foo.java:10 does it
+            UC1-AC2: PASS - Bar.java:20 does it
+            UC1-AC3: PASS - Baz.java:30 does it
+            OBSERVATION
+            OBSERVATION UC9-AC9: about a criterion nobody asked for
+            OBSERVATION UC1-AC1:
+            """);
+
+        assertEquals(JudgmentStatus.PASS, judgment.status());
+        assertEquals(List.of(), Observation.of(judgment));
+    }
+
+    @Test
+    void noObservationsIsNormal() {
+        Judgment judgment = judge("""
+            UC1-AC1: PASS - Foo.java:10 does it
+            UC1-AC2: PASS - Bar.java:20 does it
+            UC1-AC3: PASS - Baz.java:30 does it
+            """);
+
+        assertEquals(JudgmentStatus.PASS, judgment.status());
+        assertEquals(List.of(), Observation.of(judgment));
+    }
+
     private static Judgment judge(String answers) {
         JudgeModel model = request -> new JudgeModelResponse(answers, "stub", null, Map.of());
         return EarsJudge.create("audit", THREE, model).judge(context());
