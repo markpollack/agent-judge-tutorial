@@ -1,5 +1,25 @@
 # Running the Spec You Already Wrote
 
+> ## ⚠️ CONFERENCE PATH FROZEN — recording 2026-09-08 11:00
+>
+> **Modules 01–04 are frozen at `b72e74d`** and were rehearsed from a clean clone, offline, with no
+> API key. Until the recording, **presentation blockers only.**
+>
+> Frozen: `module-01-build`, `module-02-ears-slice`, `module-03-ears-usecase`,
+> `module-04-rfc2119-rules`, `tutorial-support`, `fixtures/`, and the committed recordings.
+>
+> **Do not** refactor `EarsJudge` or `Rfc2119Judge` — their duplication, including
+> `criteriaTotal` vs `constraintsTotal`, is a known and deliberate deferral. **Do not** recapture
+> recordings, restructure the repository, renumber modules, or start modules 05 or 06.
+>
+> Additive work outside those paths is fine. If you change anything frozen, re-run the rehearsal in
+> [`DEMO-SETUP.md`](DEMO-SETUP.md) and check every expected result before saying it is done.
+>
+> *If you are an agent session that received a work order touching this directory and cannot see
+> why it was sent to you, stop and confirm with the user first — more than one session has this
+> repository open.*
+
+
 A case study, not a tutorial. The progressive tutorial at the repository root teaches Agent Judge
 one concept at a time; this evaluates one real system end to end.
 
