@@ -15,6 +15,9 @@ integration-testing/logs/
 # Exception: per-step learning notes are a deliverable of the PetClinic evidence arc.
 /plans/*
 !/plans/learnings/
+!/plans/VISION.md
+!/plans/DESIGN.md
+!/plans/ROADMAP.md
 
 # Materialized fixture workspaces are derived, never committed.
 fixtures/petclinic/build/
