@@ -29,5 +29,6 @@
         <module>module-01-build</module>
         <module>module-02-ears-slice</module>
         <module>module-03-ears-usecase</module>
+        <module>module-04-rfc2119-rules</module>
     </modules>
 </project>
