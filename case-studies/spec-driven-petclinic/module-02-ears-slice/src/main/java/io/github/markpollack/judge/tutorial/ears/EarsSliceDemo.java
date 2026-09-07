@@ -44,7 +44,7 @@ public class EarsSliceDemo {
         System.out.println("  " + all.size() + " numbered requirements. Here are six of them.\n");
 
         slice.forEach(c -> {
-            System.out.println("  " + c.id() + "  " + c.title());
+            System.out.println("  " + padId(c.id()) + c.title());
             wrap(c.requirement());
         });
         System.out.println();
@@ -122,6 +122,11 @@ public class EarsSliceDemo {
 
     private static String pad(String id) {
         return (id + "            ").substring(0, 12);
+    }
+
+    // Titles line up with the requirement text wrap() indents to column 13.
+    private static String padId(String id) {
+        return (id + "          ").substring(0, 10);
     }
 
     private static void wrap(String text) {

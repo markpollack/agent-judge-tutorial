@@ -119,20 +119,19 @@ Module 04's eight failures, in display order:
 | `install -DskipTests` | 2.3s |
 | `materialize-large-candidate.sh` | 3.1s |
 | warm `mvnw -o -q test` | 39.0s |
-| module 01 (warm) | **39.5s** |
+| module 01 (warm) | **35–45s** |
 | module 02 | 1.8s |
 | module 03 | 1.9s |
 | module 04 | 1.8s |
 
-Measured 2026-09-07, warm, offline, key unset. Module 01 is slow because it runs a **real** Maven
-build and the candidate's real test suite — that is the point of it. Narrate over it; the line
-*"this takes about a minute"* is already printed.
+Measured 2026-09-07, warm, offline, key unset; module 01 re-measured 2026-09-08 at 44.4s, hence the
+range. Module 01 is slow because it runs a **real** Maven build and the candidate's real test suite
+— that is the point of it. Narrate over it; the line *"this takes about a minute"* is already
+printed.
 
 ---
 
 ## The four transitions
-
-The terminal prints these as closing paragraphs, so the narrative survives a missed line.
 
 ```
 01 → 02   It builds. But the build has no opinion about whether it did what was asked.
@@ -144,6 +143,27 @@ The terminal prints these as closing paragraphs, so the narrative survives a mis
 04 close  Same generated system. Another document written before the code.
           A different answer.
 ```
+
+**Three of these four are printed on both sides of the seam; one is not.** Know which, because it
+changes what you have to say out loud.
+
+| Transition | Printed by the module that ends | Printed by the module that starts |
+|---|---|---|
+| 01 → 02 | yes — *"Somebody did write down what was asked for… Module 02 reads it."* | yes |
+| 02 → 03 | yes — *"Six is readable. Module 03 runs all 52."* | yes |
+| 03 → 04 | **no** | yes — *"The behavioural specification mostly held. But the same author also wrote architectural requirements…"* |
+| 04 close | yes | — |
+
+**Module 03 deliberately prints no forward pointer.** It ends on
+
+```
+      PASS means I established every required criterion. I don't turn
+      51 out of 52 into 98% and call it done.
+```
+
+which is the strongest line in the arc, and it is meant to land on silence. Do not expect a bridge
+to Module 04 on screen — **say the 03 → 04 transition out loud**, then run Module 04, whose opening
+lines pick it up. This is the one seam where a missed line is not recovered by the terminal.
 
 ---
 
