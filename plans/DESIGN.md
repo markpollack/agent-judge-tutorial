@@ -1,8 +1,12 @@
-# Design: Agent Judge Tutorial — Running the Spec You Already Wrote
+# Design: Running the Spec You Already Wrote
 
 > **Created**: 2026-09-07T10:20-04:00
 > **Last updated**: 2026-09-07T14:15-04:00
 > **Vision version**: 2026-09-07T14:05-04:00
+
+> **All module paths in this document are relative to `case-studies/spec-driven-petclinic/`.**
+> This Design describes only the PetClinic case study. The existing progressive tutorial remains
+> intact at the repository root, with its own numbering, and is not described here.
 
 ## Overview
 
@@ -37,8 +41,8 @@ module-02-ears-slice/       6 readable EARS criteria (UC6)     EarsJudge
 module-03-ears-usecase/     all 52 UC6 EARS criteria           EarsJudge, completeness enforced
 module-04-rfc2119-rules/    the 13 feature-wide MUSTs          Rfc2119Judge
 module-05-investigation/    addresses -> consequences          fan-out
-module-06-promotion/        mechanisable findings leave the    ArchUnit + Java + file assertions
-                            model path
+module-06-promotion/        mechanisable findings leave the    deterministic tooling, mechanism
+                            model path                         not yet chosen
 ```
 
 **The arc is exactly these six.** Modules 01-04 are the conference path; 05 and 06 deepen the idea
@@ -74,8 +78,7 @@ integration-testing/        jbang harness, one config per module
 | `EarsJudge` | answers every EARS criterion against a workspace | yes |
 | `Rfc2119Judge` | answers every constraint, honouring keyword obligation in the rollup | yes |
 | `Investigation` | for one FAIL, establishes consequence and reachability | yes |
-| `ArchUnitJudge` | runs promoted rules over compiled bytecode | no |
-| `ConfigRules` | file-level assertions for facts bytecode cannot see | no |
+| *(module 06, mechanism TBD)* | enforces promoted findings deterministically | no |
 | `JudgeBackends` | live via AgentClient, or replay a committed recording | — |
 
 ### Data Flow
@@ -434,9 +437,21 @@ must not simultaneously modify its own instructions, redefine success, and decla
 
 ### DD-15: Deterministic promotion is a conclusion, not garnish
 
-**Decision**: module 06 is part of the arc, not an appendix. Once a property can be reliably
-expressed with ArchUnit, plain Java, a file assertion, compiler tooling or static analysis, **the
-model stops evaluating that property.**
+**Decision**: module 06 is part of the arc, not an appendix. Its invariant is only this:
+
+> **If a judgment can be expressed reliably with deterministic tooling, stop asking an AI model to
+> make that judgment.**
+
+**The mechanism is deliberately not chosen.** The destination may be ordinary JUnit, ArchUnit, an
+existing deterministic Agent Judge class, plain Java, file or semantic comparison, or
+compiler/static-analysis tooling — whichever is the least interpretive instrument that can reliably
+answer the question. That choice is made after inspecting existing architecture-and-style work,
+not before.
+
+The library already ships a deterministic catalogue this can draw on: `BuildSuccessJudge`,
+`CommandJudge`, `FileExistsJudge`, `FileContentJudge`, `SupersetDiffJudge`, `FileComparisonJudge`,
+`JavaSemanticJudge`, `MavenSemanticJudge`, `XmlSemanticJudge`, `ClassVersionJudge`,
+`CoveragePreservationJudge`, `CoverageImprovementJudge`.
 
 ```
         AI judgment discovers / localizes something useful
@@ -505,7 +520,7 @@ refreshes one recording does not re-earn the others at twenty minutes apiece.
 | 03 | same file, all 52 | `EarsJudge` | 51 pass, 0 fail, 1 undetermined |
 | 04 | `rules.md` — the 13 feature-wide rules | `Rfc2119Judge` | 5 pass, 8 fail, 0 undetermined |
 | 05 | the FAILs from 04 | `Investigation` | consequences, ranked |
-| 06 | 2 of the failed rules | `ArchUnitJudge`, `ConfigRules` | 5 and 13 violations, < 1s |
+| 06 | findings that can be made deterministic | mechanism not yet chosen | sub-second, offline, no model |
 
 ## Requirements Traceability
 

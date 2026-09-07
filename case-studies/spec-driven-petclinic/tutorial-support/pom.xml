@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.markpollack</groupId>
+        <artifactId>spec-driven-petclinic</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>tutorial-support</artifactId>
+    <name>Tutorial Support</name>
+    <description>The subject under judgment, and the plumbing every module shares</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-judge-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-judge-ai-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-judge-agent-client</artifactId>
+        </dependency>
+        <!-- provided scope upstream, so the consumer declares it -->
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-client-core</artifactId>
+            <version>${agent-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-claude</artifactId>
+            <version>${agent-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
