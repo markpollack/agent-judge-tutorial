@@ -95,6 +95,19 @@ cd ~/projects/agent-judge-tutorial
 ./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-04-rfc2119-rules
 ```
 
+### Optional — Module 05, if the talk has room
+
+**Not on the conference path.** Modules 01–04 stand alone and do not depend on this. Run it only if
+the schedule allows; skipping it costs the arc nothing.
+
+```bash
+./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-05-investigation
+```
+
+Expect `CONFIRMED` / `REACHABLE`, four cited locations, and a closing block showing that the
+investigation moved the address from `StaffFallbackService.java:247` to `:248`. Replays offline in
+under two seconds, like modules 02–04.
+
 ### 12–13. Reset
 
 ```bash
@@ -111,6 +124,9 @@ module 01   build   PASS
 module 02   6 of 6                          Overall: PASS
 module 03   51 PASS · 0 FAIL · 1 ABSTAIN    Overall: ABSTAIN    binding: UC6-AC41
 module 04   5 PASS · 8 FAIL                 Overall: FAIL
+
+optional
+module 05   RULE-4  CONFIRMED · REACHABLE      address moved :247 -> :248
 ```
 
 Module 04's eight failures, in display order:

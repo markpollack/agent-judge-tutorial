@@ -8,6 +8,8 @@
 >
 > Frozen: `module-01-build`, `module-02-ears-slice`, `module-03-ears-usecase`,
 > `module-04-rfc2119-rules`, `tutorial-support`, `fixtures/`, and the committed recordings.
+> `module-05-investigation` was added afterwards, additively: it changes nothing in the four
+> modules above, and they replay byte-identically with it present.
 >
 > **Do not** refactor `EarsJudge` or `Rfc2119Judge` — their duplication, including
 > `criteriaTotal` vs `constraintsTotal`, is a known and deliberate deferral. **Do not** recapture
@@ -46,10 +48,17 @@ Numbering is local to this case study.
 | `module-02-ears-slice` | Six readable acceptance criteria | `EarsJudge` |
 | `module-03-ears-usecase` | All 52 criteria for one use case | `EarsJudge` |
 | `module-04-rfc2119-rules` | The 13 architectural MUSTs | `Rfc2119Judge` |
-| `module-05-investigation` | What does a failure actually cost? | investigation tier |
+| `module-05-investigation` | What does one failure actually mean, and can it happen? | investigation tier |
 | `module-06-promotion` | Which findings can leave the model path? | deterministic tooling |
 
-Modules 01–04 are the primary path. 05 and 06 deepen it.
+Modules 01–04 are the primary path. 05 deepens it and is built; 06 is not yet built and its
+mechanism is deliberately unchosen.
+
+**Module 05 investigates exactly one of module 04's eight failures**, the lock-ordering rule. One
+investigation, not eight: the concept is that a failed requirement is an address and that
+establishing its consequence is a separate question asked by a separate call. The eighth repetition
+of that teaches nothing the first did not, and a fan-out over all eight would turn a finding back
+into a backlog.
 
 ## Run it
 
@@ -96,7 +105,8 @@ git status --porcelain          # expect no output: no local edits, no stray fil
 ( cd case-studies/spec-driven-petclinic/fixtures/petclinic/build/large-candidate && ./mvnw -o -q test )
 
 # 4. Dry-run every module, offline
-for m in module-01-build module-02-ears-slice module-03-ears-usecase module-04-rfc2119-rules; do
+for m in module-01-build module-02-ears-slice module-03-ears-usecase module-04-rfc2119-rules \
+         module-05-investigation; do
   ./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl $m
 done
 ```

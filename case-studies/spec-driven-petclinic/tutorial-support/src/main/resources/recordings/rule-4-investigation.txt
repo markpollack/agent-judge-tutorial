@@ -1,0 +1,39 @@
+Captured 2026-09-07 from a live AgentClient run. Verbatim agent output follows the blank line.
+
+I'll start by orienting in the implementation and reading the cited code.Now let me write a deterministic reproduction of the interleaving the two orders permit.Now cleaning up the temporary reproduction files.OUTCOME: CONFIRMED
+CONSEQUENCE: Staff offer-issuing and direct-booking transactions can be killed by the database as deadlock victims (or, on a vendor without deadlock detection, block until lock timeout), so the staff action fails with a raw driver error and must be retried by hand — the exact outcome RULE-4's global order exists to prevent.
+REACHABILITY: REACHABLE
+ARGUMENT:
+The inversion only matters if some other transaction acquires the same two rows in the mandated order concurrently. It does, from three independent directions, all on the *same* `owners` and `scheduling_requests` rows:
+
+1. The lifecycle sweeper. `LifecycleScheduler` is enabled by default (`matchIfMissing = true`) and fires every 5000 ms by default. Its `processOverdueFallback` selects requests whose status is `STAFF_QUEUED`/`STAFF_OFFERED` with an elapsed `fallbackDeadline` — precisely the population the staff queue UI works on — and locks Owner→Pet→Vet→Request in one `lockResources` call. `processOverdueStaffOffer` does the same for expired `STAFF_OFFER` reservations, which are the rows `createStaffOffer` itself creates. Note that `createStaffOffer` clamps `expiresAt` down to `fallbackDeadline` (`StaffFallbackService.java:283`), so an offer written at or past the deadline is born already expired and is picked up by the very next sweeper tick — the window is ≤5 s, not rare.
+
+2. Owner-facing reservation actions. `ReservationService.acceptGuidedHold` / `rejectGuidedHold` / `commitGuidedHold` lock Owner-first. Their pre-lock guards (only `CONFIRMED` short-circuits `accept`, only `REJECTED` short-circuits `reject`) do not exclude a request sitting in staff fallback, so a stale owner submit still reaches `lockResources` and contends.
+
+3. `RetentionService.purgeOverdueRequest`, also driven by the same sweeper, is likewise Owner-first.
+
+Crucially the status guards cannot prevent this: in every counterparty the authoritative status re-check happens *after* the locks are taken (e.g. `LifecycleProcessor.java:169-173`), and in `createStaffOffer` there is no status check at all. So mutually exclusive states do not narrow the window — both transactions still race through lock acquisition first.
+
+I reproduced it against the built implementation on the default H2 profile, twice:
+- Synthetic interleaving of the two exact call sequences via `LockCoordinator`: H2 raised error code 40001, `"Deadlock detected. The current transaction was rolled back. Details: SCHEDULING_REQUESTS"`, 42 ms after the two threads engaged.
+- The unmodified production method: `staffFallbackService.createStaffOffer(...)` on one thread against an Owner-first transaction on another produced `jakarta.persistence.PessimisticLockException`, root `org.h2.mvstore.MVStoreException: Transaction 2 has been chosen as a deadlock victim`, blocking on table `OWNERS` — with `createStaffOffer` chosen as the victim. `directBook` has the identical shape.
+
+Blast radius is bounded: the transaction rolls back cleanly, so there is no torn write or lost update, and `LifecycleProcessor` catches per-item exceptions and retries on the next tick. What is *not* bounded is the staff-facing failure — `StaffQueueController` catches `Exception` and renders `ex.getMessage()` into a flash attribute, so the clinician sees the raw H2 deadlock text and there is no retry anywhere on the path.
+
+One thing the existing tests do not settle: `LockCoordinatorTests` verifies the ordering *inside* `lockResources` with a mocked `EntityManager`, and `StaffFallbackServiceTests` mocks `LockCoordinator` entirely, so no test observes the order across the two calls. The suite passes while the inversion stands.
+
+The only correction to the assessment is cosmetic: the offending `lockRequest` in `createStaffOffer` is at line 248, not 247 (247 is the method signature). The `:258`, `:336` and `:346` pointers are exact.
+
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/StaffFallbackService.java:248 - `lockCoordinator.lockRequest(requestId)` takes `PESSIMISTIC_WRITE` on `scheduling_requests` as the first lock of the transaction.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/StaffFallbackService.java:258 - `lockCoordinator.lockResources(owner, pet, vet, request, ...)` then goes for `owners`, while the request row is already held — the inversion.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/StaffFallbackService.java:336 - same `lockRequest`-first opening in `directBook`.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/StaffFallbackService.java:346 - `directBook`'s `lockResources` call, same inversion.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/LockCoordinator.java:39-79 - the mandated order Owner→Pet→Vet→Request→Appointment→Reservation, correctly implemented, which every other caller follows.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/LifecycleProcessor.java:166 - `processOverdueFallback` acquires Owner before Request; the counterparty of the inversion.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/LifecycleProcessor.java:169 - the authoritative status re-check happens *after* the locks, so state guards cannot narrow the race.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/LifecycleProcessor.java:276 - `processOverdueStaffOffer`, Owner-first, over the very reservations `createStaffOffer` writes.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/repository/SchedulingRequestRepository.java:49 - the sweeper's query selects exactly `STAFF_QUEUED`/`STAFF_OFFERED` requests, the staff queue population.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/LifecycleScheduler.java:15,39 - sweeper enabled by default, `fixedDelay` default 5000 ms, so the Owner-first thread is always running.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/service/ReservationService.java:121 - owner-facing `commitGuidedHold` locks Owner-first, with a comment restating the mandated order.
+CITATION: src/main/java/org/springframework/samples/petclinic/scheduling/controller/StaffQueueController.java:140-146 - HTTP entry point; catches `Exception` and surfaces `ex.getMessage()` with no retry, so the deadlock text reaches the clinician.
+CITATION: src/test/java/org/springframework/samples/petclinic/scheduling/service/LockCoordinatorTests.java:34-36 - the ordering test mocks `EntityManager` and checks only inside `lockResources`, so the cross-call inversion is invisible to the suite.
