@@ -12,12 +12,15 @@
 block it.**
 
 - [ ] **Module 01 — build.** `BuildSuccessJudge` reused from `agent-judge`, materialized candidate,
-      PASS with 290 tests. No formatting content.
+      **PASS**. No formatting content. The candidate's 290 existing tests are *provenance*, stated
+      separately — the judge does not discover or report test counts.
 - [ ] **Module 02 — six EARS criteria.** UC6-AC7…AC12 read verbatim from
       `manage-appointment-lifecycle/criteria.md`. Every criterion and every result readable on a
       slide. Expect 6/6.
 - [ ] **Module 03 — all 52 EARS criteria.** Same file, same judge, larger scale. Completeness
-      enforced by the roster guard. Expect 51 pass / 0 fail / 1 undetermined (UC6-AC41).
+      enforced by the roster guard. Expect 51 PASS / 0 FAIL / 1 ABSTAIN, and an **overall verdict of
+      ABSTAIN** — cannot establish UC6-AC41 (DD-7). PASS means every requirement was affirmatively
+      established.
 - [ ] **Module 04 — the 13 feature-wide MUSTs.** `rules.md`, `Rfc2119Judge`. Expect 5 pass / 8 fail
       / 0 undetermined. **This is where behavioural success and structural failure separate.**
 
@@ -51,6 +54,13 @@ would write; the demo is what a stage needs.
 
 > **Before every commit**: verify ALL exit criteria for the current step are met. Do NOT remove exit
 > criteria to mark a step complete — fulfill them.
+
+> ⚠️ **Until modules 01–04 are done, generic elegance is subordinate.**
+> **First make Anton's two actual documents work end to end. Refactor only when the second
+> implementation proves what the common abstraction needs to be.**
+> If `Requirement`/`Obligation` starts consuming time, do not perfect it — two concrete judges that
+> work beat one elegant abstraction that is not finished. `Rfc2119Judge`'s synthetic `SHOULD`
+> behaviour is good library design and is **not** needed to show Anton's 13 MUSTs tomorrow.
 
 ---
 
@@ -121,9 +131,11 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 - [ ] ASSERT the parser finds 52 in UC6 and classifies 28 `When` / 20 `If` / 4 `While`
 - [ ] CREATE `EarsJudge` over `ModelBackedJudge`: roster guard, verdict computed in Java, one `Check`
       per criterion, no numeric score
+- [ ] IMPLEMENT the DD-7 rollup — ERROR > FAIL > ABSTAIN > PASS. An unestablished required criterion
+      must **not** be absorbed into a passing population
 - [ ] WRITE verdict tests **from the rubric, not the code**: all-pass, one-fail, unanswered-is-ERROR,
       all-abstain-is-ABSTAIN, repeated-answer-counts-once, out-of-order-answers-still-complete,
-      missing-recording-blames-the-judge
+      missing-recording-blames-the-judge, **one-abstain-makes-the-whole-ABSTAIN**
 - [ ] REPLAY the committed `spec-conformance-uc6` recording and assert 51/52
 - [ ] ADD the mutation assertion to the test suite (flip the AC8 operator, assert AC8 and only AC8
       flips) — a test, never a module (DD-10)
@@ -142,7 +154,7 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
       Materialized tree, no formatting content (DD-9). Closes on the open question: the build is
       green and it has no opinion on whether the agent did what was asked
 - [ ] CREATE `module-02-ears-slice/` — UC6-AC7…AC12, `EarsJudge`, every criterion printed, expect 6/6
-- [ ] CREATE `module-03-ears-usecase/` — all 52, expect 51 pass / 0 fail / 1 undetermined, undetermined named
+- [ ] CREATE `module-03-ears-usecase/` — all 52; expect 51 PASS / 0 FAIL / 1 ABSTAIN, overall **ABSTAIN**, naming UC6-AC41
 - [ ] FOR EACH: a concise demo `main()` **and** a JUnit test using `JudgeAssertions` that runs the
       same judge and asserts the same verdict (DD-13)
 - [ ] ADD `judge-junit` as a test-scope dependency of each
@@ -182,8 +194,12 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 **Work items**:
 - [ ] CREATE `module-04-rfc2119-rules/` — the 13 feature-wide rules, `Rfc2119Judge`, expect 5 pass / 8 fail / 0 undetermined
 - [ ] PRINT each rule id with its status and, for failures, the location — never an average
-- [ ] MAKE the separation explicit in the module's closing text: the same code, the same judge, a
-      different document, and the opposite answer
+- [ ] MAKE the separation explicit in the module's closing text: **the same generated system,
+      another document written before the code, and the opposite answer.** Modules 02/03 use
+      `EarsJudge`; this uses `Rfc2119Judge` — the point is that different authoritative artifacts
+      ask different questions of one implementation:
+      `criteria.md → EarsJudge → behaviour mostly conforms` versus
+      `rules.md → Rfc2119Judge → architecture does not`
 - [ ] JUnit test and integration config as in step 2.2
 
 **Exit criteria**:

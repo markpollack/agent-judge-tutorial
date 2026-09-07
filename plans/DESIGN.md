@@ -6,7 +6,7 @@
 
 ## Overview
 
-One subject, one judge shape, three documents, two tiers.
+One subject, one judge shape, two documents, two tiers.
 
 The subject is Anton Arhipov's spec-driven PetClinic branch, vendored unmodified. The rubrics are
 his own numbered requirement documents, read verbatim. The judge answers every requirement in a
@@ -107,7 +107,8 @@ integration-testing/        jbang harness, one config per module
 at `fc9df4af`, imported by `git archive`, byte-identical, Apache 2.0 preserved.
 
 - 166 main Java files, 290 tests across 53 classes (4 skipped: the MySQL and Postgres Testcontainers
-  classes).
+  classes). **This is provenance, not judge output** — `BuildSuccessJudge` reports that the build
+  passed; it does not discover or report test counts, and no test telemetry is built for it.
 - The materialize script applies `spring-javaformat` so it compiles, and reports what it changed.
   **The formatting finding is recorded in provenance and never taught.**
 - `baseline/` at `88e37c15` is kept as the provenance anchor: upstream PetClinic, 17 test classes,
@@ -269,14 +270,40 @@ outcomes.
 and third of those. Removing both stabilised the judge (5/6/5 criteria with zero shared names and a
 2-2 verdict split, to 5 of 5 identical runs).
 
-### DD-7: A roster guard, and an abstention that cannot pass
+### DD-7: A roster guard, and PASS means every requirement was affirmatively established
 
 **Decision**: a document with N requirements yields N answers or the judge returns ERROR naming what
-is missing. Abstentions leave the aggregation population and are named in metadata.
-`AllMustPassStrategy` returns ABSTAIN over an empty population.
+is missing. The rollup is:
 
-**Why**: the live agent answered UC6-AC1..46, then AC48..52, then AC47 — order is not part of the
-contract, completeness is. And a pass over an empty set is an abstention wearing a pass.
+```
+any ERROR         → ERROR
+else any FAIL     → FAIL
+else any ABSTAIN  → ABSTAIN
+else              → PASS
+```
+
+> **PASS means every required requirement was affirmatively established.**
+
+**Why the abstention is not dropped**: a written acceptance criterion is *required by construction* —
+the specification says it applies. So an abstention here does not mean "not applicable to this
+subject"; it means **"could not establish."** Absorbing it into a passing population would report
+that the implementation satisfies the complete specification when one requirement was never settled.
+
+This is deliberately stricter than `AllMustPassStrategy`, whose ABSTAIN semantics are "this judge
+does not apply to this subject" — correct for a jury of heterogeneous judges, wrong for a fixed
+roster of required requirements. Module 03 is the demonstration:
+
+```
+    51 PASS · 0 FAIL · 1 ABSTAIN
+    Overall: ABSTAIN — cannot establish UC6-AC41
+```
+
+*Almost everything looks good, and there is still not enough evidence to say the specification
+passes.* That distinction is the point.
+
+**And completeness is enforced upstream of the rollup**: the live agent answered UC6-AC1..46, then
+AC48..52, then AC47 — order is not part of the contract, completeness is. A pass over an empty set
+is an abstention wearing a pass.
 
 ### DD-8: An unrunnable judge is an ERROR about the judge
 
@@ -308,8 +335,10 @@ does not need a manufactured defect because the judge produces eight real failur
 **Decision**: `EarsJudge`, `Rfc2119Judge` and the investigation tier are developed in the tutorial
 against real documents, and moved into `agent-judge` once they work end to end.
 
-**Why**: the tutorial is the forcing function — a judge that cannot answer 438 real requirements
-from a real spec is not ready to be a library API. Promotion criteria are in the roadmap.
+**Why**: the tutorial is the forcing function — a judge that has not survived a substantial real
+document it did not author is not ready to be a library API. Each judge answers its own format:
+`EarsJudge` the acceptance criteria, `Rfc2119Judge` the constraints. Neither is expected to read
+the other's document. Promotion criteria are in the roadmap.
 
 ### DD-12: No score, ever. Individual criteria and a named binding requirement
 
@@ -368,8 +397,12 @@ same judge, runs it against the same workspace, and asserts the same verdict thr
 
 **Why**: "should I merge?" is a CI question. A judge that only ever runs in a demo is a presentation
 artifact; a judge in a test is a gate that fails a build. `judge-junit` is the thin adapter — no new
-concepts, just `assertPass(judge, context)` — and its failure message is where DD-12 becomes
-visible, because it prints the roster and every check rather than a status line.
+concepts — and its failure message is where DD-12 becomes visible, because it prints the roster and
+every check rather than a status line.
+
+**Assert the expected status, not `assertPass`.** Module 03's correct verdict is ABSTAIN (DD-7), so
+its test reads `assertStatus(ABSTAIN, judge, context)`. Treating `assertPass` as the standard form
+would encode the very absorption DD-7 forbids.
 
 **Consequence**: `judge-junit` is a test-scope dependency of every arc module, and the tutorial
 demonstrates the ordinary way a team would actually adopt this.
@@ -467,7 +500,7 @@ refreshes one recording does not re-earn the others at twenty minutes apiece.
 
 | Module | Document | Judge | Expected |
 |---|---|---|---|
-| 01 | — | `BuildSuccessJudge` | PASS, 290 tests |
+| 01 | — | `BuildSuccessJudge` | PASS |
 | 02 | `manage-appointment-lifecycle/criteria.md` AC7–AC12 | `EarsJudge` | 6 / 6 |
 | 03 | same file, all 52 | `EarsJudge` | 51 pass, 0 fail, 1 undetermined |
 | 04 | `rules.md` — the 13 feature-wide rules | `Rfc2119Judge` | 5 pass, 8 fail, 0 undetermined |

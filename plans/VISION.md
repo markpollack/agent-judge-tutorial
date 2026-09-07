@@ -139,9 +139,9 @@ tutorial, and it is out of scope here.
 ### In Scope — the frozen six-module arc
 
 ```
-module-01-build          does it build and pass its existing tests?   BuildSuccessJudge, no model
+module-01-build          does it build?                                BuildSuccessJudge, no model
 module-02-ears-slice     six readable EARS criteria from UC6          EarsJudge
-module-03-ears-usecase   all 52 UC6 EARS criteria                     EarsJudge, completeness enforced
+module-03-ears-usecase   all 52 UC6 EARS criteria                     EarsJudge, PASS requires all established
 module-04-rfc2119-rules  the 13 feature-wide architectural MUSTs      Rfc2119Judge
 module-05-investigation  addresses become consequences                fan-out
 module-06-promotion      mechanisable findings leave the model path   ArchUnit / Java / file assertions
