@@ -291,6 +291,69 @@ against real documents, and moved into `agent-judge` once they work end to end.
 **Why**: the tutorial is the forcing function — a judge that cannot answer 438 real requirements
 from a real spec is not ready to be a library API. Promotion criteria are in the roadmap.
 
+### DD-12: No score, ever. Individual criteria and a named binding requirement
+
+**Decision**: no judge in this tutorial emits a numeric score, a percentage, a rating, or a mean.
+Every judgment carries one `Check` per requirement and a conjunctive rollup. When it fails, it names
+the requirement that bound it and where.
+
+**Why — the actionability test**:
+
+> **A score of 6 out of 10 is meaningless if you do not know what would make it 7.**
+
+That is the Mandela Effect in numeric form. `6/10` is plausible, confident, unanimous-sounding, and
+carries no receipt. You cannot open it, re-run it, or act on it. Nobody can say which criterion
+moved, in which direction, or what would move it back.
+
+Compare what this design emits:
+
+```
+    51 of 52 requirements pass, 0 fail, 1 could not be determined
+    could not be determined: UC6-AC41
+```
+
+You know exactly what would make it 52, and exactly which sentence in which file to go and read.
+
+**Aggregate scores hide a world of sins.** The failure is mechanical, not stylistic:
+
+| What gets stored | What it destroys |
+|---|---|
+| a mean over 7 criteria | *which criterion binds* — the diagnosis, and the thing you act on |
+| `placement 3/5` | *which entries* — three different sets produce the same 3 |
+| a verdict from the mean | the per-criterion `Check`s the judge had **already recorded** |
+
+A mean lets `{3,3,3,3,3,3,0}` score `0.857` and pass while one criterion was, by the rubric's own
+words, missed entirely. If the rubric states a per-criterion acceptability line, a mean contradicts
+the rubric.
+
+**Rules that follow**:
+
+- Aggregate at **read** time, never write time. An aggregate is cheap to recompute from parts;
+  parts cannot be recovered from an aggregate.
+- Every per-item result computed on the way to a verdict is persisted as a `Check`.
+- `AllMustPassStrategy` — a conjunction over outcomes. No threshold, no `passingAt`, no
+  `effectiveScore` routing a status through a numeric channel.
+- The failure message names the **binding requirement** and its location. That is the diagnosis, and
+  it points at the intervention. A mean cannot produce either.
+
+**Enforcement**: an arc module that prints a score is a defect, caught in its integration config's
+expected output. `judge-junit`'s assertion messages append the full roster and every check, so a
+failing gate in CI shows all N criteria rather than a number.
+
+### DD-13: Every judge runs in a JUnit test, not only a demo
+
+**Decision**: each arc module ships a `main()` for the stage **and** a JUnit test that constructs the
+same judge, runs it against the same workspace, and asserts the same verdict through
+`JudgeAssertions`.
+
+**Why**: "should I merge?" is a CI question. A judge that only ever runs in a demo is a presentation
+artifact; a judge in a test is a gate that fails a build. `judge-junit` is the thin adapter — no new
+concepts, just `assertPass(judge, context)` — and its failure message is where DD-12 becomes
+visible, because it prints the roster and every check rather than a status line.
+
+**Consequence**: `judge-junit` is a test-scope dependency of every arc module, and the tutorial
+demonstrates the ordinary way a team would actually adopt this.
+
 ## Error Handling Strategy
 
 Four states, chosen deliberately per judge:
