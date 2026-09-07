@@ -138,11 +138,11 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 ### Step 2.2: Modules 01, 02, 03
 
 **Work items**:
-- [ ] MODULE 01 — reuse `BuildSuccessJudge` from `agent-judge`; **do not reimplement it**.
+- [ ] CREATE `module-01-build/` — reuse `BuildSuccessJudge` from `agent-judge`; **do not reimplement it**.
       Materialized tree, no formatting content (DD-9). Closes on the open question: the build is
       green and it has no opinion on whether the agent did what was asked
-- [ ] MODULE 02 — UC6-AC7…AC12, `EarsJudge`, every criterion printed, expect 6/6
-- [ ] MODULE 03 — all 52, expect 51 pass / 0 fail / 1 undetermined, undetermined named
+- [ ] CREATE `module-02-ears-slice/` — UC6-AC7…AC12, `EarsJudge`, every criterion printed, expect 6/6
+- [ ] CREATE `module-03-ears-usecase/` — all 52, expect 51 pass / 0 fail / 1 undetermined, undetermined named
 - [ ] FOR EACH: a concise demo `main()` **and** a JUnit test using `JudgeAssertions` that runs the
       same judge and asserts the same verdict (DD-13)
 - [ ] ADD `judge-junit` as a test-scope dependency of each
@@ -180,7 +180,7 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 ### Step 3.1: Module 04
 
 **Work items**:
-- [ ] MODULE 04 — the 13 feature-wide rules, `Rfc2119Judge`, expect 5 pass / 8 fail / 0 undetermined
+- [ ] CREATE `module-04-rfc2119-rules/` — the 13 feature-wide rules, `Rfc2119Judge`, expect 5 pass / 8 fail / 0 undetermined
 - [ ] PRINT each rule id with its status and, for failures, the location — never an average
 - [ ] MAKE the separation explicit in the module's closing text: the same code, the same judge, a
       different document, and the opposite answer
@@ -218,7 +218,7 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 **Work items**:
 - [ ] RUN the fan-out over module 04's eight failures; capture every recording
 - [ ] VERIFY each investigation's load-bearing claims by hand before committing
-- [ ] RENDER findings with consequence and reachability, showing the judge's input order alongside
+- [ ] CREATE `module-05-investigation/` — render findings with consequence and reachability, showing the judge's input order alongside
 - [ ] JUnit test asserting the output is stable on replay
 
 **Exit criteria**:
@@ -234,7 +234,7 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 ### Step 5.0: Module 06
 
 **Work items**:
-- [ ] PORT `ArchUnitJudge`, `CandidateClasses`, `PromotedRules`, `ConfigRules` into the arc module
+- [ ] CREATE `module-06-promotion/` — port `ArchUnitJudge`, `CandidateClasses`, `PromotedRules`, `ConfigRules` into it
 - [ ] KEEP `PromotionCarveTest` asserting 5 and 13 violations and the package-scope bound
 - [ ] ASSERT the shadow rules in one paragraph rather than demonstrating them (DD-3), stating
       plainly which findings must **not** be promoted and why

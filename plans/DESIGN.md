@@ -236,9 +236,15 @@ count-and-name oracles.
 anyone's conforming document; a judge named for our abstraction works on ours. It is also the
 honest answer to "what do you bring that the spec pipeline doesn't already have."
 
-**Consequence**: each judge must *use* its format's structure, not merely identify it — EARS
-decomposes into trigger and response; RFC 2119 supplies obligation level. A judge that only
-identified the format would deserve the generic name.
+**Consequence**: `Rfc2119Judge` genuinely uses its format — the keyword supplies the obligation
+level, which is the aggregation policy (DD-12), read from the document rather than chosen by us.
+That is shipping behaviour.
+
+For `EarsJudge`, using the template's trigger/response structure is *desirable, not required*. Ship
+the smallest honest judge that reliably evaluates Anton's existing criteria; if parsing the template
+improves it, keep that. **No A/B comparison between prompt strategies before the conference** — the
+teaching fact is that structured acceptance criteria written before the code can be run back as an
+independent oracle, not that we found the optimal prompting strategy.
 
 ### DD-5: Two tiers — the judge localizes, the investigation establishes consequence
 
