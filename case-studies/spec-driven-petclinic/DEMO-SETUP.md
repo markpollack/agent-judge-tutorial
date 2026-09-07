@@ -1,0 +1,164 @@
+# DEMO-SETUP — operator checklist
+
+Execute top to bottom immediately before recording. No interpretation required.
+
+Narrative explanation of *why* lives in `README.md` § Before the demo. **This file is the
+authoritative command sequence.** If the two ever disagree, this one is right.
+
+Frozen conference checkpoint: **`b72e74d`** — "Module 04: run the architectural rules".
+
+---
+
+## Before recording
+
+```
+[ ]  1. Verify the conference checkpoint is an ancestor of HEAD
+[ ]  2. Confirm git status is clean
+[ ]  3. Confirm ANTHROPIC_API_KEY is unset
+[ ]  4. Confirm offline Maven mode is usable
+[ ]  5. Pre-materialize the PetClinic candidate      <-- do not skip
+[ ]  6. Confirm materialization completed
+[ ]  7. Warm the candidate build
+[ ]  8. Run Module 01 — confirm PASS
+[ ]  9. Run Module 02 — confirm 6 PASS / Overall PASS
+[ ] 10. Run Module 03 — confirm 51 PASS / 0 FAIL / 1 ABSTAIN, binding = UC6-AC41
+[ ] 11. Run Module 04 — confirm 5 PASS / 8 FAIL / Overall FAIL
+[ ] 12. Return terminal to the repository root
+[ ] 13. Clear the terminal
+```
+
+### 1–4. Preconditions
+
+```bash
+cd ~/projects/agent-judge-tutorial
+
+git merge-base --is-ancestor b72e74d HEAD && echo "checkpoint OK" || echo "STOP: not on the conference path"
+git status --porcelain                       # expect NO output
+echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-<unset>}"   # expect <unset>
+./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml install -DskipTests -q && echo "offline build OK"
+```
+
+If `ANTHROPIC_API_KEY` is set: `unset ANTHROPIC_API_KEY`. Every module replays a committed
+recording; no key and no network are needed, and an unset key proves it on stage.
+
+### 5–6. Pre-materialize — the step that must not be skipped
+
+```bash
+( cd case-studies/spec-driven-petclinic/fixtures/petclinic && ./materialize-large-candidate.sh )
+```
+
+**Expect this on stderr, here, before recording:**
+
+```
+note: applied spring-javaformat to 1 file(s) the generated code left non-conforming
+      src/main/java/org/springframework/samples/petclinic/security/AccountBootstrapRunner.java
+```
+
+That message is true provenance and it is **not** what the case study teaches. Seeing it *now* is
+the whole point: on a cold clone it appears during Module 01, immediately before the first output of
+the talk. It is not suppressed in code, because suppressing that stream would also hide genuine
+materialization failures.
+
+Confirm the script printed the candidate path and exited 0.
+
+### 7. Warm the build
+
+```bash
+( cd case-studies/spec-driven-petclinic/fixtures/petclinic/build/large-candidate && ./mvnw -o -q test )
+```
+
+Module 01 runs a real build. Warming means the stage run is the build, not a first compile.
+
+### 8–11. The conference sequence
+
+Run each once now, and confirm the expected result before recording.
+
+```bash
+cd ~/projects/agent-judge-tutorial
+
+# 01  Does it build?
+./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-01-build
+
+# 02  Run six requirements
+./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-02-ears-slice
+
+# 03  Run all 52
+./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-03-ears-usecase
+
+# 04  Run architectural MUSTs
+./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-04-rfc2119-rules
+```
+
+### 12–13. Reset
+
+```bash
+cd ~/projects/agent-judge-tutorial
+clear
+```
+
+---
+
+## Expected results — check every line
+
+```
+module 01   build   PASS
+module 02   6 of 6                          Overall: PASS
+module 03   51 PASS · 0 FAIL · 1 ABSTAIN    Overall: ABSTAIN    binding: UC6-AC41
+module 04   5 PASS · 8 FAIL                 Overall: FAIL
+```
+
+Module 04's eight failures, in display order:
+`RULE-1 · RULE-2 · RULE-4 · RULE-5 · RULE-8 · RULE-10 · RULE-11 · RULE-12`
+
+**If any line differs, do not present. Return to `b72e74d`.**
+
+## Expected timings
+
+| Step | Measured |
+|---|---|
+| `install -DskipTests` | 2.3s |
+| `materialize-large-candidate.sh` | 3.1s |
+| warm `mvnw -o -q test` | 39.0s |
+| module 01 (warm) | **39.5s** |
+| module 02 | 1.8s |
+| module 03 | 1.9s |
+| module 04 | 1.8s |
+
+Measured 2026-09-07, warm, offline, key unset. Module 01 is slow because it runs a **real** Maven
+build and the candidate's real test suite — that is the point of it. Narrate over it; the line
+*"this takes about a minute"* is already printed.
+
+---
+
+## The four transitions
+
+The terminal prints these as closing paragraphs, so the narrative survives a missed line.
+
+```
+01 → 02   It builds. But the build has no opinion about whether it did what was asked.
+
+02 → 03   Those six looked good. Now run the entire specification.
+
+03 → 04   Behaviour isn't the only thing Anton specified.
+
+04 close  Same generated system. Another document written before the code.
+          A different answer.
+```
+
+---
+
+## If something goes wrong
+
+**Module 01 materializes again on stage.**
+Let it finish. Do not explain the formatting note unless asked. It costs about six seconds.
+
+**A module tries to run live.**
+Stop and re-run the exact offline command from § 8–11 above. Every module replays a committed
+recording; live is opt-in via `AGENT_JUDGE_TUTORIAL_AGENT=live`, and a live UC6 audit takes about
+fourteen minutes — never a stage activity.
+
+**Terminal state is uncertain.**
+`cd ~/projects/agent-judge-tutorial`, then use the exact command from § 8–11.
+
+**Any module output differs from the expected results above.**
+Do not improvise a fix while recording. Stop and return to `b72e74d`.

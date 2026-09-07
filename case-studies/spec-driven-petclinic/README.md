@@ -54,6 +54,10 @@ it is a real build, not a simulation. Everything after it replays instantly. Thi
 
 ## Before the demo
 
+> **Operator checklist: [`DEMO-SETUP.md`](DEMO-SETUP.md).** That file is the authoritative
+> pre-recording sequence — checkboxes, exact commands, expected results and fallbacks. This section
+> explains *why* the steps are what they are.
+
 Run this once, on the machine you will present from. It takes about two minutes and removes every
 avoidable surprise.
 
