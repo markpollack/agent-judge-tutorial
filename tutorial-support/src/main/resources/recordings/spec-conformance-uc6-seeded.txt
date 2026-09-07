@@ -1,0 +1,56 @@
+Captured 2026-09-06 from a live AgentClient run. Verbatim agent output follows the blank line.
+
+I'll start by getting oriented in the codebase.I've audited the implementation against all 52 criteria. Here are the assessments:
+
+UC6-AC1: PASS - `AppointmentService.java:259-271` builds and saves an `Appointment` only; the sole `visitRepository.save` in the codebase is inside completion at `AppointmentService.java:496`.
+UC6-AC2: PASS - `AppointmentService.java:99-101` queries `findByOwnerIdAndStatusAndStartTimeGreaterThanEqualOrderByStartTimeAsc(ownerId, BOOKED, now)`, scoped to the authenticated owner resolved in `AppointmentController.java:36-37`.
+UC6-AC3: PASS - `StaffCalendarService.java:47-51` selects appointments in the window with no owner or status filter, so every appointment is projected onto the calendar.
+UC6-AC4: PASS - `LiveFeasibilityService.java:120-149` returns true when no BOOKED vet/owner/pet row overlaps, and `AppointmentService.java:253-271` then persists the booking.
+UC6-AC5: PASS - the overlap queries in `AppointmentRepository.java:30-38` use strict `StartTimeLessThan`/`EndTimeGreaterThan`, so an appointment starting exactly at another's end is not returned.
+UC6-AC6: PASS - an overlapping row makes `LiveFeasibilityService.java:129-149` return false and `AppointmentService.java:255-257` throws before any `save`.
+UC6-AC7: PASS - `AppointmentService.java:158-161` sets `CANCELLED` for a future-start BOOKED appointment, covered by `AppointmentServiceTests.java:166`.
+UC6-AC8: FAIL - `AppointmentService.java:154` rejects only when `now.isAfter(startTime)`, so a cancellation submitted exactly at the start instant passes the guard and the appointment is cancelled at line 158.
+UC6-AC9: PASS - the same strict `now.isAfter(appointment.getStartTime())` check at `AppointmentService.java:154-156` throws for any instant after the start, as tested at `AppointmentServiceTests.java:191`.
+UC6-AC10: PASS - `cancelAppointmentByOwner`/`cancelAppointmentByStaff` are `@Transactional` (`AppointmentService.java:128`, `:379`) and the vet/owner/pet overlap queries filter on `BOOKED` (`LiveFeasibilityService.java:120-149`), so the interval is released for all three on commit.
+UC6-AC11: PASS - cancellation touches only the request's retention deadline (`AppointmentService.java:163-168`, `:429-434`) and never assigns `RequestStatus`.
+UC6-AC12: PASS - the cancelled-appointment view offers no rebooking command, only a link to `/scheduling/requests/new` (`templates/scheduling/appointmentDetail.html:78-81`), which is the new-scheduling-request form at `SchedulingRequestController.java:69`.
+UC6-AC13: PASS - `AppointmentService.java:259-271` creates an appointment with `request` left null and `BookingSource.STAFF_DIRECT`, verified by `AppointmentServiceTests.java:212-235`.
+UC6-AC14: PASS - `AppointmentService.java:187-189` throws on a null/blank `offlineReason` before any entity is built.
+UC6-AC15: PASS - `AppointmentService.java:229-233` rejects only when the start is not before `calculateStaffHorizonEnd`, so a future start inside the horizon proceeds to booking.
+UC6-AC16: PASS - `AppointmentService.java:224-227` rejects only starts strictly before `quantizeToNext15MinuteBoundary(now)`, which returns the instant itself when already aligned (`SchedulingTimeService.java:45-52`).
+UC6-AC17: PASS - `AppointmentService.java:225-227` throws `IllegalArgumentException` for a start before the next grid boundary, before any `save`.
+UC6-AC18: PASS - `AppointmentService.java:231-233` throws when `!startTime.isBefore(staffHorizonEnd)`, i.e. at or beyond the exclusive horizon end.
+UC6-AC19: PASS - grid, future-boundary, horizon and vet-active guards sit in `AppointmentService.java:213-243` and the remaining vet/owner/pet overlap, specialty, availability, closure, leave and DST checks in `LiveFeasibilityService.java:57-180` (closure/leave via `EffectiveAvailabilityService.java:60-70`); any failure throws before `save`.
+UC6-AC20: PASS - `AppointmentService.java:245-249` throws when `findByPetIdAndStatusNotIn(petId, [CONFIRMED, CANCELLED, EXPIRED])` is non-empty, and the request is never written, as tested at `AppointmentServiceTests.java:238`.
+UC6-AC21: PASS - `AppointmentService.java:359-363` writes the new vet, start and end onto the BOOKED appointment after feasibility succeeds, tested at `AppointmentServiceTests.java:258`.
+UC6-AC22: PASS - `AppointmentService.java:288-290` throws on a blank reason as the first statement, before the appointment is loaded or mutated.
+UC6-AC23: PASS - `AppointmentService.java:359-363` mutates and saves the same loaded entity (no delete-and-recreate), and audit history is append-only (`AuditService.java:55` only ever calls `save` on new records).
+UC6-AC24: PASS - `AppointmentService.java:295-297` and the post-lock recheck at `:311-313` throw for any status other than `BOOKED`, leaving the terminal appointment untouched.
+UC6-AC25: PASS - `AppointmentService.java:396-399` allows cancellation while `now` is before the end and `:425-427` sets `CANCELLED` with the reason.
+UC6-AC26: PASS - `AppointmentService.java:381-383` throws on a blank cancellation reason before loading the appointment.
+UC6-AC27: PASS - `AppointmentService.java:397-399` (rechecked at `:421-423`) throws when `!now.isBefore(endTime)`, covering both the end instant and later.
+UC6-AC28: PASS - `AppointmentService.java:457-460` throws when `now.isBefore(initial.getEndTime())`, tested at `AppointmentServiceTests.java:396`.
+UC6-AC29: PASS - the guard at `AppointmentService.java:458` is strict `isBefore`, so `now == endTime` falls through to the completion path at `:489-503`.
+UC6-AC30: PASS - the same check at `AppointmentService.java:458` passes for any instant after the end, completing the appointment at `:500-503` (`AppointmentServiceTests.java:293`).
+UC6-AC31: PASS - `AppointmentService.java:450-452` throws on a blank clinical description as the first statement, before the `new Visit()` at `:491`.
+UC6-AC32: PASS - `AppointmentService.java:489-498` creates and links a Visit only when `appointment.getVisit()` is null, asserted by `AppointmentServiceTests.java:293-325`.
+UC6-AC33: PASS - `AppointmentService.java:466-468` and the post-lock recheck at `:485-487` return the existing DTO when the appointment is already `COMPLETED` with a Visit, tested at `AppointmentServiceTests.java:327`.
+UC6-AC34: PASS - `AppointmentService.java:492` sets the visit date to `appointment.getStartTime().atZone(timeService.getClinicZoneId()).toLocalDate()`.
+UC6-AC35: PASS - `AppointmentService.java:493` sets the description from the trimmed `clinicalDescription` argument supplied by staff at `StaffAppointmentController.java:170-173`; no request or AI text is read.
+UC6-AC36: PASS - `AppointmentService.java:524-527` throws when `now.isBefore(initial.getEndTime())` before any status write.
+UC6-AC37: PASS - that guard is strict `isBefore`, so at or after the end a `BOOKED` appointment reaches `setStatus(NO_SHOW)` at `AppointmentService.java:556` (`AppointmentServiceTests.java:414`).
+UC6-AC38: PASS - `markNoShow` (`AppointmentService.java:519-570`) never references `visitRepository` or `setVisit`.
+UC6-AC39: PASS - `completeAppointment` blocks only `CANCELLED` (`AppointmentService.java:462-464`), so a `NO_SHOW` appointment with a nonblank description reaches `setStatus(COMPLETED)` at `:500`, tested at `AppointmentServiceTests.java:361`.
+UC6-AC40: PASS - completion rejects `CANCELLED` (`AppointmentService.java:462-464`), cancellation rejects `COMPLETED` (`:148-151`, `:392-394`), no-show rejects any non-`BOOKED` status (`:552-554`) and reschedule rejects any non-`BOOKED` status (`:311-313`).
+UC6-AC41: CANNOT_DETERMINE - nothing in the implementation ever deactivates a veterinarian (`Vet.java:58` defines `setActive` but no service, controller, or migration calls it), so retention of the vet link under that condition is not exercised anywhere.
+UC6-AC42: PASS - `AppointmentService.java:241-243` rejects an inactive vet on direct booking and `:345-347` on reschedule, with a second check inside `LiveFeasibilityService.java:85-88`.
+UC6-AC43: PASS - `db/migration/h2/V2__smart_appointment_scheduling.sql` only adds an `appointments.visit_id` foreign key referencing `visits` (line 235) and never alters, deletes, or re-dates the legacy rows inserted by `V1__legacy_baseline.sql:107-110`.
+UC6-AC44: PASS - the timed overlap logic in `LiveFeasibilityService.java:120-180` reads only `AppointmentRepository` and `ReservationRepository`, and `VisitRepository` is injected nowhere except `AppointmentService.java:496` for completion.
+UC6-AC45: PASS - no `VisitController` exists in `owner/`, and `VisitControllerTests.java:40-53` asserts both GET and POST of `/owners/1/pets/1/visits/new` return 404.
+UC6-AC46: PASS - each command re-reads the appointment after taking the pessimistic lock and returns the current state for an already-applied transition (`AppointmentService.java:144-146`, `:412-414`, `:485-487`, `:548-550`) rather than transitioning again.
+UC6-AC47: PASS - `LockCoordinator.java:68-72` takes a `PESSIMISTIC_WRITE` lock on the appointment row in a fixed resource order, and every command re-validates status under that lock before writing, with `@Version` on `Appointment.java:83-85` as a second barrier.
+UC6-AC48: PASS - `AppointmentService.java:195-210` throws when `GENERAL` carries a specialty id, and when `SPECIALTY` has no id, an unknown id, or an inactive specialty, all before the appointment is constructed.
+UC6-AC49: PASS - `AppointmentService.java:263-264` sets care type and required specialty on creation (as do `ReservationService.java:278-279` and `StaffFallbackService.java:374-375`), mapped to `care_type` and `required_specialty_id` in `Appointment.java:49-55`.
+UC6-AC50: PASS - `AppointmentService.java:315-316` reads `careType`/`requiredSpecialty` off the stored appointment and passes them to `checkFeasibility` at `:349-350`, which enforces vet specialty eligibility in `LiveFeasibilityService.java:89-103`.
+UC6-AC51: PASS - after a successful save, `AppointmentService.java:365-366` calls `resolveConflictsForAppointment(..., RESCHEDULED, ...)`, which updates each unresolved record's status and `resolvedAt` in place rather than deleting it (`CalendarConflictService.java:136-151`).
+UC6-AC52: PASS - both cancellation paths call `resolveConflictsForAppointment(..., CANCELLED, ...)` (`AppointmentService.java:170` and `:436`), and `CalendarConflictService.java:142-145` retains each record while stamping the resolution.

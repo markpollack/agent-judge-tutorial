@@ -1,0 +1,15 @@
+Captured 2026-09-07 from a live AgentClient run. Verbatim agent output follows the blank line.
+
+I'll start by exploring the implementation structure.Now let me look at the cancellation implementation.Now let me look at the tests covering cancellation.I've traced the owner-cancellation path, its guards, the occupancy queries, and the rebooking route.
+
+UC6-AC7: PASS - `AppointmentService.cancelAppointmentByOwner` resolves the appointment under owner scope (`AppointmentService.java:131`), passes the future-start guard at `AppointmentService.java:154`, and sets `AppointmentStatus.CANCELLED` at `AppointmentService.java:158` (covered by `AppointmentServiceTests.java:165-187`, which passes per `target/surefire-reports/org.springframework.samples.petclinic.scheduling.AppointmentServiceTests.txt`: 11 run, 0 failures).
+
+UC6-AC8: PASS - the guard `if (!now.isBefore(appointment.getStartTime()))` at `AppointmentService.java:154` is true when `now` equals the start instant and throws at `AppointmentService.java:155` before any mutation (the first write is `setStatus` at `AppointmentService.java:158`), so state is preserved — though no test exercises the exact-equality boundary, only the after-start case at `AppointmentServiceTests.java:191`.
+
+UC6-AC9: PASS - the same guard at `AppointmentService.java:154` rejects `now` after the start with an `IllegalStateException` thrown before the status write at `AppointmentService.java:158`, asserted by `testCancelAppointmentByOwnerFailsIfPastStartTime` at `AppointmentServiceTests.java:191-208`.
+
+UC6-AC10: PASS - the single status flip at `AppointmentService.java:158` inside one `@Transactional` method (`AppointmentService.java:128`, under locks taken at `AppointmentService.java:138`) frees all three resources at once, because the vet, owner, and pet overlap queries each filter on `AppointmentStatus.BOOKED` (`LiveFeasibilityService.java:121,131,142`) and the solver excludes cancelled rows from occupancy facts (`SchedulingProblemFactory.java:119`).
+
+UC6-AC11: PASS - the only mutation the cancel path makes to the linked request is `setRetentionDeadline` at `AppointmentService.java:166`; no `setStatus` call is made on the request there, and `SchedulingRequest`'s `@PreUpdate` hook touches only `updatedAt` (`SchedulingRequest.java:126-129`).
+
+UC6-AC12: PASS - a cancelled appointment's detail view offers rebooking only as a link to `/scheduling/requests/new` (`appointmentDetail.html:78-81`), and no reuse path exists: all three appointment-creation sites (`ReservationService.java:273`, `StaffFallbackService.java:369`, `AppointmentService.java:259` — the last being staff-only direct booking) require a request-bound reservation or staff role, while a terminal request cannot be re-matched (`MatchingCoordinator.java:124`) or re-opened by text replacement (`SchedulingRequestService.java:628-633`).
