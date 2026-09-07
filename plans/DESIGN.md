@@ -1,8 +1,8 @@
 # Design: Agent Judge Tutorial — Running the Spec You Already Wrote
 
 > **Created**: 2026-09-07T10:20-04:00
-> **Last updated**: 2026-09-07T10:20-04:00
-> **Vision version**: 2026-09-07T10:15-04:00
+> **Last updated**: 2026-09-07T14:15-04:00
+> **Vision version**: 2026-09-07T14:05-04:00
 
 ## Overview
 
@@ -17,6 +17,11 @@ and become deterministic rules.
 The tutorial's shape follows the evidence: behaviour conforms and structure does not, and no single
 document could have asked both questions.
 
+The guiding rule throughout is **use the least interpretive instrument that can reliably answer the
+question**, and its corollary — **deterministic where possible, AI when necessary.** Agent Judge does
+not compete with JUnit, ArchUnit, JaCoCo, Checkstyle, static analysis or the compiler; it extends the
+testing discipline to criteria whose oracle needs richer evidence or judgment.
+
 ## Build Coordinates
 
 - **groupId**: `io.github.markpollack`
@@ -27,13 +32,17 @@ document could have asked both questions.
 ### Module Structure
 
 ```
-module-01-build/            does it build?                     no model
-module-02-ears-slice/       6 EARS criteria, readable          EarsJudge
-module-03-ears-usecase/     52 EARS criteria                   EarsJudge
-module-04-rfc2119-rules/    7 + 13 MUST-form constraints       Rfc2119Judge
+module-01-build/            does it build and pass its tests?  BuildSuccessJudge, no model
+module-02-ears-slice/       6 readable EARS criteria (UC6)     EarsJudge
+module-03-ears-usecase/     all 52 UC6 EARS criteria           EarsJudge, completeness enforced
+module-04-rfc2119-rules/    the 13 feature-wide MUSTs          Rfc2119Judge
 module-05-investigation/    addresses -> consequences          fan-out
-module-06-promotion/        2 rules become permanent policy    ArchUnit + file assertions
+module-06-promotion/        mechanisable findings leave the    ArchUnit + Java + file assertions
+                            model path
 ```
+
+**The arc is exactly these six.** Modules 01-04 are the conference path; 05 and 06 deepen the idea
+and are not prerequisites for 01-04.
 
 Supporting, not in the arc:
 
@@ -125,7 +134,12 @@ spec/smart-appointment-scheduling/
 ```
 
 Measured grammar: UC6's 52 criteria are **28 `When` / 20 `If` / 4 `While`** — fully EARS, no
-ubiquitous forms. The feature rules and UC6 rules are **20 of 20 `**MUST**`**.
+ubiquitous forms. The 13 feature rules are **13 of 13 `**MUST**`**.
+
+The arc reads exactly two of these fifteen documents: `manage-appointment-lifecycle/criteria.md`
+(modules 02 and 03) and `rules.md` (module 04). The remaining thirteen stay in the vendored evidence
+because they are part of Anton's repository; they are not part of the active arc. In particular the
+**51 use-case rules are not a prerequisite, module, or research question** for this tutorial.
 
 ## Interfaces
 
@@ -354,6 +368,56 @@ visible, because it prints the roster and every check rather than a status line.
 **Consequence**: `judge-junit` is a test-scope dependency of every arc module, and the tutorial
 demonstrates the ordinary way a team would actually adopt this.
 
+### DD-14: Evaluation stays fixed while the agent changes
+
+**Decision**: the rubric, judge configuration and acceptance policy are held **fixed** across an
+experiment. Agent Experiment may vary one model, prompt, skill, toolset, workflow step or
+intervention at a time.
+
+**Why**: changing both the agent and the definition of success destroys the causal interpretation of
+the result. If the bar moves with the subject, an improvement claim is unfalsifiable.
+
+> **Self-improvement without a stable external measure is self-modification, not demonstrated
+> improvement.**
+
+**Consequence**: this tutorial produces the fixed evaluation bar. Agent Experiment is downstream and
+**outside the implementation scope of this tutorial**. The boundary is:
+
+```
+Agent Judge        what does good mean, and did this run meet that bar?
+Agent Experiment   holding that bar fixed, which intervention actually improves the system?
+```
+
+This also states the complement to an `execute ↔ converge` loop: converge *toward what*, measured
+*by whom*, against *what fixed evidence?* Anton's specifications already supply much of that
+external bar — which is the whole premise of this tutorial. The refinement is that the same system
+must not simultaneously modify its own instructions, redefine success, and declare itself improved.
+
+### DD-15: Deterministic promotion is a conclusion, not garnish
+
+**Decision**: module 06 is part of the arc, not an appendix. Once a property can be reliably
+expressed with ArchUnit, plain Java, a file assertion, compiler tooling or static analysis, **the
+model stops evaluating that property.**
+
+```
+        AI judgment discovers / localizes something useful
+                            ↓
+                  can this fact be mechanised?
+                    ↓                     ↓
+                   yes                    no
+                    │                      │
+             deterministic            remains a
+                policy               judgment oracle
+```
+
+**Why**: this is the concrete meaning of *deterministic where possible, AI when necessary*, and it
+is one of the tutorial's main conclusions. A rule that runs in under a second, offline, on every
+build is worth more than the same rule re-decided by a model every time.
+
+**The counter-obligation is equally load-bearing**: the tutorial must state which findings *must
+not* be promoted. A judgment replaced by a check that cannot express it has not been promoted; it
+has been lost, and the reassuring green makes the loss hard to notice.
+
 ## Error Handling Strategy
 
 Four states, chosen deliberately per judge:
@@ -400,7 +464,7 @@ refreshes one recording does not re-earn the others at twenty minutes apiece.
 | 01 | — | `BuildSuccessJudge` | PASS, 290 tests |
 | 02 | `manage-appointment-lifecycle/criteria.md` AC7–AC12 | `EarsJudge` | 6 / 6 |
 | 03 | same file, all 52 | `EarsJudge` | 51 pass, 0 fail, 1 undetermined |
-| 04 | `manage-appointment-lifecycle/rules.md` (7) + `rules.md` (13) | `Rfc2119Judge` | 13 fail expected on the feature rules; UC6's 7 unknown |
+| 04 | `rules.md` — the 13 feature-wide rules | `Rfc2119Judge` | 5 pass, 8 fail, 0 undetermined |
 | 05 | the FAILs from 04 | `Investigation` | consequences, ranked |
 | 06 | 2 of the failed rules | `ArchUnitJudge`, `ConfigRules` | 5 and 13 violations, < 1s |
 
@@ -412,22 +476,22 @@ refreshes one recording does not re-earn the others at twenty minutes apiece.
 | 2 — offline | `JudgeBackends`, committed recordings, integration configs |
 | 3 — real defects with addresses | modules 03–05; `Check.locations` |
 | 4 — public standards, promoted | DD-4, DD-11; `EarsJudge`, `Rfc2119Judge` |
-| 5 — ranked by consequence | DD-5; module 05 |
-| 6 — deterministic promotion, and what must not be | module 06; the shadow rules asserted per DD-3 |
-| 7 — one concept per module | module structure |
-| 8 — honest about instruments | DD-5, DD-6, `Check` split in Data Models |
+| 5 — no numeric score | DD-12; conjunctive rollup, binding requirement named |
+| 6 — deterministic promotion, and what must not be | DD-15; module 06; shadow rules asserted per DD-3 |
+| 7 — one concept per module | module structure, frozen at six |
+| 8 — JUnit harness per module | DD-13; `judge-junit` as test-scope dependency |
 
 ## Open Questions
 
-1. UC6's seven use-case rules have never been run. Roadmap step 1.1 resolves this before module 04
-   is designed around them.
-2. Does EARS decomposition improve findings enough to justify the parser? Step 2.2 measures it
-   against the whole-sentence baseline on the same 52 criteria.
-3. Should `Obligation` live in `agent-judge` from the start, since `AllMustPassStrategy` would need
+1. Should `Obligation` live in `agent-judge` from the start, since `AllMustPassStrategy` would need
    to understand SHOULD to aggregate correctly?
-4. `Check` has no structured location field. Tutorial-local workaround now; library change later.
-5. Does the investigation tier hold up with fresh agents at arm's length? Measured once, by the
-   author, with full context.
+2. `Check` has no structured location field, so the reliable half of a judge's output is mixed with
+   the unreliable half in one prose blob. Tutorial-local workaround now; library change later.
+3. Does the investigation tier hold up with fresh agents at arm's length? Measured once, by the
+   author, with full context: 7 escalations, 1 de-escalation, 0 fabrications.
+4. How much of the claim-type asymmetry survives a prompt requiring numbers to come from a command?
+
+None of these gates the conference path.
 
 ---
 
