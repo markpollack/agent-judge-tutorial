@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.github.markpollack.judge.context.ExecutionStatus;
@@ -28,11 +29,18 @@ public final class Candidate {
     /** What the agent was asked, in the words of the proposal it was given. */
     public static final String GOAL = "Add smart appointment scheduling to the PetClinic application.";
 
-    /** The vendored specification directory, root of every rubric this tutorial reads. */
-    public static final Path SPEC = Path.of("fixtures/petclinic",
-        "appointment-scheduling-spec-with-usecases/spec/smart-appointment-scheduling");
+    /**
+     * The vendored fixtures, located rather than assumed.
+     *
+     * <p>Maven runs modules with the working directory set to wherever Maven was invoked, and this
+     * case study can legitimately be invoked from the repository root or from its own directory.
+     * So the fixtures are found by looking in the obvious places rather than by hoping.
+     */
+    private static final Path FIXTURES = locateFixtures();
 
-    private static final Path FIXTURES = Path.of("fixtures/petclinic");
+    /** The vendored specification directory, root of every rubric this case study reads. */
+    public static final Path SPEC = FIXTURES.resolve(
+        "appointment-scheduling-spec-with-usecases/spec/smart-appointment-scheduling");
 
     private Candidate() {
     }
@@ -61,6 +69,22 @@ public final class Candidate {
             .startedAt(Instant.now())
             .executionTime(Duration.ofMinutes(4))
             .build();
+    }
+
+    private static Path locateFixtures() {
+        List<Path> candidates = List.of(
+            Path.of("fixtures/petclinic"),
+            Path.of("case-studies/spec-driven-petclinic/fixtures/petclinic"),
+            Path.of("../fixtures/petclinic"),
+            Path.of("../../fixtures/petclinic"));
+        for (Path candidate : candidates) {
+            if (Files.isRegularFile(candidate.resolve("PROVENANCE.md"))) {
+                return candidate;
+            }
+        }
+        throw new IllegalStateException("Could not find fixtures/petclinic from "
+            + Path.of("").toAbsolutePath() + ". Run from the repository root or from "
+            + "case-studies/spec-driven-petclinic.");
     }
 
     private static void run(Path directory, String... command) {

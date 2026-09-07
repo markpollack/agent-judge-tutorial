@@ -1,4 +1,6 @@
-# Vision: Agent Judge Tutorial — Running the Spec You Already Wrote
+# Vision: Running the Spec You Already Wrote
+
+> A case study in `case-studies/spec-driven-petclinic/`, not the whole repository.
 
 > **Created**: 2026-09-07T10:15-04:00
 > **Last updated**: 2026-09-07T14:05-04:00
@@ -136,6 +138,16 @@ tutorial, and it is out of scope here.
 
 ## Scope
 
+### Repository role
+
+This case study **complements, rather than replaces, the original progressive Agent Judge
+tutorial.** The original modules remain the fundamentals path at the repository root, keep their
+own numbering, and continue to teach the small concepts — deterministic judges, composition, jury,
+error and abstention semantics, model-backed mechanics, Koog, LangChain4j — that a single applied
+story should not try to absorb.
+
+The six numbers below are **local to this case study**.
+
 ### In Scope — the frozen six-module arc
 
 ```
@@ -166,7 +178,7 @@ prerequisites for 01–04.
 
 - **Architectural shape detection, a reusable archetype catalogue, rules we author ourselves, and
   remediation generation.** Any rubric that does not already exist in Anton's repository is out.
-- Modules beyond the six above.
+- Modules beyond these six, for this case study. The fundamentals path is unaffected.
 - Modifying the vendored fixture. The subject is evidence and stays byte-identical.
 - Hand-authored example changes, and any rubric derived from a judge's own output.
 - Mutation testing as a teaching topic. It belongs in our test suite, not on stage.
@@ -230,5 +242,6 @@ revision corrects.
 
 | Timestamp | Change | Trigger |
 |-----------|--------|---------|
+| 2026-09-07T16:40-04:00 | Scoped as a case study under `case-studies/spec-driven-petclinic/`; original tutorial preserved at root | Structural correction |
 | 2026-09-07T14:05-04:00 | Scope reduction: Act 3 removed entirely; six-module arc frozen; middle-rung and EARS A/B unknowns removed; evaluation-vs-experimentation boundary added | Review pass ahead of the 2026-09-08 recording |
 | 2026-09-07T10:15-04:00 | Initial draft | Arc rebuilt around Anton's documents after rubric-fitting and staged-fixture problems were identified |

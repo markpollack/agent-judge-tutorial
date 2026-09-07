@@ -34,17 +34,6 @@
              not by the next Agent Judge API. -->
 
         <!-- PetClinic evidence arc: the agent changed a real project -->
-        <module>tutorial-support</module>
-        <module>module-01-build</module>
-        <module>module-02-ears-slice</module>
-        <module>module-01-build-judge</module>
-        <module>module-02-coverage-evidence</module>
-        <module>module-03-ai-architecture-judge</module>
-        <module>module-04-agentic-architecture-judge</module>
-        <module>module-05-definition-of-done</module>
-        <module>module-06-spec-conformance</module>
-        <module>module-07-architecture-rules</module>
-        <module>module-08-archunit-promotion</module>
 
         <!-- The JUnit bridge the modules assert through -->
         <module>judge-junit</module>

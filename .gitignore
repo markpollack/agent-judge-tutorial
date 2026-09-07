@@ -21,3 +21,7 @@ integration-testing/logs/
 
 # Materialized fixture workspaces are derived, never committed.
 fixtures/petclinic/build/
+# The case study moved; a pattern containing a slash is anchored to this file's
+# directory, so the old rule silently stopped matching and 1199 materialized
+# files were committed once before this line existed.
+case-studies/spec-driven-petclinic/fixtures/petclinic/build/

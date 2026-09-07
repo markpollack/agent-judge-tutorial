@@ -6,29 +6,37 @@
 
     <parent>
         <groupId>io.github.markpollack</groupId>
-        <artifactId>agent-judge-tutorial</artifactId>
+        <artifactId>spec-driven-petclinic</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>module-01-build</artifactId>
-    <name>Module 01 - Does it build?</name>
-    <description>The cheapest instrument, and the question it cannot answer</description>
+    <artifactId>tutorial-support</artifactId>
+    <name>Tutorial Support</name>
+    <description>The subject under judgment, and the plumbing every module shares</description>
 
     <dependencies>
         <dependency>
             <groupId>io.github.markpollack</groupId>
-            <artifactId>tutorial-support</artifactId>
-            <version>${project.version}</version>
+            <artifactId>agent-judge-core</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.markpollack</groupId>
-            <artifactId>agent-judge-exec</artifactId>
+            <artifactId>agent-judge-ai-core</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.markpollack</groupId>
-            <artifactId>judge-junit</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
+            <artifactId>agent-judge-agent-client</artifactId>
+        </dependency>
+        <!-- provided scope upstream, so the consumer declares it -->
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-client-core</artifactId>
+            <version>${agent-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.markpollack</groupId>
+            <artifactId>agent-claude</artifactId>
+            <version>${agent-client.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -36,16 +44,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>io.github.markpollack.judge.tutorial.build.BuildDemo</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

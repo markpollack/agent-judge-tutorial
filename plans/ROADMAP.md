@@ -1,4 +1,6 @@
-# Roadmap: Agent Judge Tutorial — Running the Spec You Already Wrote
+# Roadmap: Running the Spec You Already Wrote
+
+> All module paths are relative to `case-studies/spec-driven-petclinic/`.
 
 > **Created**: 2026-09-07T10:40-04:00
 > **Last updated**: 2026-09-07T14:25-04:00
@@ -89,15 +91,17 @@ would write; the demo is what a stage needs.
 - [ ] Step 1.0 complete
 
 **Work items**:
-- [ ] MOVE the pre-redesign module set (`module-01-oracle-boundary` … `module-11-langchain4j-evaluation`) out of the reactor into `attic/`, preserving Koog and LangChain4j for the library tour
-- [ ] DEMOTE `module-03-ai-architecture-judge` and `module-04-agentic-architecture-judge` out of the arc (DD-1, DD-2); keep the sources
-- [ ] EXTRACT shared parsers, `JudgeBackends`, `RecordedJudgeModel` and `PetClinic` into `tutorial-support/`
-- [ ] VERIFY the materialized candidate builds and its 290 tests pass
-- [ ] VERIFY `./mvnw -o test` is green and the reactor has one module per arc position
-- [ ] COMMIT
+- [x] PRESERVE the existing progressive tutorial modules at their historical repository-root locations. Do **not** renumber them, move them to `attic/`, or rewrite their contents
+- [x] MOVE only the case-study modules and their case-study-specific support, fixtures, recordings and integration configs into `case-studies/spec-driven-petclinic/`
+- [x] KEEP the case study out of the root reactor — module 01 runs a real 40-second build and an ordinary fundamentals build should not pay for it
+- [x] EXTRACT shared parsers, `JudgeBackends`, `RecordedJudgeModel` and `Candidate` into the case study's `tutorial-support/`
+- [x] VERIFY both builds: the original tutorial at root, and the case study via `-f case-studies/spec-driven-petclinic/pom.xml`
+- [x] UPDATE the root README so neither path looks abandoned; give the case study its own README
+- [x] COMMIT as one clearly structural change
 
 **Exit criteria**:
-- [ ] No duplicate module numbers in the reactor
+- [x] Original tutorial present, unrenumbered, not in `attic/`
+- [x] Case-study numbering is local to the case study
 - [ ] Full offline build green
 - [ ] `fixtures/` untouched
 - [ ] Create `plans/learnings/step-1.1-consolidation.md`
@@ -249,9 +253,12 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 
 ### Step 5.0: Module 06
 
+> The mechanism is **not** chosen. Candidates include ordinary JUnit, ArchUnit, an existing
+> deterministic Agent Judge class, plain Java, file or semantic comparison, and compiler or
+> static-analysis tooling. Decide after inspecting existing architecture-and-style work.
+
 **Work items**:
-- [ ] CREATE `module-06-promotion/` — port `ArchUnitJudge`, `CandidateClasses`, `PromotedRules`, `ConfigRules` into it
-- [ ] KEEP `PromotionCarveTest` asserting 5 and 13 violations and the package-scope bound
+- [ ] CREATE `module-06-promotion/` — mechanism chosen at implementation time, not now
 - [ ] ASSERT the shadow rules in one paragraph rather than demonstrating them (DD-3), stating
       plainly which findings must **not** be promoted and why
 - [ ] SHOW the decision explicitly: mechanisable → deterministic policy; not → remains a judgment
@@ -276,7 +283,7 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 
 - [ ] Jury and aggregation; error / abstain / escalation semantics
 - [ ] Coverage judges parsing the **pinned** JaCoCo report — no instrumentation ceremony
-- [ ] Koog and LangChain4j modules from `attic/`
+- [ ] Point at the preserved original tutorial modules `module-10-koog-evaluation` and `module-11-langchain4j-evaluation` at the repository root
 
 ### Step 6.2: Documentation and Agent Experiment handoff
 

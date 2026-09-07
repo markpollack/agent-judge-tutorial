@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        Inherits the tutorial's dependency management and plugin configuration, but is
+        deliberately NOT a module of the root reactor: module-01 runs a real 40-second
+        PetClinic build, and an ordinary fundamentals build should not pay for it.
+
+        Run this case study explicitly:
+            ./mvnw -f case-studies/spec-driven-petclinic/pom.xml test
+    -->
+    <parent>
+        <groupId>io.github.markpollack</groupId>
+        <artifactId>agent-judge-tutorial</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>spec-driven-petclinic</artifactId>
+    <packaging>pom</packaging>
+    <name>Case Study - Running the Spec You Already Wrote</name>
+    <description>Evaluating a spec-driven generated system against the requirements written before it</description>
+
+    <modules>
+        <module>tutorial-support</module>
+        <module>module-01-build</module>
+        <module>module-02-ears-slice</module>
+    </modules>
+</project>

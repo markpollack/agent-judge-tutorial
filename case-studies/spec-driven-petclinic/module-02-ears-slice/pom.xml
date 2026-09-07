@@ -6,18 +6,19 @@
 
     <parent>
         <groupId>io.github.markpollack</groupId>
-        <artifactId>agent-judge-tutorial</artifactId>
+        <artifactId>spec-driven-petclinic</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tutorial-support</artifactId>
-    <name>Tutorial Support</name>
-    <description>The subject under judgment, and the plumbing every module shares</description>
+    <artifactId>module-02-ears-slice</artifactId>
+    <name>Module 02 - Run the spec</name>
+    <description>Six acceptance criteria written before the code</description>
 
     <dependencies>
         <dependency>
             <groupId>io.github.markpollack</groupId>
-            <artifactId>agent-judge-core</artifactId>
+            <artifactId>tutorial-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.markpollack</groupId>
@@ -25,18 +26,9 @@
         </dependency>
         <dependency>
             <groupId>io.github.markpollack</groupId>
-            <artifactId>agent-judge-agent-client</artifactId>
-        </dependency>
-        <!-- provided scope upstream, so the consumer declares it -->
-        <dependency>
-            <groupId>io.github.markpollack</groupId>
-            <artifactId>agent-client-core</artifactId>
-            <version>${agent-client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.markpollack</groupId>
-            <artifactId>agent-claude</artifactId>
-            <version>${agent-client.version}</version>
+            <artifactId>judge-junit</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -44,4 +36,16 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>io.github.markpollack.judge.tutorial.ears.EarsSliceDemo</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

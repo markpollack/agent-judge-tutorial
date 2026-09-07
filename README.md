@@ -14,6 +14,16 @@ Eleven executable Maven modules for **[Agent Judge](https://github.com/markpolla
 sequenced by the evaluation problem rather than by the API. No API key, no network, no
 model calls.
 
+There are two paths through this repository.
+
+| Path | What it is | Where |
+|---|---|---|
+| **Learn Agent Judge** | Small progressive examples, one concept at a time | the `module-01`…`module-11` sequence below |
+| **Case study** | *Running the Spec You Already Wrote* — a real spec-driven generated system evaluated end to end against requirements written before the implementation | [`case-studies/spec-driven-petclinic/`](case-studies/spec-driven-petclinic/) |
+
+The case study has its own module numbering, local to itself, and its own README with
+exact run commands. It complements the progressive tutorial rather than replacing it.
+
 ## Prerequisites
 
 - Java 21+
