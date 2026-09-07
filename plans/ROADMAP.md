@@ -140,9 +140,10 @@ run an A/B comparison between prompt strategies** — that is not a prerequisite
 - [ ] WRITE verdict tests **from the rubric, not the code**: all-pass, one-fail, unanswered-is-ERROR,
       all-abstain-is-ABSTAIN, repeated-answer-counts-once, out-of-order-answers-still-complete,
       missing-recording-blames-the-judge, **one-abstain-makes-the-whole-ABSTAIN**
+- [ ] MUTATION TESTING IS NOT A CONFERENCE-PATH ITEM. Do not build a framework, a module, or
+      recapture recordings for it. An already-green mutation assertion may stay as internal
+      validation; an incomplete one is deferred
 - [ ] REPLAY the committed `spec-conformance-uc6` recording and assert 51/52
-- [ ] ADD the mutation assertion to the test suite (flip the AC8 operator, assert AC8 and only AC8
-      flips) — a test, never a module (DD-10)
 
 **Exit criteria**:
 - [ ] Every test asserts `status()`, never `pass()`
