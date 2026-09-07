@@ -13,11 +13,8 @@ integration-testing/logs/
 # Anchored to the repository root: an unanchored rule also matched .junie/plans/
 # inside the vendored PetClinic fixtures and silently dropped it.
 # Exception: per-step learning notes are a deliverable of the PetClinic evidence arc.
-/plans/*
-!/plans/learnings/
-!/plans/VISION.md
-!/plans/DESIGN.md
-!/plans/ROADMAP.md
+# Planning is steward-owned; see CLAUDE.md. Nothing under plans/ belongs in this repo.
+/plans/
 
 # Materialized fixture workspaces are derived, never committed.
 fixtures/petclinic/build/
