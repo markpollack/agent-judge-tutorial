@@ -52,6 +52,86 @@ Module 01 runs a real Maven build of the candidate and takes about 40 seconds. T
 it is a real build, not a simulation. Everything after it replays instantly. This case study is
 **not** part of the root reactor for that reason.
 
+## Before the demo
+
+Run this once, on the machine you will present from. It takes about two minutes and removes every
+avoidable surprise.
+
+```bash
+cd agent-judge-tutorial
+git status --porcelain          # expect no output: no local edits, no stray files
+
+# 1. Build the case study
+./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml install -DskipTests
+
+# 2. PRE-MATERIALIZE THE CANDIDATE  <-- do not skip this
+( cd case-studies/spec-driven-petclinic/fixtures/petclinic && ./materialize-large-candidate.sh )
+
+# 3. Warm the build so module 01 is not also downloading or first-compiling
+( cd case-studies/spec-driven-petclinic/fixtures/petclinic/build/large-candidate && ./mvnw -o -q test )
+
+# 4. Dry-run every module, offline
+for m in module-01-build module-02-ears-slice module-03-ears-usecase module-04-rfc2119-rules; do
+  ./mvnw -q -o -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl $m
+done
+```
+
+**Why step 2 matters.** On a cold clone, module 01 materializes the candidate first and prints a
+formatter note to stderr before its own output:
+
+```
+note: applied spring-javaformat to 1 file(s) the generated code left non-conforming
+```
+
+That is a true statement about the generated code and it is *not* what this case study teaches — a
+cuddled `else` in one file is fixed by one IDE command. Pre-materialising removes it from the stage
+entirely, and makes module 01 about six seconds faster.
+
+### Expected timings, offline
+
+| Step | Cold | Warm |
+|---|---|---|
+| `install -DskipTests` | 4s | 4s |
+| module 01 | 42s | **36s** |
+| module 02 | — | 1.8s |
+| module 03 | — | 1.3s |
+| module 04 | — | 1.3s |
+
+Module 01 is slow because it runs a **real** Maven build and the candidate's real test suite. That
+is the point of it. Narrate over it — the line *"this takes about a minute"* is already printed.
+
+### Expected results
+
+```
+module 01   build   PASS
+module 02   6 of 6                          Overall: PASS
+module 03   51 PASS · 0 FAIL · 1 ABSTAIN    Overall: ABSTAIN    (UC6-AC41)
+module 04   5 PASS · 8 FAIL                 Overall: FAIL
+```
+
+If any of those differ, stop and investigate rather than presenting.
+
+### The four transitions
+
+The terminal carries these as closing paragraphs, so the narrative survives a missed line.
+
+```
+01 → 02   It builds. But the build has no opinion about whether it did what was asked.
+02 → 03   Those six looked good. Now run the entire specification.
+03 → 04   Behaviour isn't the only thing Anton specified.
+04 close  Same generated system. Another document written before the code.
+          A different answer.
+```
+
+### Notes
+
+- **No API key and no network are required.** Every module replays a committed recording. If you
+  want a live run, `AGENT_JUDGE_TUTORIAL_AGENT=live` — but a live UC6 audit takes about fourteen
+  minutes and is not a stage activity.
+- Run everything with `-o` (offline) so a slow network cannot stall a demo.
+- The case study is **not** in the root reactor, so an ordinary `./mvnw test` at the repository root
+  will not trigger module 01's 40-second build.
+
 ## What each judge may and may not do
 
 The model assesses individual requirements. Java does everything else:
