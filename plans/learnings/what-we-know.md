@@ -305,8 +305,10 @@ them in legacy PetClinic code the rule does not govern.
 
 - `review.md`'s "300 behaviour IDs" is its own number; we have not checked it.
 - We cannot establish who or what wrote the five `APPROVED` lines, or what was shown to them.
-- We cannot establish whether `rules.md` was model-generated or human-written. `proposal.md` is
-  clearly human prose; the rest is inferred from the pipeline's shape.
+- Authorship of `rules.md` (model-generated versus hand-written) is not recorded and **is not
+  material** — it is part of Anton's package, produced by his method, most likely AI-assisted under
+  his direction. Treat every spec artifact as his. The only place the distinction would matter is
+  a conversation with him about which design calls were his judgment.
 - Every absence claim here is bounded search of the vendored tree.
 - Tier-two severity labels are the agents' own and were not independently calibrated.
 - No repeat runs anywhere, so nothing here speaks to variance.
