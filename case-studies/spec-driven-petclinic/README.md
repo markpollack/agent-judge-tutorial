@@ -2,7 +2,8 @@
 
 > ## ⚠️ CONFERENCE PATH FROZEN — recording 2026-09-08 11:00
 >
-> **Modules 01–04 are frozen at `b72e74d`** and were rehearsed from a clean clone, offline, with no
+> **Modules 01–04 are frozen at `ea5e12d`** (verdicts unchanged since `b72e74d`; presentation-only
+> fixes on top) and were rehearsed from a clean clone, offline, with no
 > API key. Until the recording, **presentation blockers only.**
 >
 > Frozen: `module-01-build`, `module-02-ears-slice`, `module-03-ears-usecase`,

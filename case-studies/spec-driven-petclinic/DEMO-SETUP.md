@@ -5,7 +5,13 @@ Execute top to bottom immediately before recording. No interpretation required.
 Narrative explanation of *why* lives in `README.md` § Before the demo. **This file is the
 authoritative command sequence.** If the two ever disagree, this one is right.
 
-Frozen conference checkpoint: **`b72e74d`** — "Module 04: run the architectural rules".
+Frozen conference checkpoint: **`ea5e12d`** — "Align Module 02's criteria listing; correct
+DEMO-SETUP's transition claim".
+
+The arc's verdicts were frozen at `b72e74d`, "Module 04: run the architectural rules", and have
+not moved since. `ea5e12d` adds presentation-only fixes on top: one space of alignment on three
+lines of Module 02, and this document. Modules 01, 03 and 04 replay byte-identically to
+`b72e74d`.
 
 ---
 
@@ -32,7 +38,7 @@ Frozen conference checkpoint: **`b72e74d`** — "Module 04: run the architectura
 ```bash
 cd ~/projects/agent-judge-tutorial
 
-git merge-base --is-ancestor b72e74d HEAD && echo "checkpoint OK" || echo "STOP: not on the conference path"
+git merge-base --is-ancestor ea5e12d HEAD && echo "checkpoint OK" || echo "STOP: not on the conference path"
 git status --porcelain                       # expect NO output
 echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-<unset>}"   # expect <unset>
 ./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml install -DskipTests -q && echo "offline build OK"
@@ -110,7 +116,7 @@ module 04   5 PASS · 8 FAIL                 Overall: FAIL
 Module 04's eight failures, in display order:
 `RULE-1 · RULE-2 · RULE-4 · RULE-5 · RULE-8 · RULE-10 · RULE-11 · RULE-12`
 
-**If any line differs, do not present. Return to `b72e74d`.**
+**If any line differs, do not present. Return to `ea5e12d`.**
 
 ## Expected timings
 
@@ -181,4 +187,4 @@ fourteen minutes — never a stage activity.
 `cd ~/projects/agent-judge-tutorial`, then use the exact command from § 8–11.
 
 **Any module output differs from the expected results above.**
-Do not improvise a fix while recording. Stop and return to `b72e74d`.
+Do not improvise a fix while recording. Stop and return to `ea5e12d`.
