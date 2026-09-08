@@ -48,8 +48,9 @@ public final class Investigator {
         String text = response.text() == null ? "" : response.text().strip();
 
         if (RecordedJudgeModel.NO_RECORDING.equals(text)) {
-            throw new IllegalStateException("No recording to replay; capture one with "
-                + "AGENT_JUDGE_TUTORIAL_AGENT=live AGENT_JUDGE_TUTORIAL_CAPTURE=<name>");
+            // The backend's own words, not a translation of them. Same reason as the judges:
+            // only the backend knows why it could not answer.
+            throw new IllegalStateException(text);
         }
         Object successful = response.metadata() == null ? null : response.metadata().get("successful");
         if (Boolean.FALSE.equals(successful)) {

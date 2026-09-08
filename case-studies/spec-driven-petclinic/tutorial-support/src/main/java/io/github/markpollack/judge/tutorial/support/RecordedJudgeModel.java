@@ -27,8 +27,20 @@ import io.github.markpollack.judge.ai.model.JudgeModelResponse;
  */
 public final class RecordedJudgeModel implements JudgeModel {
 
-    /** Marker the classifier turns into ERROR rather than a verdict. */
-    public static final String NO_RECORDING = "NO_RECORDING";
+    /**
+     * What this backend says when it cannot answer, and the ERROR message the operator sees.
+     *
+     * <p>It is a whole sentence rather than a marker because the judge no longer translates it. A
+     * judge is handed a model and cannot know why one failed to answer — only the backend knows
+     * that it was a missing recording rather than a timeout or a crashed agent. So the backend
+     * carries its own explanation in the response text, alongside {@code successful=false}, and the
+     * judge reports it verbatim.
+     *
+     * <p>This is what keeps DD-8 working through a library boundary: the failure of an instrument
+     * must never be rendered as a finding about the subject.
+     */
+    public static final String NO_RECORDING = "No recording to replay; capture one with "
+        + "AGENT_JUDGE_TUTORIAL_AGENT=live AGENT_JUDGE_TUTORIAL_CAPTURE=<name>";
 
     private final String recording;
 
