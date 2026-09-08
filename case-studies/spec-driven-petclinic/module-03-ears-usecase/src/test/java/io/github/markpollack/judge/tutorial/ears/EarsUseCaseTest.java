@@ -3,6 +3,7 @@ package io.github.markpollack.judge.tutorial.ears;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import io.github.markpollack.judge.junit.JudgeAssertions;
@@ -26,12 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * requirements were established and the fifty-second could not be, so the specification has not
  * been shown to pass. Asserting PASS would contradict the semantics this module exists to teach.
  */
+@DisplayName("Module 03 · the complete UC6 specification")
 class EarsUseCaseTest {
 
     private static final Path CRITERIA =
         Candidate.SPEC.resolve("manage-appointment-lifecycle/criteria.md");
 
     @Test
+    @DisplayName("52 requirements → ABSTAIN: UC6-AC41 could not be established")
     void theCompleteSpecificationCannotBeEstablished() {
         Path workspace = Candidate.workspace();
         JudgeAssertions.assertStatus(JudgmentStatus.ABSTAIN,
@@ -40,6 +43,7 @@ class EarsUseCaseTest {
     }
 
     @Test
+    @DisplayName("52 checks · 51 established · 1 undetermined · 0 refuted")
     void theRosterIsCompleteAndTheOutcomeIsNotAccidental() {
         Judgment judgment = judge();
 
@@ -57,6 +61,7 @@ class EarsUseCaseTest {
     }
 
     @Test
+    @DisplayName("Every criterion answered — none dropped, none invented")
     void everyCriterionIdentifierIsRepresented() {
         Judgment judgment = judge();
         List<String> asked = EarsCriterion.from(CRITERIA).stream().map(EarsCriterion::id).toList();
@@ -66,6 +71,7 @@ class EarsUseCaseTest {
     }
 
     @Test
+    @DisplayName("No score: 51 of 52 is a count of outcomes, never 98%")
     void noScoreAndNoObservationInfluencesTheStatus() {
         Judgment judgment = judge();
 

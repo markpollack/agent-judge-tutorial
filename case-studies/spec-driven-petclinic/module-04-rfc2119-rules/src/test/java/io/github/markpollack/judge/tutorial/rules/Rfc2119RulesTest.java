@@ -3,6 +3,7 @@ package io.github.markpollack.judge.tutorial.rules;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import io.github.markpollack.judge.junit.JudgeAssertions;
@@ -24,11 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>Same subject as modules 02 and 03. The only things that changed are the authoritative
  * document and the judge that reads it.
  */
+@DisplayName("Module 04 · the 13 feature-wide architectural MUSTs")
 class Rfc2119RulesTest {
 
     private static final Path RULES = Candidate.SPEC.resolve("rules.md");
 
     @Test
+    @DisplayName("13 architectural MUSTs → FAIL: 8 violated")
     void theArchitecturalDesignIsViolated() {
         Path workspace = Candidate.workspace();
         JudgeAssertions.assertStatus(JudgmentStatus.FAIL,
@@ -37,6 +40,7 @@ class Rfc2119RulesTest {
     }
 
     @Test
+    @DisplayName("13 checks · 5 hold · 8 violated · 0 undetermined")
     void theRosterIsCompleteAndTheSplitIsNotAccidental() {
         Judgment judgment = judge();
 
@@ -52,6 +56,7 @@ class Rfc2119RulesTest {
     }
 
     @Test
+    @DisplayName("The violations are the ones the document names: RULE-1, 2, 4, 5, 8, 10, 11, 12")
     void theViolationsAreTheOnesTheDocumentNames() {
         List<String> violated = judge().checks().stream()
             .filter(check -> !check.passed()).map(Check::name).toList();
@@ -62,6 +67,7 @@ class Rfc2119RulesTest {
     }
 
     @Test
+    @DisplayName("Every violation carries a file and line you can open")
     void everyFailureCarriesAnAddress() {
         // A FAIL is only worth what a reader can open. Module 05 turns these into consequences;
         // this module owes them a location and nothing more.
@@ -71,6 +77,7 @@ class Rfc2119RulesTest {
     }
 
     @Test
+    @DisplayName("All 13 are MUST — and nothing anywhere is scored")
     void allThirteenAreMustAndNothingIsScored() {
         assertTrue(Rfc2119Constraint.from(RULES).stream().allMatch(c -> c.keyword().equals("MUST")),
             "Anton's thirteen are all MUST, so obligation-aware aggregation changes nothing here");

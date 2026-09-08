@@ -3,6 +3,7 @@ package io.github.markpollack.judge.tutorial.ears;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import io.github.markpollack.judge.junit.JudgeAssertions;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>Replays the committed recording, so it is offline, deterministic and free. What a recorded
  * run verifies is the wiring and the semantics — never that the judge is right.
  */
+@DisplayName("Module 02 · six EARS requirements, read from UC6")
 class EarsSliceTest {
 
     private static final Path CRITERIA =
@@ -35,6 +37,7 @@ class EarsSliceTest {
         { "UC6-AC7", "UC6-AC8", "UC6-AC9", "UC6-AC10", "UC6-AC11", "UC6-AC12" };
 
     @Test
+    @DisplayName("6 requirements → PASS")
     void theCancellationSliceIsFullyEstablished() {
         List<EarsCriterion> slice = EarsCriterion.select(EarsCriterion.from(CRITERIA), SLICE);
         Path workspace = Candidate.workspace();
@@ -45,6 +48,7 @@ class EarsSliceTest {
     }
 
     @Test
+    @DisplayName("UC6-AC8 passes — and the test gap noticed beside it changes nothing")
     void ac8PassesAndItsEvidenceGapIsKeptBesideIt() {
         // The requirement says the implementation must reject cancellation at the exact start
         // instant. It does. The requirement does not say a test must exist, so a missing test
@@ -64,6 +68,7 @@ class EarsSliceTest {
     }
 
     @Test
+    @DisplayName("Observations survive replay and take no part in the verdict")
     void observationsSurviveOfflineReplayAndTakeNoPartInTheRoster() {
         // The recording is the agent's verbatim text, so the whole Judgment -- including its
         // non-binding metadata -- is re-derived on every replay.
@@ -86,6 +91,7 @@ class EarsSliceTest {
     }
 
     @Test
+    @DisplayName("The parser is the denominator: six criteria, not five")
     void theSliceIsSixCriteriaFromTheSpecification() {
         // The parser is the denominator. Asking for six and silently getting five would
         // make every downstream count a lie nothing else can detect.

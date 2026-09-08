@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import io.github.markpollack.judge.result.Check;
@@ -38,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * case study is that a judge's addresses are checkable and its prose is not; a test that checks the
  * addresses mechanically is what that claim looks like when someone acts on it.
  */
+@DisplayName("Module 05 · investigate one failed requirement")
 class InvestigationReplayTest {
 
     private static final Pattern LOCATION = Pattern.compile("^(.*):(\\d+)$");
@@ -67,11 +69,13 @@ class InvestigationReplayTest {
 
     /** Tier one's output is tier two's input. If that link breaks, this fails rather than drifts. */
     @Test
+    @DisplayName("The lead comes from Module 04's judgment, not from a constant")
     void theLeadComesFromModuleFoursJudgment() {
         assertEquals("RULE-4", investigate().requirementId());
     }
 
     @Test
+    @DisplayName("RULE-4 investigation → CONFIRMED and REACHABLE")
     void theRecordedInvestigationReplaysToTheSameAnswer() {
         Investigation investigation = investigate();
 
@@ -86,6 +90,7 @@ class InvestigationReplayTest {
      * paths, which is the whole difference between an assertion and an argument.
      */
     @Test
+    @DisplayName("The argument names the counterparty path rather than asserting one")
     void theReachabilityArgumentIsKeptWhole() {
         Investigation investigation = investigate();
 
@@ -103,6 +108,7 @@ class InvestigationReplayTest {
      * rather than hoped for.
      */
     @Test
+    @DisplayName("The investigation read past the address it was given")
     void theInvestigationMovedTheAddress() {
         Investigation investigation = investigate();
 
@@ -118,6 +124,7 @@ class InvestigationReplayTest {
      * looks actionable.
      */
     @Test
+    @DisplayName("Every cited file:line exists in the subject")
     void everyCitedLocationExistsInTheSubject() throws IOException {
         Path workspace = Candidate.workspace();
         List<String> locations = investigate().locations();
