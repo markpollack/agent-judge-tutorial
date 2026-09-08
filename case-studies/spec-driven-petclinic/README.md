@@ -1,10 +1,10 @@
 # Running the Spec You Already Wrote
 
-> ## ⚠️ CONFERENCE PATH FROZEN — recording 2026-09-08 11:00
+> ## ⚠️ CONFERENCE PATH FROZEN — recording Wednesday 2026-09-09, morning
 >
-> **Modules 01–04 are frozen at `ea5e12d`** (verdicts unchanged since `b72e74d`; presentation-only
-> fixes on top) and were rehearsed from a clean clone, offline, with no
-> API key. Until the recording, **presentation blockers only.**
+> **Modules 01–05 are frozen at `2b1e7c5`** (tag `conference-known-good-2b1e7c5`; verdicts unchanged
+> since `b72e74d`, everything after it additive or presentation-only) and were rehearsed from a
+> clean clone, offline, with no API key. Until the recording, **presentation blockers only.**
 >
 > Frozen: `module-01-build`, `module-02-ears-slice`, `module-03-ears-usecase`,
 > `module-04-rfc2119-rules`, `tutorial-support`, `fixtures/`, and the committed recordings.
