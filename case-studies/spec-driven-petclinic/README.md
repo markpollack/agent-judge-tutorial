@@ -9,7 +9,8 @@
 > Frozen: `module-01-build`, `module-02-ears-slice`, `module-03-ears-usecase`,
 > `module-04-rfc2119-rules`, `tutorial-support`, `fixtures/`, and the committed recordings.
 > `module-05-investigation` was added afterwards, additively: it changes nothing in the four
-> modules above, and they replay byte-identically with it present.
+> modules above, and they replay byte-identically with it present. The full frozen checkpoint is
+> `2b1e7c5`, tagged `conference-known-good-2b1e7c5`.
 >
 > **Do not** refactor `EarsJudge` or `Rfc2119Judge` — their duplication, including
 > `criteriaTotal` vs `constraintsTotal`, is a known and deliberate deferral. **Do not** recapture
@@ -51,8 +52,10 @@ Numbering is local to this case study.
 | `module-05-investigation` | What does one failure actually mean, and can it happen? | investigation tier |
 | `module-06-promotion` | Which findings can leave the model path? | deterministic tooling |
 
-Modules 01–04 are the primary path. 05 deepens it and is built; 06 is not yet built and its
-mechanism is deliberately unchosen.
+**Modules 01–05 are the conference path.** Module 06 is deliberately not implemented: once a
+finding is precise enough to encode as an ArchUnit rule or an ordinary deterministic test, the model
+should leave that loop — but establishing that idea does not require building it, and the case study
+says so rather than shipping a half-built version of it.
 
 **Module 05 investigates exactly one of module 04's eight failures**, the lock-ordering rule. One
 investigation, not eight: the concept is that a failed requirement is an address and that
