@@ -10,9 +10,10 @@ import io.github.markpollack.judge.result.Check;
 import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.result.JudgmentStatus;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.tutorial.support.EarsCriterion;
-import io.github.markpollack.judge.tutorial.support.EarsJudge;
-import io.github.markpollack.judge.tutorial.support.Observation;
+import io.github.markpollack.judge.ai.requirements.EarsCriterion;
+import io.github.markpollack.judge.tutorial.support.JudgeBackends;
+import io.github.markpollack.judge.ai.requirements.EarsJudge;
+import io.github.markpollack.judge.ai.requirements.Observation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,8 +35,7 @@ class EarsUseCaseTest {
     void theCompleteSpecificationCannotBeEstablished() {
         Path workspace = Candidate.workspace();
         JudgeAssertions.assertStatus(JudgmentStatus.ABSTAIN,
-            EarsJudge.create("appointment-lifecycle", workspace, EarsCriterion.from(CRITERIA),
-                "spec-conformance-uc6"),
+            EarsJudge.create("appointment-lifecycle", EarsCriterion.from(CRITERIA), JudgeBackends.forRecording(workspace, "spec-conformance-uc6")),
             Candidate.contextFor(workspace));
     }
 
@@ -78,7 +78,6 @@ class EarsUseCaseTest {
 
     private static Judgment judge() {
         Path workspace = Candidate.workspace();
-        return EarsJudge.create("appointment-lifecycle", workspace, EarsCriterion.from(CRITERIA),
-            "spec-conformance-uc6").judge(Candidate.contextFor(workspace));
+        return EarsJudge.create("appointment-lifecycle", EarsCriterion.from(CRITERIA), JudgeBackends.forRecording(workspace, "spec-conformance-uc6")).judge(Candidate.contextFor(workspace));
     }
 }

@@ -89,6 +89,17 @@ public final class JudgeBackends {
     }
 
     /**
+     * The backend for one named recording, at the tutorial's standard timeout.
+     *
+     * <p>The promoted judges take a {@link JudgeModel} and nothing else — deliberately, because
+     * where a judge's answers come from is the caller's business and not the library's. This is
+     * the tutorial being that caller. It is the seam the promotion created, and it is one line.
+     */
+    public static JudgeModel forRecording(Path workspace, String recording) {
+        return backendFor(workspace, Duration.ofMinutes(20), recording);
+    }
+
+    /**
      * The backend a module should use for one named recording.
      *
      * <p>Recorded unless the run is live. Live runs are expensive enough that naming a single

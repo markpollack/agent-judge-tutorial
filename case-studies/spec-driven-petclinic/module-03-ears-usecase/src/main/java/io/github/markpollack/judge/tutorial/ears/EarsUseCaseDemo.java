@@ -19,9 +19,10 @@ import java.util.Map;
 import io.github.markpollack.judge.result.Check;
 import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.tutorial.support.EarsCriterion;
-import io.github.markpollack.judge.tutorial.support.EarsJudge;
-import io.github.markpollack.judge.tutorial.support.Observation;
+import io.github.markpollack.judge.ai.requirements.EarsCriterion;
+import io.github.markpollack.judge.tutorial.support.JudgeBackends;
+import io.github.markpollack.judge.ai.requirements.EarsJudge;
+import io.github.markpollack.judge.ai.requirements.Observation;
 
 public class EarsUseCaseDemo {
 
@@ -39,7 +40,7 @@ public class EarsUseCaseDemo {
         System.out.println("  " + criteria.size() + " required criteria\n");
 
         Judgment judgment = EarsJudge
-            .create("appointment-lifecycle", workspace, criteria, "spec-conformance-uc6")
+            .create("appointment-lifecycle", criteria, JudgeBackends.forRecording(workspace, "spec-conformance-uc6"))
             .judge(Candidate.contextFor(workspace));
 
         Map<String, EarsCriterion> byId = criteria.stream()

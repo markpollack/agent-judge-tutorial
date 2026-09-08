@@ -17,8 +17,9 @@ import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
 import io.github.markpollack.judge.tutorial.support.Investigation;
 import io.github.markpollack.judge.tutorial.support.Investigator;
-import io.github.markpollack.judge.tutorial.support.Rfc2119Constraint;
-import io.github.markpollack.judge.tutorial.support.Rfc2119Judge;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
+import io.github.markpollack.judge.tutorial.support.JudgeBackends;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Judge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -46,7 +47,7 @@ class InvestigationReplayTest {
         Path workspace = Candidate.workspace();
 
         Judgment judgment = Rfc2119Judge
-            .create("architectural-constraints", workspace, constraints, "architecture-rules")
+            .create("architectural-constraints", constraints, JudgeBackends.forRecording(workspace, "architecture-rules"))
             .judge(Candidate.contextFor(workspace));
 
         Map<String, Rfc2119Constraint> byId = constraints.stream()

@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import io.github.markpollack.judge.ai.requirements.EarsCriterion;
+import io.github.markpollack.judge.ai.requirements.Observation;
+import io.github.markpollack.judge.ai.requirements.EarsJudge;
 import io.github.markpollack.judge.ai.model.JudgeModel;
 import io.github.markpollack.judge.ai.model.JudgeModelResponse;
 import io.github.markpollack.judge.context.ExecutionStatus;

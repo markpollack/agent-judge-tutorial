@@ -18,9 +18,10 @@ import java.util.List;
 
 import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.tutorial.support.EarsCriterion;
-import io.github.markpollack.judge.tutorial.support.EarsJudge;
-import io.github.markpollack.judge.tutorial.support.Observation;
+import io.github.markpollack.judge.ai.requirements.EarsCriterion;
+import io.github.markpollack.judge.tutorial.support.JudgeBackends;
+import io.github.markpollack.judge.ai.requirements.EarsJudge;
+import io.github.markpollack.judge.ai.requirements.Observation;
 
 public class EarsSliceDemo {
 
@@ -51,7 +52,7 @@ public class EarsSliceDemo {
 
         Path workspace = Candidate.workspace();
         Judgment judgment = EarsJudge
-            .create("appointment-cancellation", workspace, slice, "ears-uc6-cancellation")
+            .create("appointment-cancellation", slice, JudgeBackends.forRecording(workspace, "ears-uc6-cancellation"))
             .judge(Candidate.contextFor(workspace));
 
         System.out.println();

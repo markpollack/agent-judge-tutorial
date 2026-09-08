@@ -10,8 +10,9 @@ import io.github.markpollack.judge.result.Check;
 import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.result.JudgmentStatus;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.tutorial.support.Rfc2119Constraint;
-import io.github.markpollack.judge.tutorial.support.Rfc2119Judge;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
+import io.github.markpollack.judge.tutorial.support.JudgeBackends;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Judge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -31,8 +32,7 @@ class Rfc2119RulesTest {
     void theArchitecturalDesignIsViolated() {
         Path workspace = Candidate.workspace();
         JudgeAssertions.assertStatus(JudgmentStatus.FAIL,
-            Rfc2119Judge.create("architectural-constraints", workspace,
-                Rfc2119Constraint.from(RULES), "architecture-rules"),
+            Rfc2119Judge.create("architectural-constraints", Rfc2119Constraint.from(RULES), JudgeBackends.forRecording(workspace, "architecture-rules")),
             Candidate.contextFor(workspace));
     }
 
@@ -79,7 +79,6 @@ class Rfc2119RulesTest {
 
     private static Judgment judge() {
         Path workspace = Candidate.workspace();
-        return Rfc2119Judge.create("architectural-constraints", workspace,
-            Rfc2119Constraint.from(RULES), "architecture-rules").judge(Candidate.contextFor(workspace));
+        return Rfc2119Judge.create("architectural-constraints", Rfc2119Constraint.from(RULES), JudgeBackends.forRecording(workspace, "architecture-rules")).judge(Candidate.contextFor(workspace));
     }
 }

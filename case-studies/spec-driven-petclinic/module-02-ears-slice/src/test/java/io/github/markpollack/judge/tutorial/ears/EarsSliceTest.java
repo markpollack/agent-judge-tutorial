@@ -8,11 +8,12 @@ import org.junit.jupiter.api.Test;
 import io.github.markpollack.judge.junit.JudgeAssertions;
 import io.github.markpollack.judge.result.JudgmentStatus;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.tutorial.support.EarsCriterion;
-import io.github.markpollack.judge.tutorial.support.EarsJudge;
+import io.github.markpollack.judge.ai.requirements.EarsCriterion;
+import io.github.markpollack.judge.tutorial.support.JudgeBackends;
+import io.github.markpollack.judge.ai.requirements.EarsJudge;
 
 import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.tutorial.support.Observation;
+import io.github.markpollack.judge.ai.requirements.Observation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,7 +40,7 @@ class EarsSliceTest {
         Path workspace = Candidate.workspace();
 
         JudgeAssertions.assertStatus(JudgmentStatus.PASS,
-            EarsJudge.create("appointment-cancellation", workspace, slice, "ears-uc6-cancellation"),
+            EarsJudge.create("appointment-cancellation", slice, JudgeBackends.forRecording(workspace, "ears-uc6-cancellation")),
             Candidate.contextFor(workspace));
     }
 
@@ -80,7 +81,7 @@ class EarsSliceTest {
     private static Judgment judge() {
         List<EarsCriterion> slice = EarsCriterion.select(EarsCriterion.from(CRITERIA), SLICE);
         Path workspace = Candidate.workspace();
-        return EarsJudge.create("appointment-cancellation", workspace, slice, "ears-uc6-cancellation")
+        return EarsJudge.create("appointment-cancellation", slice, JudgeBackends.forRecording(workspace, "ears-uc6-cancellation"))
             .judge(Candidate.contextFor(workspace));
     }
 
