@@ -21,20 +21,26 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The whole use case, asserted as a gate.
+ * The whole use case, asserted as a regression contract.
+ *
+ * <p><b>Not a merge gate</b>, and the distinction matters here more than anywhere. This asserts
+ * ABSTAIN and is therefore <em>green</em> — because its subject is the evaluator, and the question is
+ * whether replay still reproduces the recorded outcome. A merge gate asks a different question of a
+ * different subject: did the implementation meet the bar? That is
+ * {@code ShouldIMergeBehaviorDemo}, it requires PASS, and it is red.
  *
  * <p>Note what is <em>not</em> asserted here: {@code assertPass}. Fifty-one of fifty-two
  * requirements were established and the fifty-second could not be, so the specification has not
  * been shown to pass. Asserting PASS would contradict the semantics this module exists to teach.
  */
-@DisplayName("Module 03 · the complete UC6 specification")
+@DisplayName("Recorded outcome · the complete UC6 specification")
 class EarsUseCaseTest {
 
     private static final Path CRITERIA =
         Candidate.SPEC.resolve("manage-appointment-lifecycle/criteria.md");
 
     @Test
-    @DisplayName("52 requirements → ABSTAIN: UC6-AC41 could not be established")
+    @DisplayName("Replay contract · 52 requirements → ABSTAIN: UC6-AC41 not established")
     void theCompleteSpecificationCannotBeEstablished() {
         Path workspace = Candidate.workspace();
         JudgeAssertions.assertStatus(JudgmentStatus.ABSTAIN,

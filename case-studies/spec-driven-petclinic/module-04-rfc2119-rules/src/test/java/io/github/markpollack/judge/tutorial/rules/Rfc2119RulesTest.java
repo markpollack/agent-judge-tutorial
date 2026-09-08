@@ -20,18 +20,22 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The architectural design, asserted as a gate.
+ * The architectural design, asserted as a regression contract.
+ *
+ * <p><b>Not a merge gate.</b> This asserts the recorded FAIL and is therefore green: it verifies the
+ * evaluator still reproduces what it produced when captured. {@code ShouldIMergeArchitectureDemo}
+ * requires PASS and is red.
  *
  * <p>Same subject as modules 02 and 03. The only things that changed are the authoritative
  * document and the judge that reads it.
  */
-@DisplayName("Module 04 · the 13 feature-wide architectural MUSTs")
+@DisplayName("Recorded outcome · the 13 feature-wide architectural MUSTs")
 class Rfc2119RulesTest {
 
     private static final Path RULES = Candidate.SPEC.resolve("rules.md");
 
     @Test
-    @DisplayName("13 architectural MUSTs → FAIL: 8 violated")
+    @DisplayName("Replay contract · 13 architectural MUSTs → FAIL: 8 violated")
     void theArchitecturalDesignIsViolated() {
         Path workspace = Candidate.workspace();
         JudgeAssertions.assertStatus(JudgmentStatus.FAIL,

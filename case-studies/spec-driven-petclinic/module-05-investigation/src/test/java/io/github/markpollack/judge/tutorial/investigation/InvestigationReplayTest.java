@@ -28,7 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The module, as a build gate rather than a demo.
+ * The module, as a build check rather than a demo.
+ *
+ * <p>Module 05 is the one place where green means what a reader expects. By here the merge decision
+ * has already stopped; the question is no longer whether the subject met the bar but whether the
+ * investigation established what its lead means and whether it is reachable. It did, so this is
+ * green — and that is a positive result rather than a reproduced negative one.
  *
  * <p>Two different things are asserted here and they are worth separating. The first is that the
  * module's own output is stable on replay, which is what makes it safe to stand in front of. The

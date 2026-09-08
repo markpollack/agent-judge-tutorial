@@ -22,12 +22,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The same judge the demo runs, as a gate.
+ * The same judge the demo runs, asserted as a regression contract.
+ *
+ * <p><b>Not a merge gate.</b> This verifies that replaying the committed recording still produces
+ * the outcome it produced when captured. {@code ShouldIMergeSliceDemo} beside it is the merge gate,
+ * and it requires PASS.
  *
  * <p>Replays the committed recording, so it is offline, deterministic and free. What a recorded
  * run verifies is the wiring and the semantics — never that the judge is right.
  */
-@DisplayName("Module 02 · six EARS requirements, read from UC6")
+@DisplayName("Recorded outcome · six EARS requirements, read from UC6")
 class EarsSliceTest {
 
     private static final Path CRITERIA =
@@ -37,7 +41,7 @@ class EarsSliceTest {
         { "UC6-AC7", "UC6-AC8", "UC6-AC9", "UC6-AC10", "UC6-AC11", "UC6-AC12" };
 
     @Test
-    @DisplayName("6 requirements → PASS")
+    @DisplayName("Replay contract · 6 requirements → PASS")
     void theCancellationSliceIsFullyEstablished() {
         List<EarsCriterion> slice = EarsCriterion.select(EarsCriterion.from(CRITERIA), SLICE);
         Path workspace = Candidate.workspace();

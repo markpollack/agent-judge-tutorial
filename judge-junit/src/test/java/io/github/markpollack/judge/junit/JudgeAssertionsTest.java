@@ -18,6 +18,7 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -88,13 +89,63 @@ class JudgeAssertionsTest {
         assertAll(
             () -> assertTrue(error.getMessage().contains("Expected judgment FAIL but was ABSTAIN"),
                 error.getMessage()),
-            () -> assertTrue(error.getMessage().contains("cast no vote"), error.getMessage()));
+            () -> assertTrue(error.getMessage().contains("no PASS/FAIL conclusion"), error.getMessage()));
     }
 
     @Test
     void abstainingJudgmentIsNotAPassEither() {
         assertThrows(AssertionFailedError.class,
             () -> JudgeAssertions.assertPass(Judgment.abstain("not applicable")));
+    }
+
+    /**
+     * The message must not explain what ABSTAIN means, because it means two different things.
+     *
+     * <p>In a jury it is "this judge does not apply, so it casts no vote". Over a fixed roster of
+     * requirements that all apply by construction it is "this required thing could not be
+     * established", which must block a pass. This class cannot tell which is in play, so asserting
+     * either would print a false explanation directly above the true one.
+     */
+    @Test
+    void abstainDiagnosticDefersToTheJudgeRatherThanAssumingJurySemantics() {
+        AssertionFailedError error = assertThrows(AssertionFailedError.class,
+            () -> JudgeAssertions.assertPass(Judgment.abstain(
+                "51 of 52 established, 1 could not be established: UC6-AC41")));
+
+        assertAll(
+            () -> assertTrue(error.getMessage().contains("Expected judgment PASS but was ABSTAIN"),
+                error.getMessage()),
+            () -> assertTrue(error.getMessage().contains("no PASS/FAIL conclusion; see reasoning"),
+                error.getMessage()),
+            // The reasoning carries the domain meaning, and it is the reason the gloss can stay neutral.
+            () -> assertTrue(error.getMessage().contains("UC6-AC41"), error.getMessage()),
+            () -> assertTrue(error.getMessage().contains("could not be established"), error.getMessage()),
+            () -> assertFalse(error.getMessage().contains("cast no vote"),
+                "ABSTAIN over a required roster is not an abstention from voting: " + error.getMessage()),
+            () -> assertFalse(error.getMessage().contains("does not apply"), error.getMessage()));
+    }
+
+    /** A rejected required roster must name what bound it, not just how many failed. */
+    @Test
+    void aFailedRosterNamesEveryFailedCheckInTheMessage() {
+        Judgment judgment = Judgment.verdict(false)
+            .reasoning("5 of 13 hold, 8 violated")
+            .check(Check.pass("RULE-3", "one reservation table"))
+            .check(Check.fail("RULE-4", "locks SchedulingRequest before Owner at StaffFallbackService.java:248"))
+            .check(Check.fail("RULE-8", "authorization enforced only at the route boundary"))
+            .build();
+
+        AssertionFailedError error = assertThrows(AssertionFailedError.class,
+            () -> JudgeAssertions.assertPass(judgment));
+
+        assertAll(
+            () -> assertTrue(error.getMessage().contains("Expected judgment PASS but was FAIL"),
+                error.getMessage()),
+            () -> assertTrue(error.getMessage().contains("5 of 13 hold"), error.getMessage()),
+            () -> assertTrue(error.getMessage().contains("RULE-4"), error.getMessage()),
+            () -> assertTrue(error.getMessage().contains("RULE-8"), error.getMessage()),
+            () -> assertTrue(error.getMessage().contains("StaffFallbackService.java:248"),
+                "the address the judge produced must survive into the assertion: " + error.getMessage()));
     }
 
     @Test

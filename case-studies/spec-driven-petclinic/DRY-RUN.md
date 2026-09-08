@@ -4,6 +4,31 @@
 > Judge is ordinary Java you run from JUnit in IntelliJ. The terminal is setup, rehearsal and
 > emergency fallback — it is no longer the stage.
 
+## ⭐ The colour arc — and it ends RED, on purpose
+
+```
+B2   six requirements           GREEN      PASS
+B4   all 52 UC6 requirements    RED        ABSTAIN · UC6-AC41 not established
+B5   13 architectural MUSTs     RED        FAIL · 8 violated
+B8   RULE-4 investigation       ——         what the failure means, and whether it can happen
+B9   re-run the gate            RED        still FAIL — nothing was fixed
+```
+
+**The talk asks "should I merge this?" The answer is no. The last thing on the screen should say so.**
+
+An earlier version of this demo ended on a green investigation test. That was wrong twice over: it
+reads as *"problem found, problem fixed"* when nothing was fixed, and asserting that the
+investigation succeeded is a meta-result the audience can already see from its output. So the
+investigation is **shown, not asserted**, and the closing image is the merge gate still red.
+
+**You run the `ShouldIMerge*Demo` classes on stage, not the `*Test` classes.** They assert
+`assertPass` — PASS is the merge policy — so ABSTAIN and FAIL go red, which is what a gate does.
+
+The `*Test` classes are regression contracts: they assert the *recorded* outcome, so their ABSTAIN
+and FAIL are green. Both are correct and their subjects differ — one tests the evaluator, the other
+tests the subject. **Do not run the `*Test` classes on stage**; a green test labelled ABSTAIN is the
+confusion this rework exists to remove.
+
 ```
 PART A   presenter preflight        terminal, before the room
 PART B   the live demo              IntelliJ, on stage
@@ -54,12 +79,24 @@ case-studies/spec-driven-petclinic/
 
 If those four files are not there, **the demo cannot run.** Fix it now, not at 9am.
 
-## A3 · Prove the gutter works, before the room
+## A3 · Prove the gutter works — and rehearse the RED
 
-Open `EarsSliceTest.java`, click the green gutter arrow next to
-`theCancellationSliceIsFullyEstablished`, and confirm it goes green. **If the gutter run works once,
-it will work on stage.** Working directory does not need configuring — the fixtures are located
-relative to the module, and this was verified.
+Open `ShouldIMergeSliceDemo.java`, click the gutter arrow next to `shouldMergeThisSlice`, confirm
+green. Working directory needs no configuring — fixtures are located relative to the module, verified.
+
+⚠️ **Then run `ShouldIMergeBehaviorDemo` and look at what red actually does to the screen.** A failing
+JUnit test expands a stack trace and rearranges the Run window far more than a green one. You need to
+know, before the room, where the useful text sits and how much scrolling it takes to reach it.
+
+The line that matters is the **first** one:
+
+```
+Expected judgment PASS but was ABSTAIN  (no PASS/FAIL conclusion; see reasoning)
+  reasoning: 51 of 52 established, 1 could not be established: UC6-AC41
+```
+
+If the stack trace crowds it out, collapse it in the Run window now. **Do not change the assertion to
+make the UI prettier.**
 
 ## A4 · Tabs to pre-open, left to right
 
@@ -67,9 +104,9 @@ Open them in this order so the tab bar *is* your running order:
 
 | # | File | Where to leave the caret |
 |---|---|---|
-| 1 | `EarsSliceTest.java` | `theCancellationSliceIsFullyEstablished` |
-| 2 | `EarsUseCaseTest.java` | `theCompleteSpecificationCannotBeEstablished` |
-| 3 | `Rfc2119RulesTest.java` | `theArchitecturalDesignIsViolated` |
+| 1 | `ShouldIMergeSliceDemo.java` | `shouldMergeThisSlice` |
+| 2 | `ShouldIMergeBehaviorDemo.java` | `shouldMergeUc6Behavior` |
+| 3 | `ShouldIMergeArchitectureDemo.java` | `shouldMergeArchitecture` |
 | 4 | `rules.md` | **line 38**, `### RULE-4` |
 | 5 | `StaffFallbackService.java` | **line 248** |
 | 6 | `LifecycleProcessor.java` | **line 166** |
@@ -116,117 +153,199 @@ spend their attention on the part they know.
 
 ## B2 · Module 02 — the first Agent Judge API
 
-**Tab 1 · `EarsSliceTest.java`** → `theCancellationSliceIsFullyEstablished`
+**Tab 1 · `ShouldIMergeSliceDemo.java`** → `shouldMergeThisSlice`
 
-Point at each line as you say its sentence. **This is the most important 30 seconds in the talk.**
+The whole method body is three lines. **This is the most important 30 seconds in the talk.**
 
 ```java
-EarsCriterion.from(CRITERIA)     →  "These are Anton's requirements, written before the code."
-EarsJudge.create(...)            →  "This is the Agent Judge API."
-JudgeAssertions.assertStatus(...)→  "And this is JUnit."
+var requirements = EarsCriterion.select(EarsCriterion.from(CRITERIA), SLICE);
+
+var judge = EarsJudge.create("appointment-cancellation", requirements, model);
+
+assertPass(judge, context);
 ```
 
-**Click the gutter arrow.** Expect green, and the runner showing:
+Point at each line as you say its sentence:
 
 ```
-6 requirements → PASS
+requirements  →  "These are six requirements from Anton's spec, written before the code."
+judge         →  "This judge evaluates them against the repository."
+assertPass    →  "And this is the merge policy. JUnit requires PASS."
 ```
 
-Don't linger in the runner. The code is the visual.
+> **"I don't mean JUnit-like. I mean JUnit."**
 
-## B3 · Explain the recording — 30 seconds, no more
+**Click the gutter arrow.** Expect **GREEN**.
 
-Do this **once**, here, before anyone wonders how 52 requirements got evaluated in two seconds.
+> **"Good."**
 
-> **"These evaluations originally ran live through AgentClient. They take long enough that I'm not
-> going to make you watch an AI think on stage. I committed the verbatim responses from those live
-> runs and I replay them here."**
+Don't over-explain and don't linger in the runner. This green is here to establish the audience's
+normal expectation — PASS is green — *before* the next one turns red.
+
+**Do not** explain `model` and `context` yet. They are fields above the method precisely so they stay
+out of the first thing anyone sees.
+
+## B3 · What normally happens, and why this is instant — ~60 seconds
+
+**Do this after the first green, and give it real time.** A Java developer who watches 52 requirements
+evaluate in two seconds is right to be suspicious, and the answer is a pattern they already know.
+
+### First, the two fields, one sentence each
+
+> **"`context` is just the PetClinic workspace being evaluated."**
 >
-> **"Same `EarsJudge`, same parser, same classifier, same JUnit assertion. The only thing I swap is
-> the `JudgeModel` — live AgentClient versus a recorded response."**
+> **"`model` is where the judgment answer comes from."**
 
-Point at:
+### Then: are we calling an AI right now? No.
+
+> **"There is no API key set and no network call in this demo. Not one."**
+
+### What normally happens — the live path
+
+> **"Normally `model` is an `AgentClientJudgeModel`. It runs a real agent through AgentClient: it
+> greps the repository, opens files, runs commands, and then answers all 52 requirements one line at
+> a time. That takes about fourteen minutes."**
+>
+> **"I'm not making you watch that. I ran it, I captured exactly what it said, and I committed it."**
+
+### Show the recording — it is 56 lines, open it
+
+**Optional tab 9**, and worth it if the room looks sceptical:
+
+```
+case-studies/spec-driven-petclinic/tutorial-support/src/main/resources/
+  recordings/spec-conformance-uc6.txt
+```
+
+Line 1 is the provenance:
+
+```
+Captured 2026-09-06 from a live AgentClient run. Verbatim agent output follows the blank line.
+```
+
+Then scroll to **line 45**, which is the line that turned the gate red:
+
+```
+UC6-AC41: CANNOT_DETERMINE - no main-source path ever sets a vet inactive (`Vet.setActive` at
+`Vet.java:58` is called only by test fixtures, always with `true`), so nothing here exercises
+deactivation or its effect on existing appointments.
+```
+
+> **"That's the agent's own sentence. `CANNOT_DETERMINE`. The judge parsed that into ABSTAIN, and
+> ABSTAIN is why JUnit went red."**
+
+### The analogy that makes it stop being suspicious
+
+> **"This is a recorded HTTP interaction. Same idea as WireMock or VCR — capture the real response
+> once, replay it so the test is fast, offline and deterministic. Except what I recorded isn't an
+> HTTP response, it's what an agent said after reading the repository."**
+
+### What is *not* recorded — the important half
+
+> **"Only that one method is swapped. Everything else runs for real, every time: the prompt is
+> rendered, the parser reads all 52 answers, the roster guard checks that 52 arrived, and the verdict
+> is computed in Java. That's why it takes two seconds and not zero."**
+>
+> **"The verdict isn't stored anywhere. ABSTAIN and UC6-AC41 are recomputed from those words on every
+> run. If I broke the rollup, the recording wouldn't hide it."**
+
+And the honest caveat, which costs nothing and buys credibility:
+
+> **"What a recorded run proves is the wiring and the semantics — not that the judge is right. To
+> re-earn that I set one environment variable and wait fourteen minutes."**
+
+> 💡 **Available if you want it, distraction risk if you don't:** that same recording opens by saying
+> *"Existing surefire reports show 270 tests"*. There are 290. **Every file-and-line citation in that
+> recording is correct and its prose count is wrong** — which is the tutorial's own thesis, visible in
+> the raw evidence. Powerful, but it opens a topic. Only take it if you have time.
+
+## B4 · Module 03 — the same gate, on the whole document · expect RED
+
+**Tab 2 · `ShouldIMergeBehaviorDemo.java`** → `shouldMergeUc6Behavior`
+
+Same three lines. One difference — no `select`:
 
 ```java
-JudgeBackends.forRecording(workspace, "ears-uc6-cancellation")
+var requirements = EarsCriterion.from(CRITERIA);
+
+var judge = EarsJudge.create("appointment-lifecycle", requirements, model);
+
+assertPass(judge, context);
 ```
 
-Then move on. Tab 8 only if someone asks.
+> **"Same judge. Same policy. This time I'm not sampling six — I'm running the whole document."**
 
-## B4 · Module 03 — scale to the whole document
-
-**Tab 2 · `EarsUseCaseTest.java`** → `theCompleteSpecificationCannotBeEstablished`
-
-> **"Same judge. This time I'm not selecting six — I'm running the whole document."**
-
-**Run it.** Green, and the runner reads:
+**Run it.** Expect **RED**. Read the top of the failure out loud:
 
 ```
-52 requirements → ABSTAIN: UC6-AC41 could not be established
+Expected judgment PASS but was ABSTAIN  (no PASS/FAIL conclusion; see reasoning)
+  reasoning: 51 of 52 established, 1 could not be established: UC6-AC41
+  1 of 52 checks failed:
+    - UC6-AC41: could not be established: no main-source path ever sets a vet inactive
+      (`Vet.setActive` at `Vet.java:58` is called only by test fixtures, always with `true`)
 ```
 
-### 🎙️ Now handle the green-versus-ABSTAIN point. Do not skip this.
+### 🎙️ Then the line. The IDE has just made the argument for you.
 
-> **"Green here means the evaluator returned the result I expected from this recorded case study.
-> It is not saying the application is acceptable. In a real merge gate my policy would require
-> PASS — that's `assertPass`."**
-
-Then scroll to `theRosterIsCompleteAndTheOutcomeIsNotAccidental` and show:
-
-```java
-assertEquals(52, judgment.checks().size());
-assertEquals(51L, established);
-assertEquals(List.of("UC6-AC41"), unestablished);
-assertNull(judgment.score());
-```
-
-### 🎙️ The line to land. Pause after it.
-
+> **"This is exactly what I want from a merge gate. It did not establish the criterion, so the gate
+> does not go green."**
+>
 > **"PASS means I established every required criterion.
 > I don't turn 51 out of 52 into 98% and call it done."**
+
+**Pause.**
+
+Notice what you no longer have to do: there is no explaining why a green test means something bad.
+Red means not yet. The tool agrees with the sentence.
 
 ### 🎙️ Then the transition nothing on screen gives you
 
 > **"Behaviour isn't the only thing Anton specified."**
 
-## B5 · Module 04 — same shape, different specification
+## B5 · Module 04 — same gate, different specification · expect RED
 
-**Tab 3 · `Rfc2119RulesTest.java`** → `theArchitecturalDesignIsViolated`
+**Tab 3 · `ShouldIMergeArchitectureDemo.java`** → `shouldMergeArchitecture`
 
-Point at the symmetry with Module 02 — that is the whole point of this tab:
+Point at the symmetry. **It is the same three lines with the document changed** — that is the point of
+this tab:
 
 ```java
-Rfc2119Constraint.from(RULES)
-Rfc2119Judge.create(...)
-JudgeAssertions.assertStatus(JudgmentStatus.FAIL, ...)
+var requirements = Rfc2119Constraint.from(RULES);
+
+var judge = Rfc2119Judge.create("architecture", requirements, model);
+
+assertPass(judge, context);
 ```
 
-> **"Same implementation. Another document, written before the code by the same author."**
+> **"Same implementation. Another document, written before the code by the same author. Same JUnit
+> policy: PASS is required."**
 
-**Run it.** Green, runner reads:
-
-```
-13 architectural MUSTs → FAIL: 8 violated
-```
-
-Then show `theViolationsAreTheOnesTheDocumentNames` for the identifiers:
+**Run it.** Expect **RED**:
 
 ```
-RULE-1  RULE-2  RULE-4  RULE-5  RULE-8  RULE-10  RULE-11  RULE-12
+Expected judgment PASS but was FAIL
+  reasoning: 5 of 13 hold, 8 violated
+  8 of 13 checks failed:
+    - RULE-1: No centralized transition policy exists anywhere; SchedulingRequest.setStatus …
+    - RULE-2: … current time is not all Clock-derived: UserPrincipal.java:93 …
+    - RULE-4: … StaffFallbackService takes a PESSIMISTIC_WRITE lock on SchedulingRequest at :247
+              before locking Owner/Pet/Vet at :258 …
+    - RULE-5 · RULE-8 · RULE-10 · RULE-11 · RULE-12
 ```
+
+Every one carries a file and a line, because `JudgeAssertions` keeps the evidence rather than
+reducing it to a boolean.
 
 ### 🎙️ Headline the engineering, not the arithmetic
 
-**Do not** make `5 PASS / 8 FAIL` the headline.
+> **"The build is green. Its 290 tests pass. The behavioural specification mostly held. And eight
+> feature-wide architectural rules do not hold — locking, transaction boundaries, time handling,
+> authorization, what's allowed across a boundary, idempotency, build consistency."**
 
-> **"The behavioural spec mostly held. The architecture evaluation found eight violations —
-> in locking, transaction boundaries, time handling, authorization, what's allowed across a
-> boundary, idempotency, and build consistency."**
->
-> **"The build was green. 290 tests passed. And the specification still surfaced these."**
+> ⚠️ Say those as a list of **areas**, not as a claim that each maps to exactly one rule. That mapping
+> is not verified rule by rule.
 
-> ⚠️ Say the themes as a *list of areas*, not as a claim that each maps to exactly one rule.
-> That mapping has not been verified rule by rule.
+Then scroll to **RULE-4** in the failure — it is the one you are about to open.
 
 ## B6 · Show the rule that was actually violated
 
@@ -275,6 +394,8 @@ lifecycle processing  Owner → Request
 
 Say the *reason* before opening the test:
 
+> **"The gate has already done its job — it stopped the merge. Now I'm asking a different question."**
+>
 > **"The architecture judge is a screening step. It says RULE-4 doesn't hold and points me at this
 > code. But that alone doesn't prove the bug matters — maybe those two paths can never run at the
 > same time."**
@@ -289,13 +410,33 @@ assertEquals(Investigation.Outcome.CONFIRMED, investigation.outcome());
 assertEquals(Investigation.Reachability.REACHABLE, investigation.reachability());
 ```
 
-**Run it.** Green, runner reads:
+**Show the two assertions. Do not run this as your closing act.**
 
-```
-RULE-4 investigation → CONFIRMED and REACHABLE
+```java
+assertEquals(Investigation.Outcome.CONFIRMED, investigation.outcome());
+assertEquals(Investigation.Reachability.REACHABLE, investigation.reachability());
 ```
 
-> **"The first judge found the violation. The investigation found the reachable counterparty path."**
+> **"CONFIRMED. REACHABLE."**
+>
+> **"The first judge found the violation. The investigation found the path that makes it real."**
+
+You may run it if you want the green tick — but **it is a meta-result**: it asserts that the
+investigation did its job, which the audience can already see from the two values. It adds a colour
+and no information, and ending on it reads as *"problem fixed"*.
+
+## B9 · Close on the red — one click
+
+Go back to **tab 3** and re-run `ShouldIMergeArchitectureDemo`.
+
+**RED.**
+
+> **"The gate is still red. Nothing I've learned in the last two minutes changed that — PetClinic is
+> exactly as broken as it was."**
+>
+> **"What changed is that I now know which of those eight to look at first, and why it matters."**
+
+That is the honest end state, and it is the answer to the question the talk opened with.
 
 Optional, and it is what makes the second tier more than an echo:
 
@@ -307,7 +448,7 @@ Optional, and it is what makes the second tier more than an echo:
 > The line-number movement (`:247` → `:248`) is a **supporting observation, not the headline.**
 > The headline is the opposing reachable lock orders.
 
-## B9 · Optional — `JudgeAssertions`, 20 seconds
+## B10 · Optional — `JudgeAssertions`, 20 seconds
 
 Only if the room is with you.
 
@@ -323,7 +464,7 @@ JudgeAssertions.assertStatus(...);    // fails with status, reasoning, and every
 
 Show only `assertPass` / `assertFail` / `assertStatus`. Skip the Jury overloads.
 
-## B10 · Module 06 — spoken, nothing to run
+## B11 · Module 06 — spoken, nothing to run
 
 Leave Module 05's green run on screen.
 
@@ -339,6 +480,11 @@ Leave Module 05's green run on screen.
 > ⛔ **Do NOT claim** the tutorial implemented any ArchUnit rule, or that `ArchUnitJudge` exists.
 > ⛔ **Do NOT** present ArchUnit as *the* destination for RULE-4 — a dynamic global lock order is
 > not obviously an ArchUnit rule, and someone in that room will know it.
+
+### 🎙️ And then close on why any of it was in JUnit
+
+> **"This is why I wanted it in JUnit. The merge gate isn't a score, and it isn't a report I
+> remember to read later. If the required bar isn't established, IntelliJ goes red."**
 
 ---
 
@@ -375,18 +521,48 @@ line (the criteria file path).
 
 These are the only things that matter:
 
-| Module | Runner must show | Verdict |
-|---|---|---|
-| 02 | `6 requirements → PASS` | PASS |
-| 03 | `52 requirements → ABSTAIN: UC6-AC41 could not be established` | ABSTAIN |
-| 04 | `13 architectural MUSTs → FAIL: 8 violated` | FAIL |
-| 05 | `RULE-4 investigation → CONFIRMED and REACHABLE` | CONFIRMED |
+| Run | Class | Expect | Because |
+|---|---|---|---|
+| B2 | `ShouldIMergeSliceDemo` | 🟢 **GREEN** | six requirements PASS |
+| B4 | `ShouldIMergeBehaviorDemo` | 🔴 **RED** | ABSTAIN — `UC6-AC41` not established |
+| B5 | `ShouldIMergeArchitectureDemo` | 🔴 **RED** | FAIL — 8 of 13 violated |
+| B8 | `InvestigationReplayTest` | *shown, not run* | CONFIRMED · REACHABLE |
+| B9 | `ShouldIMergeArchitectureDemo` again | 🔴 **RED** | still FAIL — nothing was fixed |
 
-**All four JUnit tests are green.** Green means the evaluator returned the expected result — it does
-*not* mean the application is acceptable. That distinction is B4's job to explain.
+**The demo ends red, on purpose.** Two of these are supposed to be red, and the last thing on screen
+is one of them. That is the demo working. If B4 or B5 goes *green*, something
+is wrong — you are probably running the `*Test` regression class instead of the `*Demo` merge gate.
+
+**The ordinary build stays green.** `./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml test`
+runs 49 tests and passes; Surefire does not discover `*Demo` classes. Verified from a clean clone.
 
 **Normal, not errors:** a `spring-javaformat` line about `AccountBootstrapRunner.java` if the
 candidate re-materializes (harmless provenance — let it finish, don't explain it unless asked).
+
+
+---
+
+# Regression suite vs merge gate — the distinction, once
+
+This is not a workaround. **The subject of the test is different**, and that is the whole reason both
+exist.
+
+| | Regression contract (`*Test`) | Merge gate (`*Demo`) |
+|---|---|---|
+| Question | Did the evaluator reproduce the known recorded result? | Did the implementation meet the required bar? |
+| Subject | the evaluator | the subject under evaluation |
+| Assertion | `assertStatus(ABSTAIN, …)` | `assertPass(…)` |
+| ABSTAIN | 🟢 green — expected | 🔴 red — bar not met |
+| FAIL | 🟢 green — expected | 🔴 red — bar not met |
+| Runs in CI | yes, 49 tests | no — Surefire skips `*Demo` |
+| Runs on stage | **no** | **yes** |
+
+Why `*Demo` and not `*Test`: two of these gates are *supposed* to be red. A build that is
+intentionally red teaches people to ignore red, so they stay out of the ordinary suite while IntelliJ
+still offers a gutter arrow beside `@Test`.
+
+Why keep the regression tests at all: they are what catches a promotion defect or a broken recording.
+They earned their place on 2026-09-08 when the library swap had to be proven not to move a verdict.
 
 ---
 
@@ -395,11 +571,13 @@ candidate re-materializes (harmless provenance — let it finish, don't explain 
 | | |
 |---|---|
 | Module 01 | spoken only, ~30s |
-| Module 02 + recording explanation | ~2½ min |
+| Module 02 | ~1 min |
+| B3 · what normally happens + the recording | ~1 min |
 | Module 03 | ~2 min |
 | Module 04 | ~2 min |
 | RULE-4 + the two code paths | ~2 min |
-| Module 05 | ~2 min |
+| Module 05 investigation (shown) | ~1½ min |
+| Re-run the gate, close on red | ~30s |
 | Module 06 spoken | ~1 min |
 
 **~11–12 minutes.** Slightly longer than the terminal version, because reading code aloud is the

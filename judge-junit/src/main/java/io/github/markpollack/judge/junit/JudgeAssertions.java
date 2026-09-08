@@ -208,10 +208,25 @@ public final class JudgeAssertions {
         }
     }
 
+    /**
+     * A one-clause gloss on the status, for the statuses whose name is not self-explanatory.
+     *
+     * <p>{@code ERROR} means the same thing everywhere: the judge did not complete, so it rejected
+     * nothing.
+     *
+     * <p>{@code ABSTAIN} does not. In a jury of heterogeneous judges it means "this judge does not
+     * apply to this subject", so it casts no vote. Over a fixed roster of requirements that all
+     * apply by construction it means "this required thing could not be established", which must
+     * block a pass. Both readings are legitimate and this class cannot know which is in play — so
+     * it states neither and points at {@link Judgment#reasoning()}, which is written by the judge
+     * that does know, and is printed on the next line.
+     *
+     * <p>Asserting one reading here would put a false explanation directly above the true one.
+     */
     private static void appendMeaning(StringBuilder message, JudgmentStatus actual) {
         switch (actual) {
             case ERROR -> message.append("  (the judge did not complete, so it rejected nothing)");
-            case ABSTAIN -> message.append("  (the judge cast no vote)");
+            case ABSTAIN -> message.append("  (no PASS/FAIL conclusion; see reasoning)");
             default -> {
             }
         }
