@@ -6,6 +6,9 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.markpollack.judge.ai.model.JudgeModel;
 import io.github.markpollack.judge.ai.model.JudgeModelRequest;
 import io.github.markpollack.judge.ai.model.JudgeModelResponse;
@@ -28,13 +31,15 @@ import io.github.markpollack.judge.ai.model.JudgeModelResponse;
 public final class RecordedJudgeModel implements JudgeModel {
 
     /**
-     * JDK logger, deliberately — no dependency, no configuration, prints at INFO out of the box.
+     * SLF4J, because that is what this repository and the library already use — {@code slf4j-simple}
+     * is a compile-scope dependency of the root POM, which this case study inherits, so INFO goes to
+     * stderr with no configuration.
      *
      * <p>This exists because a passing JUnit test prints nothing, so a judge that replays in two
      * seconds is indistinguishable from a judge that did not run. These lines say what was asked,
      * what answered, and where that answer came from.
      */
-    private static final System.Logger LOG = System.getLogger("agent-judge.tutorial");
+    private static final Logger log = LoggerFactory.getLogger(RecordedJudgeModel.class);
 
     /**
      * What this backend says when it cannot answer, and the ERROR message the operator sees.
@@ -62,7 +67,7 @@ public final class RecordedJudgeModel implements JudgeModel {
         String path = "/recordings/" + recording + ".txt";
         try (InputStream in = RecordedJudgeModel.class.getResourceAsStream(path)) {
             if (in == null) {
-                LOG.log(System.Logger.Level.WARNING, "no recording named '" + recording + "'");
+                log.warn("no recording named '{}'", recording);
                 return new JudgeModelResponse(NO_RECORDING, "recorded", null, Map.of("successful", false));
             }
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
@@ -72,11 +77,10 @@ public final class RecordedJudgeModel implements JudgeModel {
             String answer = body < 0 ? text : text.substring(body + 2).strip();
 
             String provenance = body < 0 ? "no provenance header" : text.substring(0, body).strip();
-            LOG.log(System.Logger.Level.INFO, () ->
-                "replaying recording '" + recording + "' — " + provenance);
-            LOG.log(System.Logger.Level.INFO, () ->
-                "prompt " + request.messages().stream().mapToInt(m -> m.content().length()).sum()
-                    + " chars in · answer " + answer.lines().count() + " lines back");
+            log.info("replaying recording '{}' — {}", recording, provenance);
+            log.info("prompt {} chars in · answer {} lines back",
+                request.messages().stream().mapToInt(m -> m.content().length()).sum(),
+                answer.lines().count());
 
             return new JudgeModelResponse(answer, "recorded", null, Map.of("successful", true));
         }

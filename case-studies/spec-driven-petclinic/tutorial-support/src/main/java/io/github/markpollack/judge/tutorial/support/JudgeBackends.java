@@ -10,6 +10,9 @@ import io.github.markpollack.agents.claude.ClaudeAgentModel;
 import io.github.markpollack.agents.claude.ClaudeAgentOptions;
 import io.github.markpollack.agents.client.AgentClient;
 import io.github.markpollack.judge.agentclient.AgentClientJudgeModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.markpollack.judge.ai.model.JudgeModel;
 
 /**
@@ -35,8 +38,8 @@ import io.github.markpollack.judge.ai.model.JudgeModel;
  */
 public final class JudgeBackends {
 
-    /** See {@link RecordedJudgeModel} for why this is the JDK logger and not a framework. */
-    private static final System.Logger LOG = System.getLogger("agent-judge.tutorial");
+    /** See {@link RecordedJudgeModel} for why this is SLF4J. */
+    private static final Logger log = LoggerFactory.getLogger(JudgeBackends.class);
 
     /** Set to {@code live} to judge with a real agent. */
     public static final String MODE = "AGENT_JUDGE_TUTORIAL_AGENT";
@@ -112,8 +115,7 @@ public final class JudgeBackends {
      */
     public static JudgeModel backendFor(Path workspace, Duration timeout, String recording) {
         if (!live()) {
-            LOG.log(System.Logger.Level.INFO,
-                "backend: recorded — set " + MODE + "=live to run a real agent instead");
+            log.info("backend: recorded — set {}=live to run a real agent instead", MODE);
             return new RecordedJudgeModel(recording);
         }
         String capture = System.getenv("AGENT_JUDGE_TUTORIAL_CAPTURE");
