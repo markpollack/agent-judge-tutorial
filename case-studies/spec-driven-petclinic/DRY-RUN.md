@@ -94,6 +94,17 @@ Don't start over. Add the case study alongside it:
    ```
 4. Wait for import — a second root appears, *Case Study - Running the Spec You Already Wrote*
 
+### Second IntelliJ window — `agent-judge`, for B2b
+
+Open this as a separate project so you can show what the judge actually does:
+
+```
+/home/mark/projects/agent-judge
+```
+
+Pre-open `EarsJudge.java` at `templateFor()` (line 81). The published sources jar predates the
+promotion, so ctrl-clicking from the demo project gives decompiled bytecode — use the real file.
+
 ### Only if you want the optional `JudgeAssertions` tab (B9)
 
 That file lives in the fundamentals project, so it is not in the case study. Either skip B9, or open
@@ -334,6 +345,56 @@ normal expectation — PASS is green — *before* the next one turns red.
 
 **Do not** explain `model` and `context` yet. They are fields above the method precisely so they stay
 out of the first thing anyone sees.
+
+## B2b · What actually ran — open the judge in a second window
+
+**Do this, or the green tick means nothing.** The audience just watched a test pass and has no idea
+what logic executed. Two methods answer it, and they are the two that matter most in the whole talk.
+
+⚠️ **Open `agent-judge` in a SECOND IntelliJ window.** Ctrl-clicking `EarsJudge` from the demo lands
+in **decompiled bytecode** — the published sources jar predates the promotion and does not contain
+these classes. Open the real file instead:
+
+```
+/home/mark/projects/agent-judge/agent-judge-ai-core/src/main/java/io/github/markpollack/judge/ai/requirements/EarsJudge.java
+```
+
+### 1 · `templateFor()` — line 81 — what the model was actually asked
+
+This is the whole question, in plain English, and it is checkable. Show these lines:
+
+```
+Answer every one of the 52 criteria below. Do not add criteria, do not merge two
+into one, and do not skip one because it looks obvious or looks hard. The
+specification asked 52 questions and owes 52 answers.
+
+  <criterion-id>: PASS|FAIL|CANNOT_DETERMINE - <one sentence, citing a file>
+
+Cite a file and line for every claim. If you state a count, obtain it with a
+command rather than by reading and estimating.
+
+CANNOT_DETERMINE is a real answer. Use it rather than guessing.
+
+Do not state an overall verdict. You assess each criterion; deciding what the set
+of assessments means is not your job.
+```
+
+> **"That last paragraph is the important one. The model answers each criterion. It is explicitly
+> told not to decide what the answers add up to."**
+
+### 2 · `classifier()` — line 124 — where the verdict is actually decided
+
+> **"And this is where that decision is made. In Java. It counts the answers, checks that all 52
+> came back, and rolls them up — ERROR beats FAIL beats ABSTAIN beats PASS."**
+>
+> **"The model assesses. The code decides. That's the whole reason a wrong answer here is a bug I
+> can find rather than a mood the model was in."**
+
+💡 Also worth pointing at, if asked how it knows nothing was skipped: the roster guard. A document
+with 52 criteria yields 52 answers or the judge returns ERROR naming what is missing — a pass over a
+partial set is an abstention wearing a pass.
+
+Keep this to about 90 seconds. Then back to the demo window.
 
 ## B3 · What normally happens, and why this is instant — ~60 seconds
 
@@ -721,6 +782,7 @@ They earned their place on 2026-09-08 when the library swap had to be proven not
 | Module 01 | spoken only, ~30s |
 | B2 · the spec tree, spec.md, criteria.md | ~1 min |
 | B2 · Module 02, the first API and the run | ~1 min |
+| B2b · the prompt and the classifier, second window | ~1½ min |
 | B3 · what normally happens + the recording | ~1 min |
 | Module 03 | ~2 min |
 | Module 04 | ~2 min |
@@ -728,7 +790,7 @@ They earned their place on 2026-09-08 when the library swap had to be proven not
 | Module 05 investigation (shown) | ~1½ min |
 | Module 06 spoken | ~1 min |
 
-**~12–13 minutes.** Slightly longer than the terminal version, because reading code aloud is the
+**~13–15 minutes.** Slightly longer than the terminal version, because reading code aloud is the
 point rather than an overhead. Test runs themselves are instant.
 
 ---
