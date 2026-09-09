@@ -139,10 +139,34 @@ Open them in this order so the tab bar *is* your running order:
 | 9 | `InvestigationReplayTest.java` | `theRecordedInvestigationReplaysToTheSameAnswer` |
 | 10 *(optional)* | `spec-conformance-uc6.txt` | the recording, for B3 |
 
-⚠️ **Tabs 1 and 6 are both `spec.md`/`rules.md`-shaped names but at different levels.** Tab 1 is
-`smart-appointment-scheduling/spec.md`; tab 6 is `smart-appointment-scheduling/rules.md`. Each use
-case also has its own `spec.md` and `rules.md` one level deeper. Check the tab you are on before you
-talk about it.
+⚠️ **`spec.md` and `rules.md` each exist eight times.** Once at the feature level, and once inside
+every one of the seven use-case directories. The IntelliJ tab shows only the filename, so name the
+directory to yourself before you talk about a tab.
+
+**The two you want are both directly inside `smart-appointment-scheduling/`:**
+
+```
+spec/smart-appointment-scheduling/spec.md      ← TAB 1   the feature, seven use cases
+spec/smart-appointment-scheduling/rules.md     ← TAB 6   the 13 feature-wide MUSTs, module 04
+```
+
+**The ones you do NOT want** are one level deeper, e.g.:
+
+```
+spec/smart-appointment-scheduling/manage-appointment-lifecycle/spec.md    ✗
+spec/smart-appointment-scheduling/manage-appointment-lifecycle/rules.md   ✗  UC6's own 7 rules
+```
+
+Tab 2 is the only file you want from inside a use-case directory:
+
+```
+spec/smart-appointment-scheduling/manage-appointment-lifecycle/criteria.md   ← TAB 2
+```
+
+💡 IntelliJ normally disambiguates same-named tabs by appending the parent directory, so you should
+see `spec.md (smart-appointment-scheduling)` versus `spec.md (manage-appointment-lifecycle)`. Confirm
+that during the dry run — if it does not, hover the tab for the full path, and consider closing the
+use-case-level files entirely so only the two you want are open.
 
 Tabs 4–6 are the **vendored, unmodified** subject. Inside the opened project they are under
 `fixtures/petclinic/appointment-scheduling-spec-with-usecases/`. Full paths, if you would rather
