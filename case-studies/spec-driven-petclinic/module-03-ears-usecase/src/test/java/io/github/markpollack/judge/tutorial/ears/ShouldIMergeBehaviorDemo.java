@@ -23,7 +23,7 @@ import static io.github.markpollack.judge.junit.JudgeAssertions.assertPass;
  * <p>That is the whole argument for putting this in JUnit rather than in a report. Nobody has to
  * remember to read it, and nobody has to decide what 51 out of 52 means. The bar was
  * <em>every required criterion affirmatively established</em>, the bar was not met, and the tool
- * every Java developer already trusts says so in the colour it uses for "not yet".
+ * every Java developer already trusts says so in the color it uses for "not yet".
  *
  * <p>Same judge and same document as {@link EarsUseCaseTest}, which asserts the recorded ABSTAIN as
  * a regression contract and is therefore green. Different question, different subject.
