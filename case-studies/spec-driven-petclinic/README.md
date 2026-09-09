@@ -2,15 +2,17 @@
 
 > ## ⚠️ CONFERENCE PATH FROZEN — recording Wednesday 2026-09-09, morning
 >
-> **Modules 01–05 are frozen at `2b1e7c5`** (tag `conference-known-good-2b1e7c5`; verdicts unchanged
-> since `b72e74d`, everything after it additive or presentation-only) and were rehearsed from a
-> clean clone, offline, with no API key. Until the recording, **presentation blockers only.**
+> **Modules 01–05 are rehearsed and tagged `conference-merge-gate`.** Verdicts are unchanged since
+> `b72e74d`; everything after it is additive or presentation-only. Rehearsed from a clean clone,
+> offline, with no API key. Until the recording, **presentation blockers only.**
+>
+> The demo is IntelliJ + JUnit — see [`DRY-RUN.md`](DRY-RUN.md). `DEMO-SETUP.md` is the terminal
+> fallback.
 >
 > Frozen: `module-01-build`, `module-02-ears-slice`, `module-03-ears-usecase`,
 > `module-04-rfc2119-rules`, `tutorial-support`, `fixtures/`, and the committed recordings.
 > `module-05-investigation` was added afterwards, additively: it changes nothing in the four
-> modules above, and they replay byte-identically with it present. The full frozen checkpoint is
-> `2b1e7c5`, tagged `conference-known-good-2b1e7c5`.
+> modules above, and they replay byte-identically with it present.
 >
 > **Do not** refactor `EarsJudge` or `Rfc2119Judge` — their duplication, including
 > `criteriaTotal` vs `constraintsTotal`, is a known and deliberate deferral. **Do not** recapture

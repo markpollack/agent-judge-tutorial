@@ -594,7 +594,7 @@ case study.
 repo    github.com/markpollack/agent-judge-tutorial
 branch  petclinic-evidence-arc
 path    case-studies/spec-driven-petclinic
-tag     conference-library-consuming
+tag     conference-merge-gate
 ```
 
 **The library claim, this exact wording:**

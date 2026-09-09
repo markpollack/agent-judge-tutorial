@@ -1,12 +1,18 @@
 # DEMO-SETUP — operator checklist
 
-Execute top to bottom immediately before recording. No interpretation required.
+> ## ⚠️ This is no longer the primary demo
+>
+> **The conference demo is IntelliJ + JUnit. Use [`DRY-RUN.md`](DRY-RUN.md).**
+>
+> This file is the **terminal fallback** — for rehearsal, and for the stage only if IntelliJ
+> misbehaves. It still works and its expected results are still correct, but the terminal is no
+> longer what the audience sees. Where the two disagree about *what to present*, `DRY-RUN.md` wins.
 
-Narrative explanation of *why* lives in `README.md` § Before the demo. **This file is the
-authoritative command sequence.** If the two ever disagree, this one is right.
+Execute top to bottom. No interpretation required.
 
-Frozen conference checkpoint: **`2b1e7c5`** — "Module 05: a failed requirement is an address, not
-yet a consequence". Also tagged `conference-known-good-2b1e7c5`.
+Rehearsed conference tree: tag **`conference-merge-gate`**. Run
+`./dry-run-check.sh` from the repository root rather than checking the SHA by hand — it resolves the
+expected commit from that tag, so it cannot go stale.
 
 **The conference path is modules 01–05.** Module 05 was promoted from optional to part of the path
 by the Project Owner's `05-AJT` scope decision; module 06 is deliberately not implemented and is a
@@ -43,7 +49,7 @@ byte-identically to `b72e74d`.**
 ```bash
 cd ~/projects/agent-judge-tutorial
 
-git merge-base --is-ancestor ea5e12d HEAD && echo "checkpoint OK" || echo "STOP: not on the conference path"
+./case-studies/spec-driven-petclinic/dry-run-check.sh   # branch, commit, clean tree, key, candidate
 git status --porcelain                       # expect NO output
 echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-<unset>}"   # expect <unset>
 ./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml install -DskipTests -q && echo "offline build OK"
@@ -136,7 +142,7 @@ module 05   RULE-4  CONFIRMED · REACHABLE      address moved :247 -> :248
 Module 04's eight failures, in display order:
 `RULE-1 · RULE-2 · RULE-4 · RULE-5 · RULE-8 · RULE-10 · RULE-11 · RULE-12`
 
-**If any line differs, do not present. Return to `2b1e7c5`.**
+**If any line differs, do not present. Return to the `conference-merge-gate` tag.**
 
 ## Expected timings
 
@@ -207,4 +213,4 @@ fourteen minutes — never a stage activity.
 `cd ~/projects/agent-judge-tutorial`, then use the exact command from § 8–12.
 
 **Any module output differs from the expected results above.**
-Do not improvise a fix while recording. Stop and return to `2b1e7c5`.
+Do not improvise a fix while recording. Stop and return to the `conference-merge-gate` tag.
