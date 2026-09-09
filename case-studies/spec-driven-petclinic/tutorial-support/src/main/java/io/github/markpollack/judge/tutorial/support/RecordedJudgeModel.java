@@ -28,6 +28,15 @@ import io.github.markpollack.judge.ai.model.JudgeModelResponse;
 public final class RecordedJudgeModel implements JudgeModel {
 
     /**
+     * JDK logger, deliberately — no dependency, no configuration, prints at INFO out of the box.
+     *
+     * <p>This exists because a passing JUnit test prints nothing, so a judge that replays in two
+     * seconds is indistinguishable from a judge that did not run. These lines say what was asked,
+     * what answered, and where that answer came from.
+     */
+    private static final System.Logger LOG = System.getLogger("agent-judge.tutorial");
+
+    /**
      * What this backend says when it cannot answer, and the ERROR message the operator sees.
      *
      * <p>It is a whole sentence rather than a marker because the judge no longer translates it. A
@@ -53,14 +62,23 @@ public final class RecordedJudgeModel implements JudgeModel {
         String path = "/recordings/" + recording + ".txt";
         try (InputStream in = RecordedJudgeModel.class.getResourceAsStream(path)) {
             if (in == null) {
+                LOG.log(System.Logger.Level.WARNING, "no recording named '" + recording + "'");
                 return new JudgeModelResponse(NO_RECORDING, "recorded", null, Map.of("successful", false));
             }
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             // Strip the provenance header; everything after the first blank line is
             // exactly what the agent returned.
             int body = text.indexOf("\n\n");
-            return new JudgeModelResponse(body < 0 ? text : text.substring(body + 2).strip(),
-                "recorded", null, Map.of("successful", true));
+            String answer = body < 0 ? text : text.substring(body + 2).strip();
+
+            String provenance = body < 0 ? "no provenance header" : text.substring(0, body).strip();
+            LOG.log(System.Logger.Level.INFO, () ->
+                "replaying recording '" + recording + "' — " + provenance);
+            LOG.log(System.Logger.Level.INFO, () ->
+                "prompt " + request.messages().stream().mapToInt(m -> m.content().length()).sum()
+                    + " chars in · answer " + answer.lines().count() + " lines back");
+
+            return new JudgeModelResponse(answer, "recorded", null, Map.of("successful", true));
         }
         catch (IOException e) {
             throw new UncheckedIOException("Could not read recording " + path, e);

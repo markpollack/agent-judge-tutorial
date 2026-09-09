@@ -35,6 +35,9 @@ import io.github.markpollack.judge.ai.model.JudgeModel;
  */
 public final class JudgeBackends {
 
+    /** See {@link RecordedJudgeModel} for why this is the JDK logger and not a framework. */
+    private static final System.Logger LOG = System.getLogger("agent-judge.tutorial");
+
     /** Set to {@code live} to judge with a real agent. */
     public static final String MODE = "AGENT_JUDGE_TUTORIAL_AGENT";
 
@@ -109,6 +112,8 @@ public final class JudgeBackends {
      */
     public static JudgeModel backendFor(Path workspace, Duration timeout, String recording) {
         if (!live()) {
+            LOG.log(System.Logger.Level.INFO,
+                "backend: recorded — set " + MODE + "=live to run a real agent instead");
             return new RecordedJudgeModel(recording);
         }
         String capture = System.getenv("AGENT_JUDGE_TUTORIAL_CAPTURE");
