@@ -1,6 +1,6 @@
 # Dry run — IntelliJ + JUnit
 
-## ⭐ The colour arc — and it ends RED, on purpose
+## ⭐ The color arc — and it ends RED, on purpose
 
 ```
 B2   six requirements           GREEN      PASS
@@ -444,7 +444,7 @@ assertEquals(Investigation.Reachability.REACHABLE, investigation.reachability())
 > **"The first judge found the violation. The investigation found the path that makes it real."**
 
 You may run it if you want the green tick — but **it is a meta-result**: it asserts that the
-investigation did its job, which the audience can already see from the two values. It adds a colour
+investigation did its job, which the audience can already see from the two values. It adds a color
 and no information, and ending on it reads as *"problem fixed"*.
 
 ## B9 · Close on the red — one click
