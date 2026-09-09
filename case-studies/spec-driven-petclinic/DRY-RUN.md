@@ -283,10 +283,45 @@ assertPass(judge, context);
 Point at each line as you say its sentence:
 
 ```
-requirements  →  "These are six requirements from Anton's spec, written before the code."
+requirements  →  "Six of Anton's requirements, written before the code."
 judge         →  "This judge evaluates them against the repository."
 assertPass    →  "And this is the merge policy. JUnit requires PASS."
 ```
+
+### 🎙️ Say which six, and why — 15 seconds that pre-empts the obvious question
+
+`SLICE` names them explicitly, and it is worth reading off the screen:
+
+```java
+UC6-AC7 · UC6-AC8 · UC6-AC9 · UC6-AC10 · UC6-AC11 · UC6-AC12
+```
+
+> **"Six of the fifty-two. Not six I liked — a contiguous block, AC7 through AC12, and they're all
+> about one thing: cancelling an appointment."**
+
+They really are one topic, which is why the judge is named `appointment-cancellation`:
+
+```
+UC6-AC7    Cancel an owned appointment before start
+UC6-AC8    Reject owner cancellation at start
+UC6-AC9    Reject owner cancellation after start
+UC6-AC10   Free resources after cancellation
+UC6-AC11   Keep the linked request terminal
+UC6-AC12   Require a new request for owner rebooking
+```
+
+Their neighbours are different subjects — AC6 is overlapping appointments, AC13 is direct booking —
+so the block is a real seam in the document, not a window drawn around a result.
+
+⚠️ **Somebody will wonder whether you picked six that pass.** Answer it before they ask, in one
+sentence, and then let the next run answer it properly:
+
+> **"Six is what fits on a screen and what you can actually read. If you're wondering whether I
+> picked six that pass — that's a fair question, and it's why the next thing I do is run all
+> fifty-two."**
+
+That is the strongest possible setup for B4, because the audience is now *waiting* for the complete
+run rather than being shown it.
 
 > **"I don't mean JUnit-like. I mean JUnit."**
 
