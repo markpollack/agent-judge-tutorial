@@ -20,6 +20,20 @@ EXPECTED_BRANCH="petclinic-evidence-arc"
 EXPECTED_TAG="conference-merge-gate"
 
 bold=$'\e[1m'; red=$'\e[31m'; green=$'\e[32m'; yellow=$'\e[33m'; off=$'\e[0m'
+
+# --warm: do the preparation rather than printing commands for someone to copy at 8am.
+if [ "${1:-}" = "--warm" ]; then
+    echo
+    echo "${bold}Warming the candidate${off}"
+    echo "  materializing (deletes and re-copies from the vendored fixture)..."
+    ( cd "$CASE/fixtures/petclinic" && ./materialize-large-candidate.sh >/dev/null ) || {
+        echo "${red}  materialization failed${off}"; exit 1; }
+    echo "  building the candidate (about 40s)..."
+    ( cd "$CASE/fixtures/petclinic/build/large-candidate" && ./mvnw -o -q test ) >/dev/null 2>&1 || {
+        echo "${red}  candidate build failed${off}"; exit 1; }
+    echo "${green}  warm.${off} Re-running the check..."
+    exec "${BASH_SOURCE[0]}"
+fi
 problems=()
 warnings=()
 
@@ -49,7 +63,10 @@ if [ -z "$expected_head" ]; then
     echo
     exit 1
 fi
-dirty="$(git -C "$REPO" status --porcelain 2>/dev/null | grep -v 'DRY-RUN.md\|dry-run-check.sh' | wc -l | tr -d ' ')"
+# No exclusions. These files were untracked when this check was written and were skipped
+# for that reason; they are tracked now, and an exclusion list in a pre-flight check is a
+# way to be told everything is fine while something is not.
+dirty="$(git -C "$REPO" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
 
 check "branch"          "$branch"                     "$EXPECTED_BRANCH"
 check "commit"          "$head"                       "$expected_head"
@@ -81,16 +98,29 @@ if [ ${#problems[@]} -gt 0 ]; then
 fi
 
 if [ ${#warnings[@]} -gt 0 ]; then
-    echo "${bold}${yellow}  READY, but warm up first.${off}"
+    echo "${bold}${yellow}  NOT READY — the candidate needs warming.${off}"
     echo
-    echo "  Copy and run this one line, then re-run this check:"
+    echo "  Run this same script with --warm and it will do it for you (about a minute):"
     echo
-    echo "    ( cd $CASE/fixtures/petclinic && ./materialize-large-candidate.sh ) \\"
-    echo "      && ( cd $CASE/fixtures/petclinic/build/large-candidate && ./mvnw -o -q test )"
+    echo "    ./case-studies/spec-driven-petclinic/dry-run-check.sh --warm"
     echo
     exit 0
 fi
 
-echo "${bold}${green}  READY. Go to Step 3.${off}"
+# Everything else is right, so the last question is whether it actually builds offline.
+printf "  %-22s " "offline build"
+if (cd "$REPO" && ./mvnw -o -q -f "$CASE/pom.xml" install -DskipTests) >/dev/null 2>&1; then
+    echo "${green}OK${off}"
+else
+    echo "${red}FAILED${off}"
+    echo
+    echo "${bold}${red}  STOP — do not present.${off}"
+    echo "  The case study does not build offline. Hand this output over."
+    echo
+    exit 1
+fi
+
+echo
+echo "${bold}${green}  READY.${off}  Open IntelliJ and follow DRY-RUN.md Part B."
 echo
 exit 0

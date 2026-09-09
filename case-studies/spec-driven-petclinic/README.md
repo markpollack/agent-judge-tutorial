@@ -6,8 +6,8 @@
 > `b72e74d`; everything after it is additive or presentation-only. Rehearsed from a clean clone,
 > offline, with no API key. Until the recording, **presentation blockers only.**
 >
-> The demo is IntelliJ + JUnit — see [`DRY-RUN.md`](DRY-RUN.md). `DEMO-SETUP.md` is the terminal
-> fallback.
+> **The demo is [`DRY-RUN.md`](DRY-RUN.md)** — one document: preflight, the IntelliJ walkthrough, and
+> the terminal fallback.
 >
 > Frozen: `module-01-build`, `module-02-ears-slice`, `module-03-ears-usecase`,
 > `module-04-rfc2119-rules`, `tutorial-support`, `fixtures/`, and the committed recordings.
