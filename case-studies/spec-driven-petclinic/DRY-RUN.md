@@ -1,21 +1,29 @@
 # Dry run — IntelliJ + JUnit
 
-## ⭐ The color arc — and it ends RED, on purpose
+## ⭐ The color arc
 
 ```
 B2   six requirements           GREEN      PASS
 B4   all 52 UC6 requirements    RED        ABSTAIN · UC6-AC41 not established
 B5   13 architectural MUSTs     RED        FAIL · 8 violated
-B8   RULE-4 investigation       ——         what the failure means, and whether it can happen
-B9   re-run the gate            RED        still FAIL — nothing was fixed
+
+B6   read RULE-4 in Anton's rules.md
+B7   show the opposing lock orders
+
+B8   RULE-4 investigation       SHOWN      CONFIRMED · REACHABLE   (not run)
+
+     → back to slides: prefer deterministic, use AI for what remains
 ```
 
-**The talk asks "should I merge this?" The answer is no. The last thing on the screen should say so.**
+**The last merge gate you execute is RED, and it stays red.** The talk asks *"should I merge this?"*
+and the answer is no; nothing after B5 changes that, because B6–B8 are diagnosis rather than
+remediation.
 
-An earlier version of this demo ended on a green investigation test. That was wrong twice over: it
-reads as *"problem found, problem fixed"* when nothing was fixed, and asserting that the
-investigation succeeded is a meta-result the audience can already see from its output. So the
-investigation is **shown, not asserted**, and the closing image is the merge gate still red.
+**B8 is shown, not run.** Asserting that the investigation succeeded is a meta-result the audience
+can already read off `CONFIRMED` / `REACHABLE` — it would add a green tick and no information, and a
+green at the end reads as *"problem found, problem fixed"* when nothing was fixed.
+
+The shape is: **gate decides → investigation explains → engineering responds.**
 
 **You run the `ShouldIMerge*Demo` classes on stage, not the `*Test` classes.** They assert
 `assertPass` — PASS is the merge policy — so ABSTAIN and FAIL go red, which is what a gate does.
@@ -83,9 +91,9 @@ Don't start over. Add the case study alongside it:
 3. Paste the same path as above
 4. Wait for import — a second root appears, *Case Study - Running the Spec You Already Wrote*
 
-### Only if you want the optional `JudgeAssertions` tab (B10)
+### Only if you want the optional `JudgeAssertions` tab (B9)
 
-That file lives in the fundamentals project, so it is not in the case study. Either skip B10, or open
+That file lives in the fundamentals project, so it is not in the case study. Either skip B9, or open
 it as a standalone file with `File → Open`:
 
 ```
@@ -443,22 +451,9 @@ assertEquals(Investigation.Reachability.REACHABLE, investigation.reachability())
 >
 > **"The first judge found the violation. The investigation found the path that makes it real."**
 
-You may run it if you want the green tick — but **it is a meta-result**: it asserts that the
-investigation did its job, which the audience can already see from the two values. It adds a color
-and no information, and ending on it reads as *"problem fixed"*.
-
-## B9 · Close on the red — one click
-
-Go back to **tab 3** and re-run `ShouldIMergeArchitectureDemo`.
-
-**RED.**
-
-> **"The gate is still red. Nothing I've learned in the last two minutes changed that — PetClinic is
-> exactly as broken as it was."**
->
-> **"What changed is that I now know which of those eight to look at first, and why it matters."**
-
-That is the honest end state, and it is the answer to the question the talk opened with.
+**Don't run it.** It is a meta-result — it asserts that the investigation did its job, which the
+audience can already read off those two values. It would add a green tick and no information, and a
+green here reads as *"problem fixed"* when nothing was fixed.
 
 Optional, and it is what makes the second tier more than an echo:
 
@@ -470,7 +465,19 @@ Optional, and it is what makes the second tier more than an echo:
 > The line-number movement (`:247` → `:248`) is a **supporting observation, not the headline.**
 > The headline is the opposing reachable lock orders.
 
-## B10 · Optional — `JudgeAssertions`, 20 seconds
+### 🎙️ Then hand off to the engineering question
+
+> **"The merge decision was already made — the gate made it. This second evaluation isn't another
+> vote. It's diagnosis. It tells me which failure matters, and why."**
+
+> **"So now the engineering question: which of these judgments should stay AI judgments, and which
+> can we turn into deterministic checks?"**
+
+**Nothing else runs.** The last gate you executed was red and it stays red — you were investigating,
+not remediating. B9 is an optional 20-second aside; B10 is spoken, and is where that engineering
+question gets answered.
+
+## B9 · Optional — `JudgeAssertions`, 20 seconds
 
 Only if the room is with you.
 
@@ -486,9 +493,9 @@ JudgeAssertions.assertStatus(...);    // fails with status, reasoning, and every
 
 Show only `assertPass` / `assertFail` / `assertStatus`. Skip the Jury overloads.
 
-## B11 · Module 06 — spoken, nothing to run
+## B10 · Module 06 — spoken, nothing to run
 
-Leave Module 05's green run on screen.
+Picks up directly from B8's handoff. Nothing runs here, and nothing needs to be on screen.
 
 > **"Now that we've localized these findings, we can classify them."**
 >
@@ -549,10 +556,9 @@ These are the only things that matter:
 | B4 | `ShouldIMergeBehaviorDemo` | 🔴 **RED** | ABSTAIN — `UC6-AC41` not established |
 | B5 | `ShouldIMergeArchitectureDemo` | 🔴 **RED** | FAIL — 8 of 13 violated |
 | B8 | `InvestigationReplayTest` | *shown, not run* | CONFIRMED · REACHABLE |
-| B9 | `ShouldIMergeArchitectureDemo` again | 🔴 **RED** | still FAIL — nothing was fixed |
 
-**The demo ends red, on purpose.** Two of these are supposed to be red, and the last thing on screen
-is one of them. That is the demo working. If B4 or B5 goes *green*, something
+**Two of these are supposed to be red**, and the last gate you execute is one of them. That is the
+demo working. If B4 or B5 goes *green*, something
 is wrong — you are probably running the `*Test` regression class instead of the `*Demo` merge gate.
 
 **The ordinary build stays green.** `./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml test`
@@ -599,7 +605,6 @@ They earned their place on 2026-09-08 when the library swap had to be proven not
 | Module 04 | ~2 min |
 | RULE-4 + the two code paths | ~2 min |
 | Module 05 investigation (shown) | ~1½ min |
-| Re-run the gate, close on red | ~30s |
 | Module 06 spoken | ~1 min |
 
 **~11–12 minutes.** Slightly longer than the terminal version, because reading code aloud is the
