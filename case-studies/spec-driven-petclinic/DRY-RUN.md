@@ -56,20 +56,24 @@ cd ~/projects/agent-judge-tutorial
 
 ## A2 · Open the project in IntelliJ
 
-**Use `File → Open` and paste this exact path.** Not the repository root — this one:
+**Use `File → Open` and paste this exact path — the directory, not a file:**
 
 ```
-/home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/pom.xml
+/home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic
 ```
 
-IntelliJ will ask **Open as Project** — say yes. It imports the case study as a standalone Maven
-project and every file the demo needs is in it.
+IntelliJ detects the `pom.xml` inside it and asks **Open as Project** — say yes. It imports the case
+study as a standalone Maven project and every file the demo needs is in it.
 
-> **Why the `pom.xml` and not the folder above it.** Opening
-> `~/projects/agent-judge-tutorial` gives you the **fundamentals** tutorial — `module-01-oracle-boundary`
-> through `module-11-langchain4j-evaluation`. The case study is a deliberately separate Maven project,
-> so **none of the four stage classes appear** and the demo cannot run. Opening the case study's own
-> `pom.xml` avoids the problem entirely rather than fixing it afterwards.
+> ⚠️ **Give it the directory.** Pointing `File → Open` at the `pom.xml` itself makes IntelliJ
+> complain it does not know how to open that file type. (The Maven tool window's *Add Maven Project*
+> is the opposite — that one does want the `pom.xml`. See the recovery note below.)
+
+> **And not the folder above it.** Opening `~/projects/agent-judge-tutorial` gives you the
+> **fundamentals** tutorial — `module-01-oracle-boundary` through `module-11-langchain4j-evaluation`.
+> The case study is a deliberately separate Maven project, so **none of the four stage classes
+> appear** and the demo cannot run. Opening the case-study directory avoids that entirely rather than
+> repairing it afterwards.
 
 ### Verify before you go on stage
 
@@ -88,7 +92,10 @@ Don't start over. Add the case study alongside it:
 
 1. **Maven** tool window (right edge, or `Ctrl+Shift+A` → "Maven")
 2. **+** (*Add Maven Project*)
-3. Paste the same path as above
+3. Paste this — **here it is the `pom.xml`, not the directory**:
+   ```
+   /home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/pom.xml
+   ```
 4. Wait for import — a second root appears, *Case Study - Running the Spec You Already Wrote*
 
 ### Only if you want the optional `JudgeAssertions` tab (B9)
