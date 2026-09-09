@@ -128,14 +128,21 @@ Open them in this order so the tab bar *is* your running order:
 
 | # | File | Where to leave the caret |
 |---|---|---|
-| 1 | `ShouldIMergeSliceDemo.java` | `shouldMergeThisSlice` |
-| 2 | `ShouldIMergeBehaviorDemo.java` | `shouldMergeUc6Behavior` |
-| 3 | `ShouldIMergeArchitectureDemo.java` | `shouldMergeArchitecture` |
-| 4 | `rules.md` | **line 38**, `### RULE-4` |
-| 5 | `StaffFallbackService.java` | **line 248** |
-| 6 | `LifecycleProcessor.java` | **line 166** |
-| 7 | `InvestigationReplayTest.java` | `theRecordedInvestigationReplaysToTheSameAnswer` |
-| 8 *(optional)* | `JudgeBackends.java` | only if you explain live-vs-replay |
+| 1 | `spec.md` *(feature level)* | the feature summary and its seven use cases |
+| 2 | `criteria.md` *(inside `manage-appointment-lifecycle/`)* | top of the file |
+| 3 | `ShouldIMergeSliceDemo.java` | `shouldMergeThisSlice` |
+| 4 | `ShouldIMergeBehaviorDemo.java` | `shouldMergeUc6Behavior` |
+| 5 | `ShouldIMergeArchitectureDemo.java` | `shouldMergeArchitecture` |
+| 6 | `rules.md` *(feature level)* | **line 38**, `### RULE-4` |
+| 7 | `StaffFallbackService.java` | **line 248** |
+| 8 | `LifecycleProcessor.java` | **line 166** |
+| 9 | `InvestigationReplayTest.java` | `theRecordedInvestigationReplaysToTheSameAnswer` |
+| 10 *(optional)* | `spec-conformance-uc6.txt` | the recording, for B3 |
+
+⚠️ **Tabs 1 and 6 are both `spec.md`/`rules.md`-shaped names but at different levels.** Tab 1 is
+`smart-appointment-scheduling/spec.md`; tab 6 is `smart-appointment-scheduling/rules.md`. Each use
+case also has its own `spec.md` and `rules.md` one level deeper. Check the tab you are on before you
+talk about it.
 
 Tabs 4–6 are the **vendored, unmodified** subject. Inside the opened project they are under
 `fixtures/petclinic/appointment-scheduling-spec-with-usecases/`. Full paths, if you would rather
@@ -184,9 +191,60 @@ spend their attention on the part they know.
 > **"That's the deterministic part. It builds. But the build has no opinion about whether it did
 > what was asked."**
 
-## B2 · Module 02 — the first Agent Judge API
+## B2 · The specification first, then the first Agent Judge API
 
-**Tab 1 · `ShouldIMergeSliceDemo.java`** → `shouldMergeThisSlice`
+### 🎙️ Start in the Project pane, not in a file
+
+Before any test, show them **where the requirements live**. Expand:
+
+```
+fixtures/petclinic/appointment-scheduling-spec-with-usecases/spec/smart-appointment-scheduling/
+```
+
+They see this, and **the shape of the tree is the argument**:
+
+```
+smart-appointment-scheduling/
+    proposal.md                      what was asked for
+    spec.md                          the feature, and its seven use cases
+    rules.md                         13 feature-wide architectural MUSTs   ← module 04
+    secure-scheduling-access/
+    configure-clinic-scheduling/
+    interpret-appointment-request/
+    guide-appointment-selection/
+    resolve-staff-fallback/
+    manage-appointment-lifecycle/    ← the one we read
+        criteria.md                  52 EARS acceptance criteria           ← modules 02, 03
+        rules.md
+        spec.md
+    notify-audit-and-recover/
+```
+
+> **"All of this was written before any code existed. Seven use cases. 438 numbered requirements
+> across 15 documents."**
+>
+> **"I read two of them."**
+
+**Open tab 1, `spec.md`**, just long enough to show the feature summary and the list of seven use
+cases. Don't read it aloud — scroll it.
+
+Then **point at `rules.md` at the top level** and leave it:
+
+> **"Those thirteen are feature-wide. We come back to them."**
+
+Then **descend into `manage-appointment-lifecycle/` and open `criteria.md`** (tab 2):
+
+> **"And this is one use case out of seven. Fifty-two acceptance criteria, numbered, each one
+> traceable. This is what I'm going to run."**
+
+💡 **Why the nesting matters, and it is worth one sentence.** `rules.md` sits at the top because it
+constrains the *whole feature*; `criteria.md` sits one level down because it describes *one use
+case*. That is the same distinction modules 03 and 04 turn on — behaviour of one use case versus
+architecture of the whole thing — and the directory tree shows it before you have to explain it.
+
+### Now the code
+
+**Tab 3 · `ShouldIMergeSliceDemo.java`** → `shouldMergeThisSlice`
 
 The whole method body is three lines. **This is the most important 30 seconds in the talk.**
 
@@ -243,7 +301,7 @@ evaluate in two seconds is right to be suspicious, and the answer is a pattern t
 
 ### Show the recording — it is 56 lines, open it
 
-**Optional tab 9**, and worth it if the room looks sceptical:
+**Tab 10**, and worth opening if the room looks sceptical:
 
 ```
 case-studies/spec-driven-petclinic/tutorial-support/src/main/resources/
@@ -294,7 +352,7 @@ And the honest caveat, which costs nothing and buys credibility:
 
 ## B4 · Module 03 — the same gate, on the whole document · expect RED
 
-**Tab 2 · `ShouldIMergeBehaviorDemo.java`** → `shouldMergeUc6Behavior`
+**Tab 4 · `ShouldIMergeBehaviorDemo.java`** → `shouldMergeUc6Behavior`
 
 Same three lines. One difference — no `select`:
 
@@ -337,7 +395,7 @@ Red means not yet. The tool agrees with the sentence.
 
 ## B5 · Module 04 — same gate, different specification · expect RED
 
-**Tab 3 · `ShouldIMergeArchitectureDemo.java`** → `shouldMergeArchitecture`
+**Tab 5 · `ShouldIMergeArchitectureDemo.java`** → `shouldMergeArchitecture`
 
 Point at the symmetry. **It is the same three lines with the document changed** — that is the point of
 this tab:
@@ -382,7 +440,7 @@ Then scroll to **RULE-4** in the failure — it is the one you are about to open
 
 ## B6 · Show the rule that was actually violated
 
-**Tab 4 · `rules.md` at line 38.** Do not jump from `RULE-4 FAIL` to `CONFIRMED`.
+**Tab 6 · `rules.md` (feature level) at line 38.** Do not jump from `RULE-4 FAIL` to `CONFIRMED`.
 
 Highlight the requirement itself:
 
@@ -395,7 +453,7 @@ Owner, Pet, Vet, SchedulingRequest, Appointment, Reservation
 
 ## B7 · Show the two code paths
 
-**Tab 5 · `StaffFallbackService.java`, line 248.**
+**Tab 7 · `StaffFallbackService.java`, line 248.**
 
 ```
 248   SchedulingRequest request = lockCoordinator.lockRequest(requestId);   ← SchedulingRequest
@@ -404,7 +462,7 @@ Owner, Pet, Vet, SchedulingRequest, Appointment, Reservation
 
 > **"This path takes SchedulingRequest, then Owner."**
 
-**Tab 6 · `LifecycleProcessor.java`, line 166.**
+**Tab 8 · `LifecycleProcessor.java`, line 166.**
 
 ```
 166   lockCoordinator.lockResources(owner, pet, vet, request, ...)          ← Owner, then Request
@@ -436,7 +494,7 @@ Say the *reason* before opening the test:
 > **"So I ask a second agent a deliberately different question: what is the consequence, and is it
 > actually reachable?"**
 
-**Tab 7 · `InvestigationReplayTest.java`** → `theRecordedInvestigationReplaysToTheSameAnswer`
+**Tab 9 · `InvestigationReplayTest.java`** → `theRecordedInvestigationReplaysToTheSameAnswer`
 
 ```java
 assertEquals(Investigation.Outcome.CONFIRMED, investigation.outcome());
@@ -602,7 +660,8 @@ They earned their place on 2026-09-08 when the library swap had to be proven not
 | | |
 |---|---|
 | Module 01 | spoken only, ~30s |
-| Module 02 | ~1 min |
+| B2 · the spec tree, spec.md, criteria.md | ~1 min |
+| B2 · Module 02, the first API and the run | ~1 min |
 | B3 · what normally happens + the recording | ~1 min |
 | Module 03 | ~2 min |
 | Module 04 | ~2 min |
@@ -610,7 +669,7 @@ They earned their place on 2026-09-08 when the library swap had to be proven not
 | Module 05 investigation (shown) | ~1½ min |
 | Module 06 spoken | ~1 min |
 
-**~11–12 minutes.** Slightly longer than the terminal version, because reading code aloud is the
+**~12–13 minutes.** Slightly longer than the terminal version, because reading code aloud is the
 point rather than an overhead. Test runs themselves are instant.
 
 ---
