@@ -67,9 +67,15 @@ class ShouldIMergeSliceDemo {
     /** The repository under evaluation. */
     private static final JudgmentContext context = Candidate.contextFor(WORKSPACE);
 
-    /** Where the judgment comes from — here, a verbatim response captured from a live run. */
-    private static final JudgeModel model =
-        JudgeBackends.forRecording(WORKSPACE, "ears-uc6-cancellation");
+    /**
+     * Where the judgment comes from — a verbatim response captured from a live run.
+     *
+     * <p>Wrapped in {@code showing} so the whole exchange is printed. Six criteria are few enough
+     * that the prompt and the reply both fit on a screen, which is the point of a slice: you can
+     * read what was asked and what was answered instead of being told.
+     */
+    private static final JudgeModel model = JudgeBackends.showing(
+        JudgeBackends.forRecording(WORKSPACE, "ears-uc6-cancellation"));
 
     @Test
     @DisplayName("Should I merge? Six UC6 requirements must PASS")

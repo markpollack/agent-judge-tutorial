@@ -13,6 +13,8 @@ import io.github.markpollack.judge.agentclient.AgentClientJudgeModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.markpollack.judge.ai.model.JudgeMessage;
+import io.github.markpollack.judge.ai.model.JudgeModelResponse;
 import io.github.markpollack.judge.ai.model.JudgeModel;
 
 /**
@@ -87,6 +89,32 @@ public final class JudgeBackends {
                 .timeout(timeout)
                 .build())
             .build();
+    }
+
+    /**
+     * Wrap a backend so it prints the whole exchange — the prompt out, the answer back.
+     *
+     * <p>This is why the six-criterion slice exists. Six requirements produce a prompt and a reply
+     * that fit on a screen, so the audience can read <em>exactly</em> what the judge asked and
+     * <em>exactly</em> what came back, rather than being told about it. Fifty-two of anything can
+     * only be summarised.
+     *
+     * <p>Deliberately opt-in and deliberately not used by the larger modules: the same call on the
+     * full use case would print several hundred lines and teach nothing the six do not.
+     */
+    public static JudgeModel showing(JudgeModel backend) {
+        return request -> {
+            String prompt = request.messages().stream()
+                .map(JudgeMessage::content)
+                .collect(java.util.stream.Collectors.joining("\n"));
+            log.info("---------- what the judge asked ----------\n{}", prompt);
+
+            JudgeModelResponse response = backend.generate(request);
+
+            log.info("---------- what came back ----------\n{}",
+                response.text() == null ? "(nothing)" : response.text().strip());
+            return response;
+        };
     }
 
     /** The live backend: a real agent, reachable only through AgentClient. */
