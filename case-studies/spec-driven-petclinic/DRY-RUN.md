@@ -50,34 +50,51 @@ cd ~/projects/agent-judge-tutorial
 ⚠️ `READY, but warm up first` — it prints one line to copy. Run it, re-run the check. ~1 minute.
 ❌ `STOP — do not present` — hand the output over. **Do not fix it yourself.**
 
-## A2 · ⚠️ IntelliJ setup — the step that will break the demo if skipped
+## A2 · Open the project in IntelliJ
 
-**Opening `~/projects/agent-judge-tutorial` gives you the WRONG project.** The root Maven reactor is
-the *fundamentals* tutorial — `module-01-oracle-boundary` through `module-11-langchain4j-evaluation`.
-**The case study is a deliberately separate Maven project and its tests will not appear at all.**
-
-So after opening the repository:
-
-1. Open the **Maven** tool window (right edge, or `⌘⇧A` / `Ctrl+Shift+A` → "Maven").
-2. Click **+** (*Add Maven Project*).
-3. Select:
-   ```
-   ~/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/pom.xml
-   ```
-4. Wait for import. You should now see a second root, **Case Study - Running the Spec You Already
-   Wrote**, with `tutorial-support` and `module-01-build` … `module-05-investigation` under it.
-
-**Verify before you go on stage** — the Project pane must show:
+**Use `File → Open` and paste this exact path.** Not the repository root — this one:
 
 ```
-case-studies/spec-driven-petclinic/
-  module-02-ears-slice/src/test/java/.../EarsSliceTest.java
-  module-03-ears-usecase/src/test/java/.../EarsUseCaseTest.java
-  module-04-rfc2119-rules/src/test/java/.../Rfc2119RulesTest.java
-  module-05-investigation/src/test/java/.../InvestigationReplayTest.java
+/home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/pom.xml
 ```
 
-If those four files are not there, **the demo cannot run.** Fix it now, not at 9am.
+IntelliJ will ask **Open as Project** — say yes. It imports the case study as a standalone Maven
+project and every file the demo needs is in it.
+
+> **Why the `pom.xml` and not the folder above it.** Opening
+> `~/projects/agent-judge-tutorial` gives you the **fundamentals** tutorial — `module-01-oracle-boundary`
+> through `module-11-langchain4j-evaluation`. The case study is a deliberately separate Maven project,
+> so **none of the four stage classes appear** and the demo cannot run. Opening the case study's own
+> `pom.xml` avoids the problem entirely rather than fixing it afterwards.
+
+### Verify before you go on stage
+
+The Project pane must show these four files. If it does not, stop:
+
+```
+module-02-ears-slice/src/test/java/.../ShouldIMergeSliceDemo.java
+module-03-ears-usecase/src/test/java/.../ShouldIMergeBehaviorDemo.java
+module-04-rfc2119-rules/src/test/java/.../ShouldIMergeArchitectureDemo.java
+module-05-investigation/src/test/java/.../InvestigationReplayTest.java
+```
+
+### If you opened the repository root by mistake
+
+Don't start over. Add the case study alongside it:
+
+1. **Maven** tool window (right edge, or `Ctrl+Shift+A` → "Maven")
+2. **+** (*Add Maven Project*)
+3. Paste the same path as above
+4. Wait for import — a second root appears, *Case Study - Running the Spec You Already Wrote*
+
+### Only if you want the optional `JudgeAssertions` tab (B10)
+
+That file lives in the fundamentals project, so it is not in the case study. Either skip B10, or open
+it as a standalone file with `File → Open`:
+
+```
+/home/mark/projects/agent-judge-tutorial/judge-junit/src/main/java/io/github/markpollack/judge/junit/JudgeAssertions.java
+```
 
 ## A3 · Prove the gutter works — and rehearse the RED
 
@@ -113,13 +130,22 @@ Open them in this order so the tab bar *is* your running order:
 | 7 | `InvestigationReplayTest.java` | `theRecordedInvestigationReplaysToTheSameAnswer` |
 | 8 *(optional)* | `JudgeBackends.java` | only if you explain live-vs-replay |
 
-Paths for 4–6, all under the **vendored, unmodified** subject:
+Tabs 4–6 are the **vendored, unmodified** subject. Inside the opened project they are under
+`fixtures/petclinic/appointment-scheduling-spec-with-usecases/`. Full paths, if you would rather
+paste them into `File → Open`:
 
 ```
-case-studies/spec-driven-petclinic/fixtures/petclinic/appointment-scheduling-spec-with-usecases/
-  spec/smart-appointment-scheduling/rules.md
-  src/main/java/org/springframework/samples/petclinic/scheduling/service/StaffFallbackService.java
-  src/main/java/org/springframework/samples/petclinic/scheduling/service/LifecycleProcessor.java
+/home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/fixtures/petclinic/appointment-scheduling-spec-with-usecases/spec/smart-appointment-scheduling/rules.md
+
+/home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/fixtures/petclinic/appointment-scheduling-spec-with-usecases/src/main/java/org/springframework/samples/petclinic/scheduling/service/StaffFallbackService.java
+
+/home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/fixtures/petclinic/appointment-scheduling-spec-with-usecases/src/main/java/org/springframework/samples/petclinic/scheduling/service/LifecycleProcessor.java
+```
+
+And the recording, if you show it in B3:
+
+```
+/home/mark/projects/agent-judge-tutorial/case-studies/spec-driven-petclinic/tutorial-support/src/main/resources/recordings/spec-conformance-uc6.txt
 ```
 
 ## A5 · Make it legible
