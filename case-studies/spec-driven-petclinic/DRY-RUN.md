@@ -65,11 +65,7 @@ cd ~/projects/agent-judge-tutorial
 IntelliJ detects the `pom.xml` inside it and asks **Open as Project** — say yes. It imports the case
 study as a standalone Maven project and every file the demo needs is in it.
 
-> ⚠️ **Give it the directory.** Pointing `File → Open` at the `pom.xml` itself makes IntelliJ
-> complain it does not know how to open that file type. (The Maven tool window's *Add Maven Project*
-> is the opposite — that one does want the `pom.xml`. See the recovery note below.)
-
-> **And not the folder above it.** Opening `~/projects/agent-judge-tutorial` gives you the
+> **Not the folder above it.** Opening `~/projects/agent-judge-tutorial` gives you the
 > **fundamentals** tutorial — `module-01-oracle-boundary` through `module-11-langchain4j-evaluation`.
 > The case study is a deliberately separate Maven project, so **none of the four stage classes
 > appear** and the demo cannot run. Opening the case-study directory avoids that entirely rather than
