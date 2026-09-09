@@ -40,6 +40,25 @@ class ShouldIMergeSliceDemo {
     private static final Path CRITERIA =
         Candidate.SPEC.resolve("manage-appointment-lifecycle/criteria.md");
 
+    /**
+     * Six of the fifty-two criteria in that document. Why a subset exists at all:
+     *
+     * <p><b>It is the only gate here that goes green.</b> All 52 come back ABSTAIN and the 13
+     * architectural MUSTs come back FAIL, so without a subset the first thing anyone ever sees this
+     * tool do is fail — and red carries no information until you have seen green. This is what
+     * establishes that PASS is green and that this is an ordinary JUnit gate.
+     *
+     * <p><b>And six can be read; fifty-two can only be counted.</b> The idea being demonstrated is
+     * that a sentence somebody wrote before the code is now an executable assertion, and that needs
+     * a reader to actually read one.
+     *
+     * <p>These six are not chosen for their outcome. AC7–AC12 is a contiguous block and all six are
+     * about cancelling an appointment — which is why the judge below is named
+     * {@code appointment-cancellation}. Their neighbours are other subjects: AC6 is overlapping
+     * appointments, AC13 is direct booking. It is a seam in the document, not a window drawn around
+     * a result — and {@link ShouldIMergeBehaviorDemo} runs the whole file immediately afterwards,
+     * which settles the question better than this comment can.
+     */
     private static final String[] SLICE =
         { "UC6-AC7", "UC6-AC8", "UC6-AC9", "UC6-AC10", "UC6-AC11", "UC6-AC12" };
 
