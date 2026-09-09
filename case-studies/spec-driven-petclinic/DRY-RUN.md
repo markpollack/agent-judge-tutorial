@@ -150,29 +150,37 @@ Open them in this order so the tab bar *is* your running order:
 | 9 | `InvestigationReplayTest.java` | `theRecordedInvestigationReplaysToTheSameAnswer` |
 | 10 *(optional)* | `spec-conformance-uc6.txt` | the recording, for B3 |
 
-⚠️ **`spec.md` and `rules.md` each exist eight times.** Once at the feature level, and once inside
-every one of the seven use-case directories. The IntelliJ tab shows only the filename, so name the
-directory to yourself before you talk about a tab.
-
-**The two you want are both directly inside `smart-appointment-scheduling/`:**
+**The three specification files you open, in full:**
 
 ```
-spec/smart-appointment-scheduling/spec.md      ← TAB 1   the feature, seven use cases
-spec/smart-appointment-scheduling/rules.md     ← TAB 6   the 13 feature-wide MUSTs, module 04
+TAB 1   spec/smart-appointment-scheduling/spec.md
+        the feature, and its seven use cases
+
+TAB 2   spec/smart-appointment-scheduling/manage-appointment-lifecycle/criteria.md
+        52 EARS acceptance criteria for UC6 — the file ShouldIMergeSliceDemo loads,
+        and the one you slice UC6-AC7..AC12 out of
+
+TAB 6   spec/smart-appointment-scheduling/rules.md
+        the 13 feature-wide architectural MUSTs — module 04
 ```
 
-**The ones you do NOT want** are one level deeper, e.g.:
+⚠️ **`spec.md` and `rules.md` each exist eight times in that tree** — once at the feature level, and
+once inside every one of the seven use-case directories. The IntelliJ tab shows only the filename.
+
+So the two that are easy to get wrong are **tabs 1 and 6**, and for both of them **you want the copy
+directly inside `smart-appointment-scheduling/`, not one level deeper**. The deeper ones are the use
+case's own:
 
 ```
-spec/smart-appointment-scheduling/manage-appointment-lifecycle/spec.md    ✗
-spec/smart-appointment-scheduling/manage-appointment-lifecycle/rules.md   ✗  UC6's own 7 rules
+manage-appointment-lifecycle/spec.md     ✗ describes UC6, not the feature
+manage-appointment-lifecycle/rules.md    ✗ UC6's own 7 rules — the document the arc does NOT read
 ```
 
-Tab 2 is the only file you want from inside a use-case directory:
+That second one is the dangerous tab. Opening it during B6 would show the wrong requirements *and*
+step on the two-of-fifteen point.
 
-```
-spec/smart-appointment-scheduling/manage-appointment-lifecycle/criteria.md   ← TAB 2
-```
+**Tab 2 has no such problem** — `criteria.md` only ever exists inside a use-case directory, one per
+use case. The only question is which use case, and you want `manage-appointment-lifecycle/`.
 
 💡 IntelliJ normally disambiguates same-named tabs by appending the parent directory, so you should
 see `spec.md (smart-appointment-scheduling)` versus `spec.md (manage-appointment-lifecycle)`. Confirm
