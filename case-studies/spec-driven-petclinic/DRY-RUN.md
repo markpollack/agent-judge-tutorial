@@ -1,9 +1,5 @@
 # Dry run — IntelliJ + JUnit
 
-> **The demo is now IDE-first.** The audience is Java developers, and the message is that Agent
-> Judge is ordinary Java you run from JUnit in IntelliJ. The terminal is setup, rehearsal and
-> emergency fallback — it is no longer the stage.
-
 ## ⭐ The colour arc — and it ends RED, on purpose
 
 ```
