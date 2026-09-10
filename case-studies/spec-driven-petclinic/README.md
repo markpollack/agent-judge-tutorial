@@ -1,5 +1,7 @@
 # Running the Spec You Already Wrote
 
+> **Documentation**: https://lab.pollack.ai/docs/agent-judge/tutorial | [API Reference](https://lab.pollack.ai/docs/agent-judge/api-reference)
+
 A case study, not a tutorial. The progressive tutorial at the repository root teaches Agent Judge
 one concept at a time; this evaluates one real system end to end.
 
@@ -66,20 +68,15 @@ it is a real build, not a simulation. Everything after it replays instantly. Thi
 **[`DRY-RUN.md`](DRY-RUN.md) is the authoritative walkthrough** — one preflight command, the
 IntelliJ run, expected results, and a terminal fallback.
 
-## What each judge may and may not do
+## How the judges decide
 
-The model assesses individual requirements. Java does everything else:
+The model assesses individual requirements; Java does everything else — the roster comes from the
+specification, the verdict is computed in code, and there is no score anywhere.
 
-- the roster comes from the specification, and a document with N requirements yields N answers or
-  the judge returns `ERROR` naming what is missing;
-- the verdict is computed in Java, never asserted by the model;
-- **PASS means every required requirement was affirmatively established** —
-  `any ERROR → ERROR, else any FAIL → FAIL, else any ABSTAIN → ABSTAIN, else PASS`;
-- there is no score. `Judgment.score()` is null, and a test asserts it stays that way.
-
-A judge may also record a **non-binding observation** — something useful noticed while establishing
-a requirement that the requirement did not itself demand. Observations never enter the roster and
-never change a verdict.
+**Full explanation on the docs site:**
+[design philosophy](https://lab.pollack.ai/docs/agent-judge/design-philosophy) ·
+[custom judges](https://lab.pollack.ai/docs/agent-judge/custom-judge) ·
+[API reference](https://lab.pollack.ai/docs/agent-judge/api-reference)
 
 ## The subject
 
