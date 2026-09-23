@@ -90,7 +90,8 @@ It ends here, which is the whole point of running it:
 Modules 02, 03 and 06 run real Maven builds. Run each once before presenting so the
 dependencies are warm.
 
-No module on this path needs an API key, a network call, or a model endpoint.
+No module on this path needs an API key or a model endpoint. First builds download Maven
+dependencies; with those dependencies prepared, the path can run offline as described above.
 
 ## The learning path
 
@@ -145,7 +146,7 @@ produced. Everything in the tutorial judges that change.
 
 | | |
 |---|---|
-| Agent Judge | `0.15.2` |
+| Agent Judge | `0.17.0` |
 | Koog | `1.1.1` |
 | LangChain4j | `1.19.0` |
 
@@ -171,7 +172,7 @@ jbang RunIntegrationTest.java module-01-oracle-boundary
 Optional Claude validation runs only when `AGENT_JUDGE_TUTORIAL_AI_VALIDATE=true`.
 Candidate verification can select an isolated repository and pre-release artifact with
 `AGENT_JUDGE_TUTORIAL_MAVEN_REPO` and `AGENT_JUDGE_TUTORIAL_AGENT_JUDGE_VERSION`; the
-committed examples target 0.15.2.
+committed examples target 0.17.0.
 
 ## Related
 

@@ -99,6 +99,8 @@ The model assesses individual requirements; Java does everything else — the ro
 specification, the verdict is computed in code, and there is no score anywhere.
 
 **The website carries the teaching text:**
+[PetClinic case study](https://lab.pollack.ai/docs/agent-judge/petclinic-case-study) ·
+[requirements judges](https://lab.pollack.ai/docs/agent-judge/requirements-judges) ·
 [tutorial](https://lab.pollack.ai/docs/agent-judge/tutorial) ·
 [design philosophy](https://lab.pollack.ai/docs/agent-judge/design-philosophy) ·
 [custom judges](https://lab.pollack.ai/docs/agent-judge/custom-judge) ·
