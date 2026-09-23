@@ -1,0 +1,28 @@
+{
+  "moduleId": "module-04-rfc2119-rules",
+  "displayName": "Module 04: Run the architectural rules",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Replay the recorded evidence with the documented strict requirements verdict; no numeric score. Module 01 executes a real build.",
+  "requiredOutput": [
+    "=== Module 04: Run the architectural rules ===",
+    "13 required MUSTs",
+    "   5 PASS\n   8 FAIL",
+    "Overall: FAIL",
+    "    RULE-1 ",
+    "    RULE-2 ",
+    "    RULE-4 ",
+    "    RULE-5 ",
+    "    RULE-8 ",
+    "    RULE-10 ",
+    "    RULE-11 ",
+    "    RULE-12 ",
+    "StaffFallbackService.java:247",
+    "Done."
+  ],
+  "forbiddenOutputPatterns": [
+    "(?i)\\b(?:score|rating|confidence|mean)\\s*(?:[:=]\\s*)?\\d",
+    "(?m)^(?![^\\n]*51 out of 52 into 98% and call it done\\.)[^\\n]*\\d\\s*%"
+  ]
+}

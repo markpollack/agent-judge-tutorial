@@ -75,12 +75,16 @@ Nothing is hidden - both counts are recorded - but nothing raises its voice eith
   pass():    false
 ```
 
-`pass()` is `false` for `FAIL`, `ERROR` **and** `ABSTAIN` alike. A consumer that branches
-on `!pass()` records this as a rejected subject when nothing was ever asked - the judge
-stops lying and the system starts blaming the subject.
+`pass()` is `false` for `FAIL`, `ERROR`, `ABSTAIN` **and** `NOT_APPLICABLE` alike. A consumer that branches
+on `!pass()` cannot distinguish a rejection from an undecided question or an exclusion.
 
 Assert `status()`, not `pass()`. That is why
 [`JudgeAssertions`](../judge-junit) compares statuses exactly.
+
+`ABSTAIN` means the criterion applies but the evidence did not settle it. `NOT_APPLICABLE`
+means it does not apply. A jury member must declare when it can return NOT_APPLICABLE;
+an undeclared exclusion becomes ERROR. ERROR carries an instrument reason code alongside
+its explanation; it is not evidence that the subject violated a requirement.
 
 ## Escalation
 

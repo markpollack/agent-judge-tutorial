@@ -1,5 +1,9 @@
 # Dry run — IntelliJ + JUnit
 
+Current walkthrough for Agent Judge **0.17.0**. Follow the [case-study setup](README.md#run-it)
+first. Maven and the real fixture build need dependency downloads before offline use.
+For the teaching narrative, start with the [website tutorial](https://lab.pollack.ai/docs/agent-judge/tutorial).
+
 ## ⭐ The color arc
 
 ```
@@ -50,9 +54,18 @@ cd ~/projects/agent-judge-tutorial
 ./case-studies/spec-driven-petclinic/dry-run-check.sh
 ```
 
-✅ `READY. Go to Step 3.` — continue to A2.
-⚠️ `READY, but warm up first` — it prints one line to copy. Run it, re-run the check. ~1 minute.
-❌ `STOP — do not present` — hand the output over. **Do not fix it yourself.**
+`READY` means the clean current checkout passed its ordinary case-study tests with Maven
+offline, including the real PetClinic build. Continue to A2. `STOP` exits nonzero and explains
+which prerequisite failed. No historical branch or conference tag needs moving.
+
+To prepare a clean checkout and its dependency cache first (network access may be required):
+
+```bash
+./case-studies/spec-driven-petclinic/dry-run-check.sh --warm
+```
+
+Use `MAVEN_ARGS` to pass any isolated repository/settings to both outer and nested Maven builds.
+The preflight adds `-o` for verification. An unset API key alone does not prove offline execution.
 
 ## A2 · Open the project in IntelliJ
 
@@ -126,7 +139,7 @@ know, before the room, where the useful text sits and how much scrolling it take
 The line that matters is the **first** one:
 
 ```
-Expected judgment PASS but was ABSTAIN  (no PASS/FAIL conclusion; see reasoning)
+Expected judgment PASS but was ABSTAIN  (applicable question left undecided; see reasoning)
   reasoning: 51 of 52 established, 1 could not be established: UC6-AC41
 ```
 
@@ -497,7 +510,7 @@ assertPass(judge, context);
 **Run it.** Expect **RED**. Read the top of the failure out loud:
 
 ```
-Expected judgment PASS but was ABSTAIN  (no PASS/FAIL conclusion; see reasoning)
+Expected judgment PASS but was ABSTAIN  (applicable question left undecided; see reasoning)
   reasoning: 51 of 52 established, 1 could not be established: UC6-AC41
   1 of 52 checks failed:
     - UC6-AC41: could not be established: no main-source path ever sets a vet inactive
@@ -750,6 +763,17 @@ These are the only things that matter:
 demo working. If B4 or B5 goes *green*, something
 is wrong — you are probably running the `*Test` regression class instead of the `*Demo` merge gate.
 
+From the repository root, run the deliberate gates separately after setup:
+
+```bash
+./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml -pl module-02-ears-slice -Dtest=ShouldIMergeSliceDemo test
+./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml -pl module-03-ears-usecase -Dtest=ShouldIMergeBehaviorDemo test
+./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml -pl module-04-rfc2119-rules -Dtest=ShouldIMergeArchitectureDemo test
+```
+
+Expected exit codes: **0, 1, 1** respectively. The latter two are intended assertion failures,
+not failures to compile or launch. These `*Demo` classes remain outside the ordinary test roster.
+
 **The ordinary build stays green.** `./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml test`
 runs 49 tests and passes; Surefire does not discover `*Demo` classes. Verified from a clean clone.
 
@@ -805,29 +829,21 @@ point rather than an overhead. Test runs themselves are instant.
 
 # Presenter notes
 
-**Where the code is** — never give a bare repo URL; `main` is a different, older tutorial with no
-case study.
+**Where the code is:** both learning paths are now in the repository. Open
+`case-studies/spec-driven-petclinic` for this walkthrough; the root reactor contains the eleven
+fundamentals modules. Use the exact revision tested for your presentation.
 
-```
-repo    github.com/markpollack/agent-judge-tutorial
-branch  petclinic-evidence-arc
-path    case-studies/spec-driven-petclinic
-tag     conference-merge-gate
-```
+**Library version:** this checkout consumes released Agent Judge **0.17.0** from Maven Central,
+including `EarsJudge`, `Rfc2119Judge`, their requirement types, and `Observation`.
 
-**The library claim, this exact wording:**
+**Why the strict requirements rollup matters:** an applicable requirement left undecided is
+ABSTAIN and blocks PASS. NOT_APPLICABLE is a separate outcome allowed only by declared
+applicability. These fixture requirements are unconditional. `AllMustPassStrategy` drops
+abstentions; it does not implement this case study's required-roster semantics.
 
-> "The EARS and RFC 2119 judges are now on Agent Judge main and available in the published
-> 0.16.0 snapshot."
-
-⛔ **Not** "Agent Judge 0.16.0 has been GA released." Nothing is on Maven Central under 0.16.0.
-
-**If asked why `EarsJudge` doesn't just use `AllMustPassStrategy`:**
-
-> "Agent Judge's existing abstention semantics are jury semantics — abstain means the judge doesn't
-> apply, so it doesn't vote. A specification is different. Every requirement applies by
-> construction, so 'couldn't establish' has to block PASS. The tutorial exposed that distinction,
-> and we'll likely make that aggregation policy explicit in the library."
+**Historical conference reference:** the September recording used `petclinic-evidence-arc`,
+`conference-merge-gate`, and a published 0.16 snapshot. Those historical tags remain unchanged;
+their old branch-only and pre-GA instructions do not describe the current checkout.
 
 **If asked about the other thirteen documents:** 15 documents carry the 438 requirements; the arc
 reads two. Nobody has run the other thirteen back either — that is the scale of the problem, not a

@@ -23,10 +23,10 @@ import org.opentest4j.AssertionFailedError;
  *
  * <h2>Assert the status, not {@code pass()}</h2>
  *
- * <p>{@link Judgment#pass()} is {@code false} for {@code FAIL}, {@code ERROR} and
- * {@code ABSTAIN} alike, so a test written on {@code pass()} cannot tell a judge that
- * rejected the subject from a judge that never ran. Every method here compares
- * {@link JudgmentStatus} exactly, and a failure message names which of the four states
+ * <p>{@link Judgment#pass()} is {@code false} for {@code FAIL}, {@code ERROR},
+ * {@code ABSTAIN} and {@code NOT_APPLICABLE} alike, so a test written on {@code pass()}
+ * cannot tell a judge that rejected the subject from a judge that never ran. Every method here compares
+ * {@link JudgmentStatus} exactly, and a failure message names which of the five states
  * actually occurred.
  *
  * <p>That distinction is the reason {@link #assertFail} exists rather than
@@ -58,8 +58,8 @@ public final class JudgeAssertions {
     /**
      * Assert that a judgment failed.
      *
-     * <p>{@code ERROR} and {@code ABSTAIN} do not satisfy this. A judge that could not
-     * complete has not rejected anything.
+     * <p>{@code ERROR}, {@code ABSTAIN} and {@code NOT_APPLICABLE} do not satisfy this.
+     * A judge that could not complete has not rejected anything.
      */
     public static void assertFail(Judgment judgment) {
         assertStatus(JudgmentStatus.FAIL, judgment);
@@ -135,6 +135,7 @@ public final class JudgeAssertions {
         message.append("Expected ").append(subject).append(' ').append(expected)
             .append(" but was ").append(judgment.status());
         appendMeaning(message, judgment.status());
+        appendReasonCode(message, judgment, "  ");
         message.append("\n  reasoning: ").append(judgment.reasoning());
         appendChecks(message, judgment.checks(), "  ");
         return message.toString();
@@ -146,6 +147,7 @@ public final class JudgeAssertions {
         message.append("Expected verdict ").append(expected)
             .append(" but was ").append(aggregated.status());
         appendMeaning(message, aggregated.status());
+        appendReasonCode(message, aggregated, "  ");
         message.append("\n  reasoning: ").append(aggregated.reasoning());
 
         List<Judgment> members = verdict.individual();
@@ -170,6 +172,7 @@ public final class JudgeAssertions {
         message.append("\n    ").append(pad(member.status().toString(), 8)).append(name);
         if (member.status() != JudgmentStatus.PASS) {
             message.append("\n        ").append(member.reasoning());
+            appendReasonCode(message, member, "        ");
             appendChecks(message, member.checks(), "        ");
         }
     }
@@ -214,21 +217,24 @@ public final class JudgeAssertions {
      * <p>{@code ERROR} means the same thing everywhere: the judge did not complete, so it rejected
      * nothing.
      *
-     * <p>{@code ABSTAIN} does not. In a jury of heterogeneous judges it means "this judge does not
-     * apply to this subject", so it casts no vote. Over a fixed roster of requirements that all
-     * apply by construction it means "this required thing could not be established", which must
-     * block a pass. Both readings are legitimate and this class cannot know which is in play — so
-     * it states neither and points at {@link Judgment#reasoning()}, which is written by the judge
-     * that does know, and is printed on the next line.
-     *
-     * <p>Asserting one reading here would put a false explanation directly above the true one.
+     * <p>{@code ABSTAIN} means an applicable question was left undecided.
+     * {@code NOT_APPLICABLE} means the criterion does not apply to this subject.
+     * The judge's reasoning supplies the evidence for that distinction.
      */
     private static void appendMeaning(StringBuilder message, JudgmentStatus actual) {
         switch (actual) {
             case ERROR -> message.append("  (the judge did not complete, so it rejected nothing)");
-            case ABSTAIN -> message.append("  (no PASS/FAIL conclusion; see reasoning)");
+            case ABSTAIN -> message.append("  (applicable question left undecided; see reasoning)");
+            case NOT_APPLICABLE -> message.append("  (the criterion does not apply to this subject)");
             default -> {
             }
+        }
+    }
+
+    private static void appendReasonCode(StringBuilder message, Judgment judgment, String indent) {
+        if (judgment.reasonCode() != null) {
+            message.append('\n').append(indent).append("reason code: ")
+                .append(judgment.reasonCode().wireName());
         }
     }
 

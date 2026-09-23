@@ -1,0 +1,21 @@
+{
+  "moduleId": "module-05-investigation",
+  "displayName": "Module 05: Investigate a failure",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Replay the recorded evidence with the documented strict requirements verdict; no numeric score. Module 01 executes a real build.",
+  "requiredOutput": [
+    "=== Module 05: Investigate a failure ===",
+    "RULE-4   FAIL",
+    "Reachable        REACHABLE",
+    "Outcome          CONFIRMED",
+    "judge            StaffFallbackService.java:247\n      investigation    StaffFallbackService.java:248",
+    "That is the difference between eight complaints and one finding.",
+    "Done."
+  ],
+  "forbiddenOutputPatterns": [
+    "(?i)\\b(?:score|rating|confidence|mean)\\s*(?:[:=]\\s*)?\\d",
+    "(?m)^(?![^\\n]*51 out of 52 into 98% and call it done\\.)[^\\n]*\\d\\s*%"
+  ]
+}

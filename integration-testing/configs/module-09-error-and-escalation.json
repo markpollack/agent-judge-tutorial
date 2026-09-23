@@ -4,7 +4,7 @@
   "timeoutSec": 120,
   "requiredEnv": [],
   "requiresPackage": false,
-  "expectedBehavior": "A real ERROR from CoveragePreservationJudge on a workspace with no report, run under all four error policies. PROPAGATE must be ERROR and the other three must be PASS. Show the roster mismatch under IGNORE, show ABSTAIN is not agreement, and show a cascade where the second subject never reaches the content tier.",
+  "expectedBehavior": "A real ERROR from CoveragePreservationJudge on a workspace with no report, run under all four error policies. PROPAGATE must be ERROR and the other three must be PASS. Show the roster mismatch under IGNORE, show ABSTAIN is not agreement, and show a cascade where the second subject never reaches the content tier. Distinguish an undecided applicable question (ABSTAIN) from an excluded criterion (NOT_APPLICABLE); pass() is false for both.",
   "requiredOutput": [
     "=== Module 09: Error, abstention, and escalation ===",
     "PROPAGATE",
@@ -15,6 +15,9 @@
     "eligibleCount:    2",
     "ABSTAIN",
     "/structural",
-    "Done."
+    "Done.",
+    "status:    NOT_APPLICABLE",
+    "ABSTAIN: an applicable question was left undecided.",
+    "NOT_APPLICABLE: the criterion does not apply to this subject."
   ]
 }

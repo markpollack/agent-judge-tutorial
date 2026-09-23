@@ -43,37 +43,63 @@ into a backlog.
 
 ## Run it
 
-From the repository root:
+This checkout uses released **Agent Judge 0.17.0**. Start at the repository root with Java 21
+and the committed Maven wrapper. The first build downloads dependencies, including those needed
+by the real PetClinic build:
 
 ```bash
-./mvnw -f case-studies/spec-driven-petclinic/pom.xml install -DskipTests
-./mvnw -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-01-build
-./mvnw -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-02-ears-slice
+./mvnw install
+./mvnw -f case-studies/spec-driven-petclinic/pom.xml install
+./mvnw -q -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-02-ears-slice
 ```
 
-No API key and no network: every module replays a committed recording of a real agent run. To run
-against a live agent instead:
+The root install supplies `judge-junit`, which the separate case-study reactor consumes.
+The first demo invocation also caches the execution plugin.
+After preparation, replay without model credentials and with Maven offline (including child builds):
 
 ```bash
-AGENT_JUDGE_TUTORIAL_AGENT=live ./mvnw -f case-studies/spec-driven-petclinic/pom.xml \
-    exec:java -pl module-02-ears-slice
+unset ANTHROPIC_API_KEY AGENT_JUDGE_TUTORIAL_AGENT
+export MAVEN_ARGS="${MAVEN_ARGS:-} -o"
+for module in module-01-build module-02-ears-slice module-03-ears-usecase module-04-rfc2119-rules module-05-investigation; do
+  ./mvnw -q -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl "$module"
+done
 ```
 
-Module 01 runs a real Maven build of the candidate and takes about 40 seconds. That is deliberate —
-it is a real build, not a simulation. Everything after it replays instantly. This case study is
-**not** part of the root reactor for that reason.
+Module 01 executes a real build; modules 02–05 replay committed model responses. Expected results:
+
+| Module | Result |
+|---|---|
+| 01 | PASS |
+| 02 | Six established; PASS |
+| 03 | 51 PASS, zero FAIL, one ABSTAIN (`UC6-AC41`); overall ABSTAIN |
+| 04 | Five PASS, eight FAIL; overall FAIL |
+| 05 | One RULE-4 investigation; recorded CONFIRMED / REACHABLE |
+
+With JBang installed, verify all five demo outputs:
+
+```bash
+./integration-testing/scripts/run-integration-tests.sh --case-study
+# After the harness dependencies are cached:
+./integration-testing/scripts/run-integration-tests.sh --case-study --offline
+```
+
+Ordinary tests assert these recorded outcomes and pass. The separate `ShouldIMerge*Demo` tests
+require PASS: the slice passes, the full behavioral specification rejects on ABSTAIN, and the
+architecture rejects on FAIL. See the walkthrough for exact commands. Investigation is diagnosis;
+it does not turn a rejected merge gate green.
 
 ## Presenting it
 
 **[`DRY-RUN.md`](DRY-RUN.md) is the authoritative walkthrough** — one preflight command, the
 IntelliJ run, expected results, and a terminal fallback.
 
-## How the judges decide
+## Learn the concepts
 
 The model assesses individual requirements; Java does everything else — the roster comes from the
 specification, the verdict is computed in code, and there is no score anywhere.
 
-**Full explanation on the docs site:**
+**The website carries the teaching text:**
+[tutorial](https://lab.pollack.ai/docs/agent-judge/tutorial) ·
 [design philosophy](https://lab.pollack.ai/docs/agent-judge/design-philosophy) ·
 [custom judges](https://lab.pollack.ai/docs/agent-judge/custom-judge) ·
 [API reference](https://lab.pollack.ai/docs/agent-judge/api-reference)

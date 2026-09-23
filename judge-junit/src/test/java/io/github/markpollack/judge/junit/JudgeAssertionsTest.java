@@ -15,6 +15,7 @@ import org.opentest4j.AssertionFailedError;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -89,25 +90,18 @@ class JudgeAssertionsTest {
         assertAll(
             () -> assertTrue(error.getMessage().contains("Expected judgment FAIL but was ABSTAIN"),
                 error.getMessage()),
-            () -> assertTrue(error.getMessage().contains("no PASS/FAIL conclusion"), error.getMessage()));
+            () -> assertTrue(error.getMessage().contains("applicable question left undecided"), error.getMessage()));
     }
 
     @Test
     void abstainingJudgmentIsNotAPassEither() {
         assertThrows(AssertionFailedError.class,
-            () -> JudgeAssertions.assertPass(Judgment.abstain("not applicable")));
+            () -> JudgeAssertions.assertPass(Judgment.abstain("insufficient evidence")));
     }
 
-    /**
-     * The message must not explain what ABSTAIN means, because it means two different things.
-     *
-     * <p>In a jury it is "this judge does not apply, so it casts no vote". Over a fixed roster of
-     * requirements that all apply by construction it is "this required thing could not be
-     * established", which must block a pass. This class cannot tell which is in play, so asserting
-     * either would print a false explanation directly above the true one.
-     */
+    /** An undecided requirement keeps its identity and evidence in the diagnostic. */
     @Test
-    void abstainDiagnosticDefersToTheJudgeRatherThanAssumingJurySemantics() {
+    void abstainDiagnosticNamesTheUndecidedRequirement() {
         AssertionFailedError error = assertThrows(AssertionFailedError.class,
             () -> JudgeAssertions.assertPass(Judgment.abstain(
                 "51 of 52 established, 1 could not be established: UC6-AC41")));
@@ -115,14 +109,52 @@ class JudgeAssertionsTest {
         assertAll(
             () -> assertTrue(error.getMessage().contains("Expected judgment PASS but was ABSTAIN"),
                 error.getMessage()),
-            () -> assertTrue(error.getMessage().contains("no PASS/FAIL conclusion; see reasoning"),
+            () -> assertTrue(error.getMessage().contains("applicable question left undecided; see reasoning"),
                 error.getMessage()),
-            // The reasoning carries the domain meaning, and it is the reason the gloss can stay neutral.
+            // The explanation preserves the specific requirement that could not be established.
             () -> assertTrue(error.getMessage().contains("UC6-AC41"), error.getMessage()),
             () -> assertTrue(error.getMessage().contains("could not be established"), error.getMessage()),
             () -> assertFalse(error.getMessage().contains("cast no vote"),
                 "ABSTAIN over a required roster is not an abstention from voting: " + error.getMessage()),
             () -> assertFalse(error.getMessage().contains("does not apply"), error.getMessage()));
+    }
+
+    @Test
+    void exactStatusAssertionsDistinguishAllFiveOutcomes() {
+        List<Judgment> outcomes = List.of(Judgment.pass("established"), Judgment.fail("violated"),
+            Judgment.abstain("evidence insufficient"), Judgment.error("backend unavailable"),
+            Judgment.notApplicable("the subject contains no Java sources"));
+        for (Judgment outcome : outcomes) {
+            assertEquals(outcome.status() == JudgmentStatus.PASS, outcome.pass());
+            for (JudgmentStatus expected : JudgmentStatus.values()) {
+                if (expected == outcome.status()) {
+                    assertDoesNotThrow(() -> JudgeAssertions.assertStatus(expected, outcome));
+                }
+                else {
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
+                        () -> JudgeAssertions.assertStatus(expected, outcome));
+                    assertEquals(expected, error.getExpected().getValue());
+                    assertEquals(outcome.status(), error.getActual().getValue());
+                    assertTrue(error.getMessage().contains(outcome.reasoning()));
+                }
+            }
+        }
+    }
+
+    @Test
+    void exclusionIsNeitherAnUndecidedQuestionNorARejection() {
+        Judgment excluded = Judgment.notApplicable("the subject contains no Java sources");
+        AssertionFailedError error = assertThrows(AssertionFailedError.class,
+            () -> JudgeAssertions.assertFail(excluded));
+        assertTrue(error.getMessage().contains("the criterion does not apply"));
+        assertFalse(error.getMessage().contains("left undecided"));
+    }
+
+    @Test
+    void errorDiagnosticRetainsTheInstrumentReasonCode() {
+        AssertionFailedError error = assertThrows(AssertionFailedError.class,
+            () -> JudgeAssertions.assertPass(Judgment.error("backend unavailable")));
+        assertTrue(error.getMessage().contains("reason code: judge_reported"), error.getMessage());
     }
 
     /** A rejected required roster must name what bound it, not just how many failed. */

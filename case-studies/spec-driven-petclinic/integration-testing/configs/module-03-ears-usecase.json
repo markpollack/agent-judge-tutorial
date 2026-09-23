@@ -1,0 +1,20 @@
+{
+  "moduleId": "module-03-ears-usecase",
+  "displayName": "Module 03: Run the whole spec",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Replay the recorded evidence with the documented strict requirements verdict; no numeric score. Module 01 executes a real build.",
+  "requiredOutput": [
+    "=== Module 03: Run the whole spec ===",
+    "52 required criteria",
+    "  51 PASS\n   0 FAIL\n   1 ABSTAIN",
+    "Overall: ABSTAIN",
+    "UC6-AC41",
+    "Done."
+  ],
+  "forbiddenOutputPatterns": [
+    "(?i)\\b(?:score|rating|confidence|mean)\\s*(?:[:=]\\s*)?\\d",
+    "(?m)^(?![^\\n]*51 out of 52 into 98% and call it done\\.)[^\\n]*\\d\\s*%"
+  ]
+}

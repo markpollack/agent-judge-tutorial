@@ -31,7 +31,8 @@ public class IntegrationTestUtils {
         String[] requiredEnv,
         String expectedBehavior,
         boolean requiresPackage,
-        String[] requiredOutput
+        String[] requiredOutput,
+        String[] forbiddenOutputPatterns
     ) {
         public boolean requiresPackage() {
             return requiresPackage;
@@ -39,6 +40,36 @@ public class IntegrationTestUtils {
         public String[] requiredOutput() {
             return requiredOutput != null ? requiredOutput : new String[0];
         }
+    }
+
+    public static void verifyRoster(List<String> expected) throws Exception {
+        var factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        var document = factory.newDocumentBuilder().parse(findRepoRoot().resolve("pom.xml").toFile());
+        var modules = document.getElementsByTagName("module");
+        List<String> actual = new ArrayList<>();
+        for (int i = 0; i < modules.getLength(); i++) {
+            String name = modules.item(i).getTextContent().strip();
+            if (name.startsWith("module-")) actual.add(name);
+        }
+        if (!actual.equals(expected)) {
+            throw new IllegalStateException("Integration roster differs from reactor: expected "
+                + expected + ", reactor " + actual);
+        }
+        try (var files = Files.list(Path.of("configs"))) {
+            var configs = files.filter(p -> p.toString().endsWith(".json"))
+                .map(p -> p.getFileName().toString().replaceFirst("\\.json$", "")).sorted().toList();
+            if (!configs.equals(expected.stream().sorted().toList())) {
+                throw new IllegalStateException("Integration configs differ from reactor: " + configs);
+            }
+        }
+        for (String module : expected) {
+            ExampleInfo config = loadConfig(module);
+            if (!module.equals(config.moduleId()) || config.requiredOutput().length == 0) {
+                throw new IllegalStateException("Wrong module ID or empty output contract: " + module);
+            }
+        }
+        out.println("Verified integration roster: " + expected.size() + " modules");
     }
 
     public static ExampleInfo loadConfig(String moduleId) throws Exception {
@@ -125,7 +156,12 @@ public class IntegrationTestUtils {
 
     private static List<String> mavenCommand(String... arguments) {
         List<String> command = new ArrayList<>();
-        command.add("./mvnw");
+        Path wrapperRoot = findRepoRoot();
+        while (wrapperRoot != null && !Files.isRegularFile(wrapperRoot.resolve("mvnw"))) {
+            wrapperRoot = wrapperRoot.getParent();
+        }
+        if (wrapperRoot == null) throw new IllegalStateException("No committed Maven wrapper found");
+        command.add(wrapperRoot.resolve("mvnw").toString());
         String repository = getenv("AGENT_JUDGE_TUTORIAL_MAVEN_REPO");
         if (repository != null && !repository.isBlank()) {
             command.add("-Dmaven.repo.local=" + repository);
@@ -159,6 +195,16 @@ public class IntegrationTestUtils {
             }
         }
         return missing;
+    }
+
+    public static List<String> checkForbiddenOutput(String output, String[] patterns) {
+        List<String> found = new ArrayList<>();
+        if (patterns != null) {
+            for (String pattern : patterns) {
+                if (java.util.regex.Pattern.compile(pattern).matcher(output).find()) found.add(pattern);
+            }
+        }
+        return found;
     }
 
     public static void runIntegrationTest(String moduleId) throws Exception {
@@ -214,6 +260,11 @@ public class IntegrationTestUtils {
         }
         if (cfg.requiredOutput().length > 0) {
             out.println("\nAll " + cfg.requiredOutput().length + " required output strings found");
+        }
+
+        List<String> forbidden = checkForbiddenOutput(output, cfg.forbiddenOutputPatterns());
+        if (!forbidden.isEmpty()) {
+            throw new IllegalStateException("Forbidden output in " + cfg.moduleId() + ": " + forbidden);
         }
 
         if (!Boolean.parseBoolean(getenv("AGENT_JUDGE_TUTORIAL_AI_VALIDATE"))) {

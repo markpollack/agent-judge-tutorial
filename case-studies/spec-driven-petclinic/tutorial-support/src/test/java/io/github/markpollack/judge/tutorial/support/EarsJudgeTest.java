@@ -17,6 +17,9 @@ import io.github.markpollack.judge.context.ExecutionStatus;
 import io.github.markpollack.judge.context.JudgmentContext;
 import io.github.markpollack.judge.result.Judgment;
 import io.github.markpollack.judge.result.JudgmentStatus;
+import io.github.markpollack.judge.result.JudgmentReasonCode;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Judge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -29,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * rubric, never from the code. A test written from the code's behaviour cannot disagree with it.
  *
  * <p>Every assertion is on {@link Judgment#status()}, never {@code pass()}. {@code pass()} is false
- * for FAIL, ERROR and ABSTAIN alike, so a test asserting it is false cannot tell a rejection from a
+ * for FAIL, ERROR, ABSTAIN and NOT_APPLICABLE alike, so a test asserting it is false cannot tell a rejection from a
  * judge that never ran.
  */
 class EarsJudgeTest {
@@ -177,12 +180,12 @@ class EarsJudgeTest {
     void aMissingRecordingBlamesTheJudgeNotTheSubject() {
         // ERROR is right; an ERROR reading "the agent did not complete" sends the reader to
         // look at the wrong thing.
-        JudgeModel model = request -> new JudgeModelResponse(
-            RecordedJudgeModel.NO_RECORDING, "recorded", null, Map.of("successful", false));
+        JudgeModel model = new RecordedJudgeModel("nonexistent-migration-test-recording");
         Judgment judgment = EarsJudge.create("audit", THREE, model).judge(context());
 
         assertEquals(JudgmentStatus.ERROR, judgment.status());
         assertTrue(judgment.reasoning().contains("No recording to replay"), judgment.reasoning());
+        assertEquals(JudgmentReasonCode.JUDGE_REPORTED, judgment.reasonCode());
     }
 
     @Test
@@ -284,6 +287,41 @@ class EarsJudgeTest {
 
         assertEquals(JudgmentStatus.PASS, judgment.status());
         assertEquals(List.of(), Observation.of(judgment));
+    }
+
+    @Test
+    void recordedUnconditionalCriteriaCannotBeExcludedByTheModel() {
+        List<EarsCriterion> criteria = EarsCriterion.from(Candidate.SPEC.resolve(
+            "manage-appointment-lifecycle/criteria.md"));
+        assertEquals(52, criteria.size());
+        assertTrue(criteria.stream().noneMatch(EarsCriterion::conditional));
+        String answers = criteria.stream().map(c -> c.id().equals("UC6-AC41")
+            ? c.id() + ": NOT_APPLICABLE - no example was found"
+            : c.id() + ": PASS - Example.java:1 satisfies it")
+            .collect(java.util.stream.Collectors.joining("\n"));
+        Judgment judgment = EarsJudge.create("audit", criteria,
+            request -> new JudgeModelResponse(answers, "stub", null, Map.of())).judge(context());
+        assertEquals(JudgmentStatus.ERROR, judgment.status());
+        assertEquals(JudgmentReasonCode.JUDGE_REPORTED, judgment.reasonCode());
+        assertTrue(judgment.reasoning().contains("UC6-AC41"));
+        assertEquals(51, judgment.checks().size(), "completed findings survive a protocol error");
+    }
+
+    @Test
+    void recordedUnconditionalMustsCannotBeExcludedByTheModel() {
+        List<Rfc2119Constraint> rules = Rfc2119Constraint.from(Candidate.SPEC.resolve("rules.md"));
+        assertEquals(13, rules.size());
+        assertTrue(rules.stream().noneMatch(Rfc2119Constraint::conditional));
+        String answers = rules.stream().map(c -> c.id().equals("RULE-4")
+            ? c.id() + ": NOT_APPLICABLE - difficult to establish"
+            : c.id() + ": PASS - Example.java:1 satisfies it")
+            .collect(java.util.stream.Collectors.joining("\n"));
+        Judgment judgment = Rfc2119Judge.create("audit", rules,
+            request -> new JudgeModelResponse(answers, "stub", null, Map.of())).judge(context());
+        assertEquals(JudgmentStatus.ERROR, judgment.status());
+        assertEquals(JudgmentReasonCode.JUDGE_REPORTED, judgment.reasonCode());
+        assertTrue(judgment.reasoning().contains("RULE-4"));
+        assertEquals(12, judgment.checks().size());
     }
 
     private static Judgment judge(String answers) {

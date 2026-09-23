@@ -1,0 +1,18 @@
+{
+  "moduleId": "module-01-build",
+  "displayName": "Module 01: Does it build?",
+  "timeoutSec": 240,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Replay the recorded evidence with the documented strict requirements verdict; no numeric score. Module 01 executes a real build.",
+  "requiredOutput": [
+    "=== Module 01: Does it build? ===",
+    "Command: ./mvnw test",
+    "  build   PASS",
+    "Done."
+  ],
+  "forbiddenOutputPatterns": [
+    "(?i)\\b(?:score|rating|confidence|mean)\\s*(?:[:=]\\s*)?\\d",
+    "(?m)^(?![^\\n]*51 out of 52 into 98% and call it done\\.)[^\\n]*\\d\\s*%"
+  ]
+}

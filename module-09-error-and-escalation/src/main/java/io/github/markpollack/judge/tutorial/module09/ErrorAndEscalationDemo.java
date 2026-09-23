@@ -162,9 +162,21 @@ public class ErrorAndEscalationDemo {
         System.out.println("  pass():    " + abstained.pass());
 
         para("""
-            pass() is false - and it is false for FAIL, ERROR and ABSTAIN alike.
+            pass() is false for FAIL, ERROR, ABSTAIN and NOT_APPLICABLE alike.
             A consumer that branches on !pass() records this as a rejected subject,
             when in fact nothing was ever asked. Assert status(), not pass().
+            """);
+
+        System.out.println("--- Inapplicability is a different answer ---\n");
+        Judgment excluded = Judgment.notApplicable("This subject has no Java sources to assess");
+        System.out.println("  status:    " + excluded.status());
+        System.out.println("  reasoning: " + excluded.reasoning());
+        System.out.println("  pass():    " + excluded.pass());
+        para("""
+            ABSTAIN: an applicable question was left undecided.
+            NOT_APPLICABLE: the criterion does not apply to this subject.
+            A judge seated in a jury must declare when it can be inapplicable;
+            an undeclared exclusion becomes ERROR, not permission to skip a rule.
             """);
 
         // ---------------------------------------------------------------

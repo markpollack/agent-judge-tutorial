@@ -31,8 +31,8 @@ import io.github.markpollack.judge.ai.model.JudgeModel;
  * free. It is not a different judge; it is the same judge with its model pinned.</li>
  * </ul>
  *
- * <p>Selected by {@code AGENT_JUDGE_TUTORIAL_AGENT=live}. Recorded is the default so a fresh
- * clone runs offline with no credentials.
+ * <p>Selected by {@code AGENT_JUDGE_TUTORIAL_AGENT=live}. Recorded is the default so model replay needs no credentials. Prepare Maven
+ * dependencies before running the tutorial offline.
  *
  * <p>There is deliberately no Spring AI, OpenAI, or Anthropic client anywhere in this
  * repository. Every model-backed judge reaches its backend through AgentClient, which is what

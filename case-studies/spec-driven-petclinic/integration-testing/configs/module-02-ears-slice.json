@@ -1,0 +1,20 @@
+{
+  "moduleId": "module-02-ears-slice",
+  "displayName": "Module 02: Run the spec",
+  "timeoutSec": 60,
+  "requiredEnv": [],
+  "requiresPackage": false,
+  "expectedBehavior": "Replay the recorded evidence with the documented strict requirements verdict; no numeric score. Module 01 executes a real build.",
+  "requiredOutput": [
+    "=== Module 02: Run the spec ===",
+    "  UC6-AC7     PASS\n  UC6-AC8     PASS\n  UC6-AC9     PASS\n  UC6-AC10    PASS\n  UC6-AC11    PASS\n  UC6-AC12    PASS",
+    "Overall: PASS",
+    "all 6 requirements established",
+    "Also noticed, changing nothing above:",
+    "Done."
+  ],
+  "forbiddenOutputPatterns": [
+    "(?i)\\b(?:score|rating|confidence|mean)\\s*(?:[:=]\\s*)?\\d",
+    "(?m)^(?![^\\n]*51 out of 52 into 98% and call it done\\.)[^\\n]*\\d\\s*%"
+  ]
+}

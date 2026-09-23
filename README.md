@@ -11,8 +11,8 @@ tests pass, the file is there. Part of it does not.
 > that testing discipline to criteria whose oracle requires richer evidence or judgment.**
 
 Eleven executable Maven modules for **[Agent Judge](https://github.com/markpollack/agent-judge)**,
-sequenced by the evaluation problem rather than by the API. No API key, no network, no
-model calls.
+sequenced by the evaluation problem rather than by the API. Released Agent Judge **0.17.0**; no API key or
+model calls. First builds download Maven dependencies; prepared builds can run offline.
 
 There are two paths through this repository.
 
@@ -34,9 +34,23 @@ exact run commands. It complements the progressive tutorial rather than replacin
 ```bash
 git clone https://github.com/markpollack/agent-judge-tutorial.git
 cd agent-judge-tutorial
-./mvnw install -DskipTests     # once - modules reuse judges from earlier modules
+./mvnw install                # prepare dependencies and run regression tests
 ./mvnw exec:java -pl module-01-oracle-boundary
 ```
+
+To prepare and verify every demo's dependencies, including nested fixture builds, run the
+integration suite online once (JBang required). Then repeat with both JBang and Maven offline:
+
+```bash
+./integration-testing/scripts/run-integration-tests.sh
+./integration-testing/scripts/run-integration-tests.sh --offline
+```
+
+For an individual prepared demo, `export MAVEN_ARGS="${MAVEN_ARGS:-} -o"` also keeps its
+nested Maven builds offline.
+
+The [website tutorial](https://lab.pollack.ai/docs/agent-judge/tutorial) carries the teaching
+explanations; this repository supplies runnable examples and their expected results.
 
 Run every module from the **repository root**: the demos and tests resolve `test-workspace`
 relative to where Maven was launched.

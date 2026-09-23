@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //DEPS org.zeroturnaround:zt-exec:1.12
 //DEPS com.fasterxml.jackson.core:jackson-databind:2.17.1
-//DEPS io.github.markpollack:claude-code-sdk:1.1.0-SNAPSHOT
-//REPOS mavenlocal,mavencentral,central-snapshots=https://central.sonatype.com/repository/maven-snapshots/
+//DEPS io.github.markpollack:claude-code-sdk:1.1.0
+//REPOS mavencentral
 //JAVA 21
 //SOURCES jbang-lib/IntegrationTestUtils.java
 //SOURCES jbang-lib/AIValidator.java
@@ -37,6 +37,10 @@ public class RunIntegrationTest {
             System.exit(0);
         }
 
+        if ("--check-roster".equals(moduleId)) {
+            IntegrationTestUtils.verifyRoster(java.util.Arrays.asList(args).subList(1, args.length));
+            return;
+        }
         IntegrationTestUtils.runIntegrationTest(moduleId);
     }
 
@@ -58,6 +62,8 @@ public class RunIntegrationTest {
               ./scripts/run-integration-tests.sh          # every module
               ./scripts/run-integration-tests.sh --demo   # the live demo path
               ./scripts/run-integration-tests.sh --rest   # everything else
+              ./scripts/run-integration-tests.sh --case-study  # PetClinic 01–05
+              ./scripts/run-integration-tests.sh --offline     # prepared caches only
 
             No module needs an API key. Modules 01 and 07 use fixture models;
             modules 10 and 11 use deterministic framework objects.

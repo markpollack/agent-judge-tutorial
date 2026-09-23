@@ -35,7 +35,7 @@ Expected judgment PASS but was FAIL
 
 ## Why not `assertFalse(judgment.pass())`
 
-Because `pass()` is `false` for `FAIL`, `ERROR` **and** `ABSTAIN` alike, so a test written
+Because `pass()` is `false` for `FAIL`, `ERROR`, `ABSTAIN` **and** `NOT_APPLICABLE` alike, so a test written
 on it cannot tell a judge that rejected the subject from a judge that never ran:
 
 ```
