@@ -775,7 +775,7 @@ Expected exit codes: **0, 1, 1** respectively. The latter two are intended asser
 not failures to compile or launch. These `*Demo` classes remain outside the ordinary test roster.
 
 **The ordinary build stays green.** `./mvnw -o -f case-studies/spec-driven-petclinic/pom.xml test`
-runs 49 tests and passes; Surefire does not discover `*Demo` classes. Verified from a clean clone.
+runs 51 tests and passes; Surefire does not discover `*Demo` classes. Verified from a clean clone.
 
 **Normal, not errors:** a `spring-javaformat` line about `AccountBootstrapRunner.java` if the
 candidate re-materializes (harmless provenance — let it finish, don't explain it unless asked).
@@ -795,7 +795,7 @@ exist.
 | Assertion | `assertStatus(ABSTAIN, …)` | `assertPass(…)` |
 | ABSTAIN | 🟢 green — expected | 🔴 red — bar not met |
 | FAIL | 🟢 green — expected | 🔴 red — bar not met |
-| Runs in CI | yes, 49 tests | no — Surefire skips `*Demo` |
+| Runs in CI | yes, 51 tests | no — Surefire skips `*Demo` |
 | Runs on stage | **no** | **yes** |
 
 Why `*Demo` and not `*Test`: two of these gates are *supposed* to be red. A build that is
