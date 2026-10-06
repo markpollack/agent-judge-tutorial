@@ -1,7 +1,7 @@
 # Configured Agent Eval walkthrough
 
 Use Java 21 and the tutorial Maven wrapper. This separate reactor uses Agent Eval source
-`0d0abe47b34c0e638e68ed81c5a764d6b424bc86` at `0.18.0-SNAPSHOT`; the root fundamentals
+`9ccddd31862cc79c7dc2b2d41f4fb1596a56972a` at `0.18.0-SNAPSHOT`; the root fundamentals
 reactor still uses released 0.17.0. No published snapshot or AgentWorks BOM entry is assumed.
 
 Create an isolated repository and build the exact source there. The first preparation may download
@@ -10,7 +10,7 @@ Maven dependencies; later offline execution resolves only these installed produc
 ```bash
 export EVAL_M2="$PWD/eval-m2"
 git clone https://github.com/markpollack/agent-judge.git /tmp/agent-eval-source
-git -C /tmp/agent-eval-source checkout --detach 0d0abe47b34c0e638e68ed81c5a764d6b424bc86
+git -C /tmp/agent-eval-source checkout --detach 9ccddd31862cc79c7dc2b2d41f4fb1596a56972a
 (cd /tmp/agent-eval-source && ./mvnw -Dmaven.repo.local="$EVAL_M2" \
   -pl agent-judge-ai-core,agent-judge-agent-client,agent-judge-exec,agent-judge-assertj \
   -am -DskipTests clean install)
@@ -30,7 +30,8 @@ export MAVEN_ARGS="-o -Dmaven.repo.local=$EVAL_M2"
 The root install supplies the tutorial parent. Module 01 performs a real build of a materialized
 copy; vendored subjects and all historical recording bytes stay unchanged. Modules 02–05 replay
 archived responses. Fresh replay verifies the public caller and retention, not evaluator accuracy.
-If Maven plugins or child-build dependencies are missing, prepare them online before adding `-o`.
+If Maven plugins or child-build dependencies are missing, prepare each caller with `-nsu`
+without `-o`, then run offline against the same cache. `-nsu` prevents snapshot update checks.
 
 | Demo | Selected roster | Recorded outcomes | Verdict conclusion | Backend executions |
 |---|---|---|---|---|

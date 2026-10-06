@@ -45,7 +45,7 @@ into a backlog.
 
 This case-study reactor uses the configured **Agent Eval 0.18 source API**; the separate
 fundamentals reactor remains on released Agent Judge 0.17.0. Coordinates keep `agent-judge`.
-Build artifacts from exact producer commit `0d0abe47b34c0e638e68ed81c5a764d6b424bc86`
+Build artifacts from exact producer commit `9ccddd31862cc79c7dc2b2d41f4fb1596a56972a`
 in an isolated Maven repository. See [CONFIGURED-RUN.md](CONFIGURED-RUN.md) for reproducible
 source preparation, cached replay, complete results, and AssertJ commands.
 Do not resolve an arbitrary older `0.18.0-SNAPSHOT` or assume these artifacts are BOM-managed.
