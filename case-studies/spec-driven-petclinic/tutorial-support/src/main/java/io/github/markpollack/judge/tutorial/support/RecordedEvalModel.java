@@ -17,10 +17,11 @@ import io.github.markpollack.judge.ai.model.EvalModelResponse;
  * Test-only backend. Replays an answer a real agent gave, so continuous integration is
  * deterministic, free, and offline.
  *
- * <p><b>This is not a different judge.</b> It is the same {@code ModelBackedJudge} with its
- * model pinned. The prompt is still rendered from the real {@code JudgmentContext}, the
- * classifier still parses the text, and the resulting {@code Judgment} is built the same way.
- * What a recorded run verifies is the wiring and the semantics, never that the judge is right.
+ * <p>The configured RFC2119/EARS Judge or Jury supplies an
+ * {@link EvalModelRequest} for its actual requirement or selected roster.
+ * This backend returns the recorded answer in an {@link EvalModelResponse};
+ * the producer still parses that answer and retains the resulting judgments.
+ * Replay verifies caller wiring and result semantics, not evaluator accuracy.
  *
  * <p>Each recording is a file under {@code src/main/resources/recordings/} captured from a live
  * run. The header comment in each records when and against what it was captured.
@@ -47,7 +48,7 @@ public final class RecordedEvalModel implements EvalModel {
      * <p>It is a whole sentence rather than a marker because the judge no longer translates it. A
      * judge is handed a model and cannot know why one failed to answer — only the backend knows
      * that it was a missing recording rather than a timeout or a crashed agent. So the backend
-     * carries its own explanation in the response text, alongside {@code successful=false}, and the
+     * carries its own explanation in the response text, alongside {@code completed=false}, and the
      * judge reports it verbatim.
      *
      * <p>This is what keeps DD-8 working through a library boundary: the failure of an instrument
