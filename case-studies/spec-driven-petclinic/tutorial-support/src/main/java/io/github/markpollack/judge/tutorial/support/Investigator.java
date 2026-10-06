@@ -4,11 +4,11 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Optional;
 
-import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
-import io.github.markpollack.judge.ai.model.JudgeModel;
-import io.github.markpollack.judge.ai.model.JudgeModelRequest;
-import io.github.markpollack.judge.ai.model.JudgeModelResponse;
-import io.github.markpollack.judge.result.Check;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Requirement;
+import io.github.markpollack.judge.ai.model.EvalModel;
+import io.github.markpollack.judge.ai.model.EvalModelRequest;
+import io.github.markpollack.judge.ai.model.EvalModelResponse;
+import io.github.markpollack.judge.judgment.Check;
 
 /**
  * Runs the second tier: takes one failed requirement and establishes what it means.
@@ -36,25 +36,24 @@ public final class Investigator {
      * recording or an incomplete agent run. That is the operator's problem, and saying so is not
      * the same as saying the subject is fine.
      */
-    public static Optional<Investigation> investigate(Rfc2119Constraint constraint, Check lead,
+    public static Optional<Investigation> investigate(Rfc2119Requirement constraint, Check lead,
             Path workspace, String recording) {
-        JudgeModel model = JudgeBackends.backendFor(workspace, TIMEOUT, recording);
+        EvalModel model = JudgeBackends.backendFor(workspace, TIMEOUT, recording);
         return investigate(constraint, lead, model);
     }
 
     /** The same investigation over a supplied backend. The seam the tests use. */
-    public static Optional<Investigation> investigate(Rfc2119Constraint constraint, Check lead,
-            JudgeModel model) {
-        JudgeModelResponse response = model.generate(JudgeModelRequest.user(promptFor(constraint, lead)));
+    public static Optional<Investigation> investigate(Rfc2119Requirement constraint, Check lead,
+            EvalModel model) {
+        EvalModelResponse response = model.generate(EvalModelRequest.user(promptFor(constraint, lead)));
         String text = response.text() == null ? "" : response.text().strip();
 
-        if (RecordedJudgeModel.NO_RECORDING.equals(text)) {
+        if (RecordedEvalModel.NO_RECORDING.equals(text)) {
             // The backend's own words, not a translation of them. Same reason as the judges:
             // only the backend knows why it could not answer.
             throw new IllegalStateException(text);
         }
-        Object successful = response.metadata() == null ? null : response.metadata().get("successful");
-        if (Boolean.FALSE.equals(successful)) {
+        if (!response.completed()) {
             throw new IllegalStateException("The investigating agent did not complete its run");
         }
         return Investigation.parse(constraint.id(), text);
@@ -73,7 +72,7 @@ public final class Investigator {
      * de-escalation, and four separate narrowings <em>inside</em> escalations — which is what a
      * second opinion is supposed to look like.
      */
-    static String promptFor(Rfc2119Constraint constraint, Check lead) {
+    static String promptFor(Rfc2119Requirement constraint, Check lead) {
         return """
             A requirement in this implementation's own design was assessed and did not hold. You are
             in the implementation's root. Read files, grep, and follow the code.
@@ -127,7 +126,7 @@ public final class Investigator {
             ARGUMENT may run to several lines. If the consequence requires particular conditions to
             be reachable, say which — a narrowed reachability that is precise is worth more than a
             broad one that is vague.
-            """.formatted(constraint.id(), constraint.keyword(), constraint.requirement(),
-                constraint.reason(), lead.message() == null ? "(no detail)" : lead.message().strip());
+            """.formatted(constraint.id(), constraint.specification().keyword(), constraint.specification().requirement(),
+                constraint.specification().reason(), lead.judgment().reasoning() == null ? "(no detail)" : lead.judgment().reasoning().strip());
     }
 }

@@ -20,7 +20,7 @@ package io.github.markpollack.judge.tutorial.build;
 import java.nio.file.Path;
 
 import io.github.markpollack.judge.exec.BuildSuccessJudge;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
 
 public class BuildDemo {
@@ -36,7 +36,7 @@ public class BuildDemo {
         System.out.println("Command: ./mvnw test\n");
         System.out.println("Running the real build. This takes about a minute.\n");
 
-        Judgment judgment = BuildSuccessJudge.maven("test").judge(Candidate.contextFor(workspace));
+        Judgment judgment = BuildSuccessJudge.maven("test").evidence(workspace).build().judge();
 
         System.out.println("  build   " + judgment.status());
         System.out.println();

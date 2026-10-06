@@ -12,6 +12,7 @@
  */
 package io.github.markpollack.judge.tutorial.rules;
 
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Requirement;
 import io.github.markpollack.judge.tutorial.support.JudgeBackends;
-import io.github.markpollack.judge.ai.requirements.Rfc2119Judge;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Jury;
+import io.github.markpollack.judge.verdict.Verdict;
+import io.github.markpollack.judge.jury.Jury;
+import io.github.markpollack.judge.ai.model.EvalModel;
+import io.github.markpollack.judge.tutorial.support.RosterResults;
 
 public class Rfc2119RulesDemo {
 
@@ -33,38 +38,43 @@ public class Rfc2119RulesDemo {
     private static final Pattern LOCATION =
         Pattern.compile("[A-Za-z0-9_/.-]*[A-Za-z0-9_-]+\\.(?:java|xml|sql|html|yml|yaml|properties)(?::[\\d-]+)?");
 
+
+    /** Configure one whole-roster investigation. Workspace/tools belong to the runtime. */
+    public static Jury jury(EvalModel runtime) {
+        return Rfc2119Jury.builder().runtime(runtime).requirements(Rfc2119Requirement.from(RULES, "petclinic:fc9df4af")).build();
+    }
+
     public static void main(String[] args) {
         System.out.println("=== Module 04: Run the architectural rules ===\n");
         System.out.println("The behavioural specification mostly held.");
         System.out.println("But the same author also wrote architectural requirements,");
         System.out.println("before the code, in the same repository.\n");
 
-        List<Rfc2119Constraint> constraints = Rfc2119Constraint.from(RULES);
+        List<Rfc2119Requirement> constraints = Rfc2119Requirement.from(RULES, "petclinic:fc9df4af");
         Path workspace = Candidate.workspace();
 
         System.out.println("  " + constraints.size() + " required MUSTs\n");
 
-        Judgment judgment = Rfc2119Judge
-            .create("architectural-constraints", constraints, JudgeBackends.forRecording(workspace, "architecture-rules"))
-            .judge(Candidate.contextFor(workspace));
+        Verdict verdict = jury(JudgeBackends.forRecording(workspace, "architecture-rules")).vote();
+        Judgment judgment = verdict.judgment();
 
-        Map<String, Rfc2119Constraint> byId = constraints.stream()
-            .collect(Collectors.toMap(Rfc2119Constraint::id, c -> c, (a, b) -> a));
-        long held = judgment.checks().stream().filter(Check::passed).count();
-        List<Check> violated = judgment.checks().stream().filter(c -> !c.passed()).toList();
+        Map<String, Rfc2119Requirement> byId = constraints.stream()
+            .collect(Collectors.toMap(Rfc2119Requirement::id, c -> c, (a, b) -> a));
+        long held = RosterResults.checks(verdict).stream().filter(c -> c.judgment().status() == JudgmentStatus.PASS).count();
+        List<Check> violated = RosterResults.checks(verdict).stream().filter(c -> c.judgment().status() == JudgmentStatus.FAIL).toList();
 
         System.out.printf("  %2d PASS%n", held);
         System.out.printf("  %2d FAIL%n%n", violated.size());
-        System.out.println("  Overall: " + judgment.status() + "\n");
+        System.out.println("  Overall: " + verdict.conclusion() + "\n");
 
         if (!violated.isEmpty()) {
             System.out.println("  Failed requirements:");
             violated.forEach(check -> {
-                Rfc2119Constraint constraint = byId.get(check.name());
+                Rfc2119Requirement constraint = byId.get(check.id());
                 System.out.println();
-                System.out.println("    " + pad(check.name())
-                    + (constraint == null ? "" : constraint.title()));
-                locations(check.message()).forEach(location ->
+                System.out.println("    " + pad(check.id())
+                    + (constraint == null ? "" : constraint.specification().requirement()));
+                locations(check.judgment().reasoning()).forEach(location ->
                     System.out.println("    " + pad("") + location));
             });
             System.out.println();

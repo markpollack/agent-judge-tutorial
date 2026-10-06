@@ -1,5 +1,6 @@
 package io.github.markpollack.judge.tutorial.investigation;
 
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,12 +14,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
 import io.github.markpollack.judge.tutorial.support.Investigation;
 import io.github.markpollack.judge.tutorial.support.Investigator;
-import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Requirement;
 import io.github.markpollack.judge.tutorial.support.JudgeBackends;
 import io.github.markpollack.judge.ai.requirements.Rfc2119Judge;
 
@@ -50,18 +51,16 @@ class InvestigationReplayTest {
     private static final Pattern LOCATION = Pattern.compile("^(.*):(\\d+)$");
 
     private Investigation investigate() {
-        List<Rfc2119Constraint> constraints = Rfc2119Constraint.from(Candidate.SPEC.resolve("rules.md"));
+        List<Rfc2119Requirement> constraints = Rfc2119Requirement.from(Candidate.SPEC.resolve("rules.md"), "petclinic:fc9df4af");
         Path workspace = Candidate.workspace();
 
-        Judgment judgment = Rfc2119Judge
-            .create("architectural-constraints", constraints, JudgeBackends.forRecording(workspace, "architecture-rules"))
-            .judge(Candidate.contextFor(workspace));
+        var verdict = InvestigationDemo.jury(JudgeBackends.forRecording(workspace, "architecture-rules")).vote();
 
-        Map<String, Rfc2119Constraint> byId = constraints.stream()
-            .collect(Collectors.toMap(Rfc2119Constraint::id, c -> c, (a, b) -> a));
+        Map<String, Rfc2119Requirement> byId = constraints.stream()
+            .collect(Collectors.toMap(Rfc2119Requirement::id, c -> c, (a, b) -> a));
 
-        Check lead = judgment.checks().stream()
-            .filter(check -> "RULE-4".equals(check.name()) && !check.passed())
+        Check lead = io.github.markpollack.judge.tutorial.support.RosterResults.checks(verdict).stream()
+            .filter(check -> "RULE-4".equals(check.id()) && check.judgment().status() == JudgmentStatus.FAIL)
             .findFirst()
             .orElseThrow(() -> new AssertionError(
                 "module 04 no longer reports RULE-4 as failed, so module 05 has no input"));

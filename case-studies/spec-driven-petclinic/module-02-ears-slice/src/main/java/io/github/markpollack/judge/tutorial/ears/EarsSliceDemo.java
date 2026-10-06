@@ -16,11 +16,15 @@ package io.github.markpollack.judge.tutorial.ears;
 import java.nio.file.Path;
 import java.util.List;
 
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.ai.requirements.EarsCriterion;
+import io.github.markpollack.judge.ai.requirements.EarsRequirement;
 import io.github.markpollack.judge.tutorial.support.JudgeBackends;
-import io.github.markpollack.judge.ai.requirements.EarsJudge;
+import io.github.markpollack.judge.ai.requirements.EarsJury;
+import io.github.markpollack.judge.verdict.Verdict;
+import io.github.markpollack.judge.jury.Jury;
+import io.github.markpollack.judge.ai.model.EvalModel;
+import io.github.markpollack.judge.tutorial.support.RosterResults;
 import io.github.markpollack.judge.ai.requirements.Observation;
 
 public class EarsSliceDemo {
@@ -32,34 +36,39 @@ public class EarsSliceDemo {
     private static final String[] SLICE =
         { "UC6-AC7", "UC6-AC8", "UC6-AC9", "UC6-AC10", "UC6-AC11", "UC6-AC12" };
 
+
+    /** Configure one whole-roster investigation. Workspace/tools belong to the runtime. */
+    public static Jury jury(EvalModel runtime) {
+        return EarsJury.builder().runtime(runtime).requirements(EarsRequirement.from(CRITERIA, "petclinic:fc9df4af").stream().filter(c -> java.util.Set.of(SLICE).contains(c.id())).toList()).build();
+    }
+
     public static void main(String[] args) {
         System.out.println("=== Module 02: Run the spec ===\n");
         System.out.println("The implementation builds.");
         System.out.println("But did it do what was asked?\n");
 
-        List<EarsCriterion> all = EarsCriterion.from(CRITERIA);
-        List<EarsCriterion> slice = EarsCriterion.select(all, SLICE);
+        List<EarsRequirement> all = EarsRequirement.from(CRITERIA, "petclinic:fc9df4af");
+        List<EarsRequirement> slice = all.stream().filter(c -> java.util.Set.of(SLICE).contains(c.id())).toList();
 
         System.out.println("Somebody wrote that down before the code existed:");
         System.out.println("  " + CRITERIA);
         System.out.println("  " + all.size() + " numbered requirements. Here are six of them.\n");
 
         slice.forEach(c -> {
-            System.out.println("  " + padId(c.id()) + c.title());
-            wrap(c.requirement());
+            System.out.println("  " + padId(c.id()) + c.specification().title());
+            wrap(c.specification().requirement());
         });
         System.out.println();
 
         Path workspace = Candidate.workspace();
-        Judgment judgment = EarsJudge
-            .create("appointment-cancellation", slice, JudgeBackends.forRecording(workspace, "ears-uc6-cancellation"))
-            .judge(Candidate.contextFor(workspace));
+        Verdict verdict = jury(JudgeBackends.forRecording(workspace, "ears-uc6-cancellation")).vote();
+        Judgment judgment = verdict.judgment();
 
         System.out.println();
-        judgment.checks().forEach(check ->
-            System.out.println("  " + pad(check.name()) + (check.passed() ? "PASS" : "FAIL")));
+        RosterResults.checks(verdict).forEach(check ->
+            System.out.println("  " + pad(check.id()) + check.judgment().status()));
         System.out.println();
-        System.out.println("  Overall: " + judgment.status());
+        System.out.println("  Overall: " + verdict.conclusion());
         System.out.println("  " + judgment.reasoning());
         List<Observation> observations = Observation.of(judgment);
         if (!observations.isEmpty()) {

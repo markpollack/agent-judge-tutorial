@@ -1,341 +1,150 @@
 package io.github.markpollack.judge.tutorial.support;
 
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
+import io.github.markpollack.judge.ai.model.*;
+import io.github.markpollack.judge.ai.requirements.*;
+import io.github.markpollack.judge.execution.*;
+import io.github.markpollack.judge.judgment.*;
+import io.github.markpollack.judge.verdict.*;
+import io.github.markpollack.judge.evaluation.*;
+import io.github.markpollack.judge.provenance.Invocation;
+import io.github.markpollack.judge.assertj.Assertions;
+import static org.assertj.core.api.Assertions.*;
 
-import io.github.markpollack.judge.ai.requirements.EarsCriterion;
-import io.github.markpollack.judge.ai.requirements.Observation;
-import io.github.markpollack.judge.ai.requirements.EarsJudge;
-import io.github.markpollack.judge.ai.model.JudgeModel;
-import io.github.markpollack.judge.ai.model.JudgeModelResponse;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.result.JudgmentStatus;
-import io.github.markpollack.judge.result.JudgmentReasonCode;
-import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
-import io.github.markpollack.judge.ai.requirements.Rfc2119Judge;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * What a set of per-criterion answers means.
- *
- * <p>Every case reads "the answers said X, therefore the judgment must be Y" — written from the
- * rubric, never from the code. A test written from the code's behaviour cannot disagree with it.
- *
- * <p>Every assertion is on {@link Judgment#status()}, never {@code pass()}. {@code pass()} is false
- * for FAIL, ERROR, ABSTAIN and NOT_APPLICABLE alike, so a test asserting it is false cannot tell a rejection from a
- * judge that never ran.
- */
+/** Public caller conformance with deterministic stubs, never live model evaluation. */
 class EarsJudgeTest {
-
-    private static final List<EarsCriterion> THREE = List.of(
-        new EarsCriterion("UC1-AC1", "first", "When a thing happens, the system shall do the first thing."),
-        new EarsCriterion("UC1-AC2", "second", "If a thing happens, then the system shall do the second thing."),
-        new EarsCriterion("UC1-AC3", "third", "While a state holds, the system shall do the third thing."));
-
-    @Test
-    void everyRequirementEstablishedIsAPass() {
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: PASS - Bar.java:20 does it
-            UC1-AC3: PASS - Baz.java:30 does it
-            """);
-
-        assertEquals(JudgmentStatus.PASS, judgment.status());
-        assertEquals(3, judgment.checks().size(), "every answer is evidence and must be kept");
-        assertEquals("all 3 requirements established", judgment.reasoning());
+    @Test void structuredRostersCountEachActualNativeExecution() {
+        var ears = EarsRequirement.from(Candidate.SPEC.resolve("manage-appointment-lifecycle/criteria.md"), "petclinic:fc9df4af");
+        var six = ears.stream().filter(q -> Set.of("UC6-AC7", "UC6-AC8", "UC6-AC9", "UC6-AC10", "UC6-AC11", "UC6-AC12").contains(q.id())).toList();
+        assertThat(ears).hasSize(52);
+        assertThat(six).hasSize(6);
+        for (var roster : List.of(six, ears)) {
+            var calls = new AtomicInteger();
+            EvalRuntime<RequirementRequest<EarsSpecification, String>, Judgment> runtime = q -> {
+                calls.incrementAndGet();
+                assertThat(q.evidence()).isEqualTo("compiled facts");
+                return new NativeExecution<>(Judgment.pass("deterministic stub").forRequirement(q.requirement()), invocation(q.requirement().id()));
+            };
+            var result = ConfiguredExamples.structuredEars(roster, runtime, "compiled facts").vote();
+            assertThat(calls).hasValue(roster.size());
+            assertThat(InvocationRecords.of(result)).hasSize(roster.size());
+            assertThat(result.roster()).containsExactlyElementsOf(roster);
+            assertThat(NativeRequirementCodecs.codec().read(NativeRequirementCodecs.codec().write(result))).isEqualTo(result);
+        }
+        var rfc = Rfc2119Requirement.from(Candidate.SPEC.resolve("rules.md"), "petclinic:fc9df4af");
+        var calls = new AtomicInteger();
+        EvalRuntime<RequirementRequest<Rfc2119Specification, String>, Judgment> runtime = q -> {
+            calls.incrementAndGet();
+            assertThat(q.evidence()).isEqualTo("compiled facts");
+            return new NativeExecution<>(Judgment.pass("stub").forRequirement(q.requirement()), invocation(q.requirement().id()));
+        };
+        var result = ConfiguredExamples.structuredRfc(rfc, runtime, "compiled facts").vote();
+        assertThat(rfc).hasSize(13);
+        assertThat(calls).hasValue(13);
+        assertThat(InvocationRecords.of(result)).hasSize(13);
+        assertThat(NativeRequirementCodecs.codec().read(NativeRequirementCodecs.codec().write(result))).isEqualTo(result);
     }
-
-    @Test
-    void oneUnsatisfiedRequirementFailsTheWhole() {
-        // Required criteria are conjunctive. Two of three is not two-thirds done.
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: FAIL - Bar.java:20 compares the wrong way round
-            UC1-AC3: PASS - Baz.java:30 does it
-            """);
-
-        assertEquals(JudgmentStatus.FAIL, judgment.status());
-        assertTrue(judgment.checks().stream()
-            .anyMatch(c -> c.name().equals("UC1-AC2") && !c.passed()));
-        assertTrue(judgment.checks().stream()
-            .filter(c -> c.name().equals("UC1-AC2")).findFirst().orElseThrow()
-            .message().contains("compares the wrong way round"), "the binding item's evidence survives");
+    @Test void preparedSingleAndRequirementFirstAssertJUseActualInputsAndRetainUsage() {
+        var q = Rfc2119Requirement.from(Candidate.SPEC.resolve("rules.md"), "petclinic:fc9df4af").getFirst();
+        var calls = new AtomicInteger();
+        EvalModel runtime = request -> {
+            calls.incrementAndGet();
+            assertThat(request.messages().getFirst().content()).contains(q.id(), q.specification().requirement(), "captured source facts");
+            return new EvalModelResponse(q.id()+": PASS - Stub.java:1", "stub", Usage.builder().inputTokens(11).outputTokens(7).build(), Map.of("sessionId", "stub-session"));
+        };
+        var direct = ConfiguredExamples.preparedRfc(q, runtime, "captured source facts").judge();
+        assertThat(direct.requirement()).isSameAs(q);
+        assertThat(direct.invocations().getFirst().nativeFacts()).containsKeys("usage", "sessionId", "text");
+        var stage = Assertions.assertThat(q).judgedBy(Rfc2119Judge.builder().runtime(runtime)).withEvidence("captured source facts");
+        stage.isSatisfied();stage.isSatisfied();
+        assertThat(calls).hasValue(2);
+        var ears = EarsRequirement.from(Candidate.SPEC.resolve("manage-appointment-lifecycle/criteria.md"), "petclinic:fc9df4af").getFirst();
+        var e = ConfiguredExamples.preparedEars(ears, request -> new EvalModelResponse(ears.id()+": PASS - Stub.java:2", "stub", null, Map.of()), "captured evidence").judge();
+        assertThat(e.requirement()).isSameAs(ears);
+        Assertions.assertThat(Evaluations.evaluate(() -> e)).isPassed();
     }
-
-    @Test
-    void oneAbstentionMakesTheWholeAbstain() {
-        // The load-bearing rule. A written acceptance criterion is required by construction:
-        // the specification says it applies. So CANNOT_DETERMINE means "could not establish",
-        // not "does not apply", and it must not be absorbed into a passing population.
-        // PASS means every required criterion was affirmatively established.
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: CANNOT_DETERMINE - nothing here exercises it
-            UC1-AC3: PASS - Baz.java:30 does it
-            """);
-
-        assertEquals(JudgmentStatus.ABSTAIN, judgment.status(),
-            "51 of 52 established is not the specification passing");
-        assertTrue(judgment.reasoning().contains("UC1-AC2"), judgment.reasoning());
-        assertEquals("UC1-AC2", judgment.metadata().get("unestablished"));
+    @Test void completeRefusedOriginalOwnChecksAndLowerInvocationSurviveCachedAssertionAndCodec() {
+        var q = Rfc2119Requirement.from(Candidate.SPEC.resolve("rules.md"), "petclinic:fc9df4af").getFirst();
+        var alien = Rfc2119Requirement.of("ALIEN", "2", "MUST", "different property", "different source", null);
+        var original = Judgment.pass("wrong association").forRequirement(alien).withInvocation(invocation("lower")).toBuilder().check(Check.pass("own-check", "native fact")).build();
+        var calls = new AtomicInteger();
+        EvalRuntime<RequirementRequest<Rfc2119Specification, String>, Judgment> runtime = request -> {
+            calls.incrementAndGet();
+            assertThat(request.requirement()).isSameAs(q);
+            assertThat(request.evidence()).isEqualTo("prepared facts");
+            return new NativeExecution<>(original, invocation("item"));
+        };
+        var judge = ConfiguredExamples.structuredSingle(q, runtime, "prepared facts");
+        var stage = Assertions.assertThat(judge);
+        var result = stage.evaluate();
+        assertThat(result.verdict().conclusion()).isEqualTo(Verdict.Conclusion.INCONCLUSIVE);
+        assertThat(result.verdict().individual().getFirst()).isSameAs(original);
+        var seat = result.verdict().seats().getFirst();
+        assertThat(seat.execution()).isEqualTo(SeatExecution.RETURNED_REJECTED);
+        assertThat(seat.cause()).isNull();
+        assertThat(seat.rejection().refusedReturn().original()).isSameAs(original);
+        assertThat(seat.rejection().refusedReturn().expected()).isSameAs(q);
+        assertThat(original.checks()).containsExactly(Check.pass("own-check", "native fact"));
+        assertThat(InvocationRecords.of(result.verdict())).extracting(Invocation::id).containsExactlyInAnyOrder("lower", "item");
+        var codec = NativeRequirementCodecs.codec();
+        var reopened = codec.readEvaluation(codec.write(result));
+        assertThat(reopened).isEqualTo(result);
+        assertThatThrownBy(() -> Assertions.assertThat(reopened).isPassed()).isInstanceOf(AssertionError.class);
+        assertThatThrownBy(stage::isPassed).isInstanceOf(AssertionError.class);
+        assertThat(stage.evaluate()).isSameAs(result);
+        assertThat(calls).hasValue(1);
     }
-
-    @Test
-    void aFailureOutranksAnAbstention() {
-        Judgment judgment = judge("""
-            UC1-AC1: CANNOT_DETERMINE - nothing here exercises it
-            UC1-AC2: FAIL - Bar.java:20 does the opposite
-            UC1-AC3: PASS - Baz.java:30 does it
-            """);
-
-        assertEquals(JudgmentStatus.FAIL, judgment.status());
+    @Test void malformedOrIncompleteRosterCannotPassAndObservationsStayOutsideRoster() {
+        var a = EarsRequirement.of("A", "1", "first", "The system shall retain data", null);
+        var b = EarsRequirement.of("B", "1", "second", "The system shall preserve data", null);
+        for (String answer : List.of("A: PASS - fact", "A: PASS - fact\nA: FAIL - duplicate\nB: PASS - fact", "A: PASS - fact\nB: NOT_APPLICABLE - no evidence", "unparseable")) {
+            var result = EarsJury.builder().runtime((EvalModel) r -> new EvalModelResponse(answer, "stub", null, Map.of())).requirements(List.of(a,b)).build().vote();
+            assertThat(result.conclusion()).isEqualTo(Verdict.Conclusion.INCONCLUSIVE);
+            assertThat(result.compositeAttempts()).hasSize(2);
+            assertThatThrownBy(() -> Assertions.assertThat(result).isPassed()).isInstanceOf(AssertionError.class);
+        }
+        var result = EarsJury.builder().runtime((EvalModel) r -> new EvalModelResponse("A: PASS - fact\nB: CANNOT_DETERMINE - missing\nOBSERVATION A: a test gap at Foo.java:10", "stub", null, Map.of())).requirements(List.of(a,b)).build().vote();
+        assertThat(result.roster()).containsExactly(a,b);
+        assertThat(result.conclusion()).isEqualTo(Verdict.Conclusion.INCONCLUSIVE);
+        assertThat(Observation.of(result.judgment())).hasSize(1);
     }
-
-    @Test
-    void nothingEstablishedIsAnAbstentionNotAPass() {
-        Judgment judgment = judge("""
-            UC1-AC1: CANNOT_DETERMINE - nothing here exercises it
-            UC1-AC2: CANNOT_DETERMINE - nothing here exercises it
-            UC1-AC3: CANNOT_DETERMINE - nothing here exercises it
-            """);
-
-        assertEquals(JudgmentStatus.ABSTAIN, judgment.status());
+    @Test void cancellationAndUnsupportedInputFailWithoutPromotingSubjectOutcome() {
+        var q = Rfc2119Requirement.of("A", "1", "MUST", "preserve", "audit", null);
+        EvalModel cancelled = request -> { throw new CancellationException("caller cancelled"); };
+        var stage = Assertions.assertThat(ConfiguredExamples.preparedRfc(q, cancelled, "facts"));
+        assertThatThrownBy(stage::evaluate).isInstanceOf(CancellationException.class);
+        assertThatThrownBy(stage::evaluate).isInstanceOf(CancellationException.class);
+        var calls = new AtomicInteger();
+        EvalModel prepared = ((EvalModel) request -> {calls.incrementAndGet(); return new EvalModelResponse("A: PASS - fact", "stub", null, Map.of());}).withInputs(GeneratedInput.PREPARED_EVIDENCE);
+        assertThatThrownBy(() -> Rfc2119Jury.builder().runtime(prepared).requirements(List.of(q)).build()).isInstanceOf(IllegalArgumentException.class);
+        assertThat(calls).hasValue(0);
     }
-
-    @Test
-    void anUnansweredRequirementIsAnErrorNotAPass() {
-        // Answering two of three is not an audit of three. The subject is not at fault:
-        // the audit is incomplete, which is an ERROR.
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: PASS - Bar.java:20 does it
-            """);
-
-        assertEquals(JudgmentStatus.ERROR, judgment.status());
-        assertTrue(judgment.reasoning().contains("1 of 3"), judgment.reasoning());
-        assertTrue(judgment.reasoning().contains("UC1-AC3"), judgment.reasoning());
+    @Test void displayingWrapperPreservesBackendCapabilitiesAndNativeExecution() {
+        var q = Rfc2119Requirement.from(Candidate.SPEC.resolve("rules.md"), "petclinic:fc9df4af").getFirst();
+        var calls = new AtomicInteger();
+        var nativeAnswer = new NativeExecution<>(new EvalModelResponse(q.id()+": PASS - Stub.java:1", "stub", null, Map.of()), invocation("wrapped-native"));
+        EvalModel backend = new EvalModel() {
+            @Override public Set<GeneratedInput> supportedInputs() { return Set.of(GeneratedInput.PREPARED_EVIDENCE); }
+            @Override public EvalModelResponse generate(EvalModelRequest request) { throw new AssertionError("must preserve native execute"); }
+            @Override public NativeExecution<EvalModelResponse> execute(EvalModelRequest request) {
+                calls.incrementAndGet();
+                return nativeAnswer;
+            }
+        };
+        var showing = JudgeBackends.showing(backend);
+        assertThat(showing.supportedInputs()).isEqualTo(backend.supportedInputs());
+        assertThat(showing.execute(EvalModelRequest.user("display"))).isSameAs(nativeAnswer);
+        var result = ConfiguredExamples.preparedRfc(q, showing, "facts").judge();
+        assertThat(result.invocations()).containsExactly(nativeAnswer.invocation());
+        assertThat(result.requirement()).isSameAs(q);
+        assertThat(calls).hasValue(2);
+        assertThatThrownBy(() -> Rfc2119Jury.builder().runtime(showing).requirements(List.of(q)).build()).isInstanceOf(IllegalArgumentException.class);
+        assertThat(calls).hasValue(2);
     }
-
-    @Test
-    void answersForRequirementsNobodyAskedAboutAreIgnored() {
-        // An invented identifier must not satisfy the roster.
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: PASS - Bar.java:20 does it
-            UC9-AC9: PASS - a criterion nobody wrote
-            """);
-
-        assertEquals(JudgmentStatus.ERROR, judgment.status());
-        assertTrue(judgment.reasoning().contains("UC1-AC3"), judgment.reasoning());
-    }
-
-    @Test
-    void answersOutOfOrderAreStillAnswers() {
-        // The real agent emitted AC1-AC46, then AC48-AC52, then AC47. Order is not part of
-        // the contract; completeness is.
-        Judgment judgment = judge("""
-            UC1-AC3: PASS - Baz.java:30 does it
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: PASS - Bar.java:20 does it
-            """);
-
-        assertEquals(JudgmentStatus.PASS, judgment.status());
-        assertEquals(List.of("UC1-AC1", "UC1-AC2", "UC1-AC3"),
-            judgment.checks().stream().map(c -> c.name()).toList(),
-            "reported in the document's order, not the agent's");
-    }
-
-    @Test
-    void aRepeatedAnswerDoesNotCountTwice() {
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC1: FAIL - changed my mind
-            UC1-AC2: PASS - Bar.java:20 does it
-            UC1-AC3: PASS - Baz.java:30 does it
-            """);
-
-        assertEquals(JudgmentStatus.PASS, judgment.status(), "the first answer stands");
-        assertEquals(3, judgment.checks().size());
-    }
-
-    @Test
-    void anEmptyAuditIsAnErrorNotAPass() {
-        assertEquals(JudgmentStatus.ERROR, judge("").status());
-        assertEquals(JudgmentStatus.ERROR, judge("   \n  \n").status());
-        assertEquals(JudgmentStatus.ERROR,
-            judge("I looked at the codebase and everything appears to be in order.").status());
-    }
-
-    @Test
-    void aMissingRecordingBlamesTheJudgeNotTheSubject() {
-        // ERROR is right; an ERROR reading "the agent did not complete" sends the reader to
-        // look at the wrong thing.
-        JudgeModel model = new RecordedJudgeModel("nonexistent-migration-test-recording");
-        Judgment judgment = EarsJudge.create("audit", THREE, model).judge(context());
-
-        assertEquals(JudgmentStatus.ERROR, judgment.status());
-        assertTrue(judgment.reasoning().contains("No recording to replay"), judgment.reasoning());
-        assertEquals(JudgmentReasonCode.JUDGE_REPORTED, judgment.reasonCode());
-    }
-
-    @Test
-    void noNumericScoreAppearsAnywhere() {
-        // DD-12. A score of 6 out of 10 is meaningless if you do not know what makes it 7.
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: CANNOT_DETERMINE - nothing here exercises it
-            UC1-AC3: PASS - Baz.java:30 does it
-            """);
-
-        assertNull(judgment.score(), "no score is set, because none is meaningful here");
-        assertTrue(judgment.reasoning().matches(".*\\d+ of \\d+ established.*"),
-            "the report counts requirements; it does not rate them");
-    }
-
-    // --- Observations: useful evidence, and never a verdict -------------------------------
-
-    private static final String WITH_OBSERVATION = """
-        UC1-AC1: PASS - Foo.java:10 does it
-        UC1-AC2: PASS - Bar.java:20 does it
-        UC1-AC3: PASS - Baz.java:30 does it
-        OBSERVATION UC1-AC2: no existing test exercises the exact-equality boundary, only the after-start case at BarTests.java:191
-        """;
-
-    @Test
-    void anObservationDoesNotChangeTheVerdict() {
-        // The requirement says the implementation must behave correctly. It does not say a test
-        // must exist. So the criterion passes, and the gap is kept beside it, not inside it.
-        Judgment judgment = judge(WITH_OBSERVATION);
-
-        assertEquals(JudgmentStatus.PASS, judgment.status());
-        assertTrue(judgment.checks().stream().allMatch(c -> c.passed()));
-        assertEquals("all 3 requirements established", judgment.reasoning());
-    }
-
-    @Test
-    void theObservationIsPreservedAndAttributed() {
-        List<Observation> found = Observation.of(judge(WITH_OBSERVATION));
-
-        assertEquals(1, found.size());
-        assertEquals("UC1-AC2", found.get(0).requirementId(), "attributed to the criterion it was noticed under");
-        assertTrue(found.get(0).message().contains("exact-equality boundary"));
-    }
-
-    @Test
-    void aLocationIsExtractedWhenOneWasGiven() {
-        assertEquals(List.of("BarTests.java:191"), Observation.of(judge(WITH_OBSERVATION)).get(0).locations());
-    }
-
-    @Test
-    void anObservationDoesNotJoinTheRoster() {
-        // Three criteria were asked; three checks come back. An observation is not a fourth.
-        Judgment judgment = judge(WITH_OBSERVATION);
-
-        assertEquals(3, judgment.checks().size());
-        assertEquals(3, judgment.metadata().get("criteriaTotal"));
-        assertTrue(judgment.checks().stream().noneMatch(c -> c.name().startsWith("OBSERVATION")));
-    }
-
-    @Test
-    void anObservationCannotRescueOrDamageARollup() {
-        // Observed alongside a genuine failure, the verdict is still decided by the failure.
-        Judgment failing = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: FAIL - Bar.java:20 does the opposite
-            UC1-AC3: PASS - Baz.java:30 does it
-            OBSERVATION UC1-AC1: an aside about Foo.java:10
-            """);
-
-        assertEquals(JudgmentStatus.FAIL, failing.status());
-        assertEquals(1, Observation.of(failing).size());
-    }
-
-    @Test
-    void malformedOrUnknownObservationsAreDroppedNotFatal() {
-        // The roster parsing is strict. This channel is forgiving on purpose: a cosmetic change
-        // in non-binding model prose must never break a valid judgment.
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: PASS - Bar.java:20 does it
-            UC1-AC3: PASS - Baz.java:30 does it
-            OBSERVATION
-            OBSERVATION UC9-AC9: about a criterion nobody asked for
-            OBSERVATION UC1-AC1:
-            """);
-
-        assertEquals(JudgmentStatus.PASS, judgment.status());
-        assertEquals(List.of(), Observation.of(judgment));
-    }
-
-    @Test
-    void noObservationsIsNormal() {
-        Judgment judgment = judge("""
-            UC1-AC1: PASS - Foo.java:10 does it
-            UC1-AC2: PASS - Bar.java:20 does it
-            UC1-AC3: PASS - Baz.java:30 does it
-            """);
-
-        assertEquals(JudgmentStatus.PASS, judgment.status());
-        assertEquals(List.of(), Observation.of(judgment));
-    }
-
-    @Test
-    void recordedUnconditionalCriteriaCannotBeExcludedByTheModel() {
-        List<EarsCriterion> criteria = EarsCriterion.from(Candidate.SPEC.resolve(
-            "manage-appointment-lifecycle/criteria.md"));
-        assertEquals(52, criteria.size());
-        assertTrue(criteria.stream().noneMatch(EarsCriterion::conditional));
-        String answers = criteria.stream().map(c -> c.id().equals("UC6-AC41")
-            ? c.id() + ": NOT_APPLICABLE - no example was found"
-            : c.id() + ": PASS - Example.java:1 satisfies it")
-            .collect(java.util.stream.Collectors.joining("\n"));
-        Judgment judgment = EarsJudge.create("audit", criteria,
-            request -> new JudgeModelResponse(answers, "stub", null, Map.of())).judge(context());
-        assertEquals(JudgmentStatus.ERROR, judgment.status());
-        assertEquals(JudgmentReasonCode.JUDGE_REPORTED, judgment.reasonCode());
-        assertTrue(judgment.reasoning().contains("UC6-AC41"));
-        assertEquals(51, judgment.checks().size(), "completed findings survive a protocol error");
-    }
-
-    @Test
-    void recordedUnconditionalMustsCannotBeExcludedByTheModel() {
-        List<Rfc2119Constraint> rules = Rfc2119Constraint.from(Candidate.SPEC.resolve("rules.md"));
-        assertEquals(13, rules.size());
-        assertTrue(rules.stream().noneMatch(Rfc2119Constraint::conditional));
-        String answers = rules.stream().map(c -> c.id().equals("RULE-4")
-            ? c.id() + ": NOT_APPLICABLE - difficult to establish"
-            : c.id() + ": PASS - Example.java:1 satisfies it")
-            .collect(java.util.stream.Collectors.joining("\n"));
-        Judgment judgment = Rfc2119Judge.create("audit", rules,
-            request -> new JudgeModelResponse(answers, "stub", null, Map.of())).judge(context());
-        assertEquals(JudgmentStatus.ERROR, judgment.status());
-        assertEquals(JudgmentReasonCode.JUDGE_REPORTED, judgment.reasonCode());
-        assertTrue(judgment.reasoning().contains("RULE-4"));
-        assertEquals(12, judgment.checks().size());
-    }
-
-    private static Judgment judge(String answers) {
-        JudgeModel model = request -> new JudgeModelResponse(answers, "stub", null, Map.of());
-        return EarsJudge.create("audit", THREE, model).judge(context());
-    }
-
-    private static JudgmentContext context() {
-        return JudgmentContext.builder()
-            .goal("audit the requirements")
-            .workspace(Path.of("."))
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofMinutes(1))
-            .build();
+    private static Invocation invocation(String id) {
+        return new Invocation(id, "tutorial-stub:v1", true, "stub", 0, Map.of("nativeAnswer", "retained:"+id), List.of());
     }
 }

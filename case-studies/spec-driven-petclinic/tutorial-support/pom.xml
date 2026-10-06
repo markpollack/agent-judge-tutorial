@@ -15,6 +15,8 @@
     <description>The subject under judgment, and the plumbing every module shares</description>
 
     <dependencies>
+        <dependency><groupId>io.github.markpollack</groupId><artifactId>agent-judge-json-jackson2</artifactId></dependency>
+        <dependency><groupId>io.github.markpollack</groupId><artifactId>agent-judge-assertj</artifactId><scope>test</scope></dependency>
         <dependency>
             <groupId>io.github.markpollack</groupId>
             <artifactId>agent-judge-core</artifactId>

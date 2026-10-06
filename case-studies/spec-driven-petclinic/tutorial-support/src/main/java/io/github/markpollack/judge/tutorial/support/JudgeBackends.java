@@ -9,23 +9,22 @@ import java.time.Duration;
 import io.github.markpollack.agents.claude.ClaudeAgentModel;
 import io.github.markpollack.agents.claude.ClaudeAgentOptions;
 import io.github.markpollack.agents.client.AgentClient;
-import io.github.markpollack.judge.agentclient.AgentClientJudgeModel;
+import io.github.markpollack.judge.agentclient.AgentClientEvalModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.markpollack.judge.ai.model.JudgeMessage;
-import io.github.markpollack.judge.ai.model.JudgeModelResponse;
-import io.github.markpollack.judge.ai.model.JudgeModel;
+import io.github.markpollack.judge.ai.model.EvalMessage;
+import io.github.markpollack.judge.ai.model.EvalModelResponse;
+import io.github.markpollack.judge.ai.model.EvalModel;
 
 /**
  * The one place the tutorial decides where a judgment oracle's answer comes from.
  *
- * <p>Two backends, one architecture. Both are a {@link JudgeModel} handed to the same
- * {@code ModelBackedJudge}, so the prompt, the classifier, and the {@code Judgment} are
- * identical either way. Only the source of the text changes.
+ * <p>Two backends, one architecture. Both are a {@link EvalModel} handed to a configured generated Judge or Jury.
+ * The requirement roster and response parser stay the same; the backend supplies the native answer.
  *
  * <ul>
- * <li><b>live</b> is {@link AgentClientJudgeModel} over an {@link AgentClient}. The agent can
+ * <li><b>live</b> is {@link AgentClientEvalModel} over an {@link AgentClient}. The agent can
  * read files, run commands and search the workspace before answering.</li>
  * <li><b>recorded</b> replays a captured answer so continuous integration is deterministic and
  * free. It is not a different judge; it is the same judge with its model pinned.</li>
@@ -35,12 +34,12 @@ import io.github.markpollack.judge.ai.model.JudgeModel;
  * dependencies before running the tutorial offline.
  *
  * <p>There is deliberately no Spring AI, OpenAI, or Anthropic client anywhere in this
- * repository. Every model-backed judge reaches its backend through AgentClient, which is what
+ * repository. Every live generated evaluation reaches its backend through AgentClient, which is what
  * lets a judge investigate rather than only opine.
  */
 public final class JudgeBackends {
 
-    /** See {@link RecordedJudgeModel} for why this is SLF4J. */
+    /** See {@link RecordedEvalModel} for why this is SLF4J. */
     private static final Logger log = LoggerFactory.getLogger(JudgeBackends.class);
 
     /** Set to {@code live} to judge with a real agent. */
@@ -102,34 +101,52 @@ public final class JudgeBackends {
      * <p>Deliberately opt-in and deliberately not used by the larger modules: the same call on the
      * full use case would print several hundred lines and teach nothing the six do not.
      */
-    public static JudgeModel showing(JudgeModel backend) {
-        return request -> {
-            String prompt = request.messages().stream()
-                .map(JudgeMessage::content)
-                .collect(java.util.stream.Collectors.joining("\n"));
-            log.info("---------- what the judge asked ----------\n{}", prompt);
+    public static EvalModel showing(EvalModel backend) {
+        return observing(backend, request -> log.info("---------- what the judge asked ----------\n{}",
+            request.messages().stream().map(EvalMessage::content).collect(java.util.stream.Collectors.joining("\n"))),
+            response -> log.info("---------- what came back ----------\n{}",
+                response.hasAnswer() ? response.text().strip() : "(nothing)"));
+    }
 
-            JudgeModelResponse response = backend.generate(request);
-
-            log.info("---------- what came back ----------\n{}",
-                response.text() == null ? "(nothing)" : response.text().strip());
-            return response;
+    private static EvalModel observing(EvalModel backend,
+            java.util.function.Consumer<io.github.markpollack.judge.ai.model.EvalModelRequest> before,
+            java.util.function.Consumer<EvalModelResponse> after) {
+        return new EvalModel() {
+            @Override public java.util.Set<io.github.markpollack.judge.ai.model.GeneratedInput> supportedInputs() {
+                return backend.supportedInputs();
+            }
+            @Override public void validateRequest(io.github.markpollack.judge.ai.model.EvalModelRequest request) {
+                backend.validateRequest(request);
+            }
+            @Override public EvalModelResponse generate(io.github.markpollack.judge.ai.model.EvalModelRequest request) {
+                before.accept(request);
+                var response = backend.generate(request);
+                after.accept(response);
+                return response;
+            }
+            @Override public io.github.markpollack.judge.execution.NativeExecution<EvalModelResponse> execute(
+                    io.github.markpollack.judge.ai.model.EvalModelRequest request) {
+                before.accept(request);
+                var execution = backend.execute(request);
+                after.accept(execution.answer());
+                return execution;
+            }
         };
     }
 
     /** The live backend: a real agent, reachable only through AgentClient. */
-    public static JudgeModel liveBackend(Path workspace, Duration timeout) {
-        return new AgentClientJudgeModel(judgingAgent(workspace, timeout));
+    public static EvalModel liveBackend(Path workspace, Duration timeout) {
+        return new AgentClientEvalModel(judgingAgent(workspace, timeout));
     }
 
     /**
      * The backend for one named recording, at the tutorial's standard timeout.
      *
-     * <p>The promoted judges take a {@link JudgeModel} and nothing else — deliberately, because
+     * <p>The native generated Judge/Jury builders take a configured {@link EvalModel} — deliberately, because
      * where a judge's answers come from is the caller's business and not the library's. This is
      * the tutorial being that caller. It is the seam the promotion created, and it is one line.
      */
-    public static JudgeModel forRecording(Path workspace, String recording) {
+    public static EvalModel forRecording(Path workspace, String recording) {
         return backendFor(workspace, Duration.ofMinutes(20), recording);
     }
 
@@ -141,14 +158,14 @@ public final class JudgeBackends {
      * other recordings replay rather than being re-earned at twenty minutes apiece. With no
      * capture named, a live run is live throughout, which is what a demo wants.
      */
-    public static JudgeModel backendFor(Path workspace, Duration timeout, String recording) {
+    public static EvalModel backendFor(Path workspace, Duration timeout, String recording) {
         if (!live()) {
             log.info("backend: recorded — set {}=live to run a real agent instead", MODE);
-            return new RecordedJudgeModel(recording);
+            return new RecordedEvalModel(recording);
         }
         String capture = System.getenv("AGENT_JUDGE_TUTORIAL_CAPTURE");
         if (capture != null && !capture.equals(recording)) {
-            return new RecordedJudgeModel(recording);
+            return new RecordedEvalModel(recording);
         }
         return capturing(liveBackend(workspace, timeout), recording);
     }
@@ -160,13 +177,13 @@ public final class JudgeBackends {
      * the recording CI replays. The captured text is verbatim, so a recording is evidence of
      * what a real run produced rather than something written to make a module pass.
      */
-    public static JudgeModel capturing(JudgeModel backend, String recording) {
+    public static EvalModel capturing(EvalModel backend, String recording) {
         String capture = System.getenv("AGENT_JUDGE_TUTORIAL_CAPTURE");
         if (capture == null || !capture.equals(recording)) {
             return backend;
         }
-        return request -> {
-            var response = backend.generate(request);
+        return observing(backend, request -> { }, response -> {
+            if (!response.hasAnswer()) return;
             Path file = Path.of("tutorial-support/src/main/resources/recordings",
                 recording + ".txt");
             try {
@@ -179,7 +196,6 @@ public final class JudgeBackends {
             catch (IOException e) {
                 throw new UncheckedIOException("Could not write recording", e);
             }
-            return response;
-        };
+        });
     }
 }

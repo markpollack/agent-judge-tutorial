@@ -5,9 +5,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
-import io.github.markpollack.judge.ai.model.JudgeModelResponse;
-import io.github.markpollack.judge.result.Check;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Requirement;
+import io.github.markpollack.judge.ai.model.EvalModelResponse;
+import io.github.markpollack.judge.judgment.Check;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class InvestigationTest {
 
-    private static final Rfc2119Constraint RULE_4 = new Rfc2119Constraint("RULE-4", "MUST",
+    private static final Rfc2119Requirement RULE_4 = Rfc2119Requirement.of("RULE-4", "1", "MUST",
         "acquire locks in the order Owner, Pet, Vet, SchedulingRequest.",
-        "Stable row locking serializes races on existing resource rows.");
+        "Stable row locking serializes races on existing resource rows.", null);
 
     private static final Check LEAD = Check.fail("RULE-4",
         "createStaffOffer locks SchedulingRequest at StaffFallbackService.java:247 before Owner at :258");
@@ -143,8 +143,8 @@ class InvestigationTest {
     void amissingRecordingBlamesTheInstrument() {
         IllegalStateException problem = assertThrows(IllegalStateException.class,
             () -> Investigator.investigate(RULE_4, LEAD,
-                request -> new JudgeModelResponse(RecordedJudgeModel.NO_RECORDING, "recorded", null,
-                    java.util.Map.of("successful", false))));
+                request -> new EvalModelResponse(RecordedEvalModel.NO_RECORDING, "recorded", null,
+                    java.util.Map.of(), false)));
 
         assertTrue(problem.getMessage().contains("capture one with"),
             "the message must tell the operator what to do");
@@ -154,8 +154,8 @@ class InvestigationTest {
     void anincompleteAgentRunBlamesTheInstrument() {
         IllegalStateException problem = assertThrows(IllegalStateException.class,
             () -> Investigator.investigate(RULE_4, LEAD,
-                request -> new JudgeModelResponse("partial output", "live", null,
-                    java.util.Map.of("successful", false))));
+                request -> new EvalModelResponse("partial output", "live", null,
+                    java.util.Map.of(), false)));
 
         assertTrue(problem.getMessage().contains("did not complete"));
     }

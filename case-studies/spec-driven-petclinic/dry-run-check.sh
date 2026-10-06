@@ -17,8 +17,10 @@ mode="${AGENT_JUDGE_TUTORIAL_AGENT:-}"
 [ "${mode,,}" != live ] || stop "unset AGENT_JUDGE_TUTORIAL_AGENT=live."
 ai_validation="${AGENT_JUDGE_TUTORIAL_AI_VALIDATE:-false}"
 [ "${ai_validation,,}" != true ] || stop "disable optional AI validation."
-version="$(sed -n 's:.*<agent-judge.version>\(.*\)</agent-judge.version>.*:\1:p' pom.xml)"
-[ "$version" = 0.17.0 ] || stop "expected released Agent Judge 0.17.0; found $version."
+[ -n "${EVAL_M2:-}" ] || stop "set EVAL_M2 to the isolated repository containing the exact producer build."
+export MAVEN_ARGS="${MAVEN_ARGS:-} -Dmaven.repo.local=$EVAL_M2"
+version="$(sed -n 's:.*<agent-judge.version>\(.*\)</agent-judge.version>.*:\1:p' "$CASE/pom.xml")"
+[ "$version" = 0.18.0-SNAPSHOT ] || stop "expected source Agent Eval 0.18.0-SNAPSHOT; found $version."
 for module in module-01-build module-02-ears-slice module-03-ears-usecase module-04-rfc2119-rules module-05-investigation; do
     [ -f "$CASE/$module/pom.xml" ] || stop "missing current module $module."
 done
@@ -32,4 +34,4 @@ fi
 export MAVEN_ARGS="${MAVEN_ARGS:-} -o"
 echo "Checking the complete case-study regression suite with Maven offline, including the real build..."
 ./mvnw -B -ntp -f "$CASE/pom.xml" install || stop "offline verification failed; prepare with --warm first."
-echo "READY. Follow DRY-RUN.md Part B; its intentional merge gates are separate from this green suite."
+echo "READY. Follow CONFIGURED-RUN.md; its intentional merge gates are separate from this green suite."

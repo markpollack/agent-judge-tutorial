@@ -9,9 +9,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.markpollack.judge.ai.model.JudgeModel;
-import io.github.markpollack.judge.ai.model.JudgeModelRequest;
-import io.github.markpollack.judge.ai.model.JudgeModelResponse;
+import io.github.markpollack.judge.ai.model.EvalModel;
+import io.github.markpollack.judge.ai.model.EvalModelRequest;
+import io.github.markpollack.judge.ai.model.EvalModelResponse;
 
 /**
  * Test-only backend. Replays an answer a real agent gave, so continuous integration is
@@ -28,7 +28,7 @@ import io.github.markpollack.judge.ai.model.JudgeModelResponse;
  * <p>A missing recording is an {@code ERROR}, never a default pass. A stand-in that answers
  * whatever it has not seen is a judge that cannot fail, which is worse than no judge.
  */
-public final class RecordedJudgeModel implements JudgeModel {
+public final class RecordedEvalModel implements EvalModel {
 
     /**
      * SLF4J, because that is what this repository and the library already use — {@code slf4j-simple}
@@ -39,7 +39,7 @@ public final class RecordedJudgeModel implements JudgeModel {
      * seconds is indistinguishable from a judge that did not run. These lines say what was asked,
      * what answered, and where that answer came from.
      */
-    private static final Logger log = LoggerFactory.getLogger(RecordedJudgeModel.class);
+    private static final Logger log = LoggerFactory.getLogger(RecordedEvalModel.class);
 
     /**
      * What this backend says when it cannot answer, and the ERROR message the operator sees.
@@ -58,17 +58,17 @@ public final class RecordedJudgeModel implements JudgeModel {
 
     private final String recording;
 
-    public RecordedJudgeModel(String recording) {
+    public RecordedEvalModel(String recording) {
         this.recording = recording;
     }
 
     @Override
-    public JudgeModelResponse generate(JudgeModelRequest request) {
+    public EvalModelResponse generate(EvalModelRequest request) {
         String path = "/recordings/" + recording + ".txt";
-        try (InputStream in = RecordedJudgeModel.class.getResourceAsStream(path)) {
+        try (InputStream in = RecordedEvalModel.class.getResourceAsStream(path)) {
             if (in == null) {
                 log.warn("no recording named '{}'", recording);
-                return new JudgeModelResponse(NO_RECORDING, "recorded", null, Map.of("successful", false));
+                return new EvalModelResponse(NO_RECORDING, "recorded", null, Map.of("recording", recording), false);
             }
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             // Strip the provenance header; everything after the first blank line is
@@ -82,7 +82,7 @@ public final class RecordedJudgeModel implements JudgeModel {
                 request.messages().stream().mapToInt(m -> m.content().length()).sum(),
                 answer.lines().count());
 
-            return new JudgeModelResponse(answer, "recorded", null, Map.of("successful", true));
+            return new EvalModelResponse(answer, "recorded", null, Map.of("recording", recording, "provenance", provenance), true);
         }
         catch (IOException e) {
             throw new UncheckedIOException("Could not read recording " + path, e);

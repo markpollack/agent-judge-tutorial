@@ -13,6 +13,7 @@
  */
 package io.github.markpollack.judge.tutorial.investigation;
 
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +22,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
 import io.github.markpollack.judge.tutorial.support.Investigation;
 import io.github.markpollack.judge.tutorial.support.Investigator;
-import io.github.markpollack.judge.ai.requirements.Rfc2119Constraint;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Requirement;
 import io.github.markpollack.judge.tutorial.support.JudgeBackends;
-import io.github.markpollack.judge.ai.requirements.Rfc2119Judge;
+import io.github.markpollack.judge.ai.requirements.Rfc2119Jury;
+import io.github.markpollack.judge.verdict.Verdict;
+import io.github.markpollack.judge.jury.Jury;
+import io.github.markpollack.judge.ai.model.EvalModel;
+import io.github.markpollack.judge.tutorial.support.RosterResults;
 
 public class InvestigationDemo {
 
@@ -45,26 +50,31 @@ public class InvestigationDemo {
     private static final Pattern LOCATION =
         Pattern.compile("[A-Za-z0-9_/.-]*[A-Za-z0-9_-]+\\.(?:java|xml|sql|html|yml|yaml|properties)(?::[\\d-]+)?");
 
+
+    /** Configure one whole-roster investigation. Workspace/tools belong to the runtime. */
+    public static Jury jury(EvalModel runtime) {
+        return Rfc2119Jury.builder().runtime(runtime).requirements(Rfc2119Requirement.from(RULES, "petclinic:fc9df4af")).build();
+    }
+
     public static void main(String[] args) {
         System.out.println("=== Module 05: Investigate a failure ===\n");
         System.out.println("Module 04 produced eight failed requirements.");
         System.out.println("Each one is an address. None of them is yet a consequence.\n");
 
-        List<Rfc2119Constraint> constraints = Rfc2119Constraint.from(RULES);
+        List<Rfc2119Requirement> constraints = Rfc2119Requirement.from(RULES, "petclinic:fc9df4af");
         Path workspace = Candidate.workspace();
 
         // The lead comes out of module 04's actual judgment. Nothing is copied by hand:
         // if the judge stopped reporting RULE-4, this module would stop having an input,
         // which is the correct behaviour for a tier that consumes another tier's output.
-        Judgment judgment = Rfc2119Judge
-            .create("architectural-constraints", constraints, JudgeBackends.forRecording(workspace, "architecture-rules"))
-            .judge(Candidate.contextFor(workspace));
+        Verdict verdict = jury(JudgeBackends.forRecording(workspace, "architecture-rules")).vote();
+        Judgment judgment = verdict.judgment();
 
-        Map<String, Rfc2119Constraint> byId = constraints.stream()
-            .collect(Collectors.toMap(Rfc2119Constraint::id, c -> c, (a, b) -> a));
+        Map<String, Rfc2119Requirement> byId = constraints.stream()
+            .collect(Collectors.toMap(Rfc2119Requirement::id, c -> c, (a, b) -> a));
 
-        Optional<Check> lead = judgment.checks().stream()
-            .filter(check -> RULE.equals(check.name()) && !check.passed())
+        Optional<Check> lead = RosterResults.checks(verdict).stream()
+            .filter(check -> RULE.equals(check.id()) && check.judgment().status() == JudgmentStatus.FAIL)
             .findFirst();
 
         if (lead.isEmpty() || !byId.containsKey(RULE)) {
@@ -74,13 +84,13 @@ public class InvestigationDemo {
             return;
         }
 
-        Rfc2119Constraint constraint = byId.get(RULE);
+        Rfc2119Requirement constraint = byId.get(RULE);
         Check check = lead.get();
 
         System.out.println("  Take one of them.\n");
         System.out.println("    " + RULE + "   FAIL");
-        System.out.println("    " + " ".repeat(RULE.length()) + "   " + constraint.title());
-        locations(check.message()).forEach(location ->
+        System.out.println("    " + " ".repeat(RULE.length()) + "   " + constraint.specification().requirement());
+        locations(check.judgment().reasoning()).forEach(location ->
             System.out.println("    " + " ".repeat(RULE.length()) + "   " + location));
         System.out.println();
         System.out.println("  The judge answered the question it was asked: does the rule hold?");
@@ -140,7 +150,7 @@ public class InvestigationDemo {
         // Shown rather than narrated. The judge cited one line and the investigation cites
         // another, and printing both is the whole argument for why the second tier is a
         // separate call: it read past the address it was given and moved it.
-        List<String> leadLocations = locations(check.message());
+        List<String> leadLocations = locations(check.judgment().reasoning());
         if (!established.isEmpty() && !leadLocations.isEmpty()
                 && !established.get(0).equals(leadLocations.get(0))) {
             System.out.println("    It moved the address");

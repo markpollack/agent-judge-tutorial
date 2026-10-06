@@ -3,13 +3,9 @@ package io.github.markpollack.judge.tutorial.support;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
 
 /**
  * The subject every module in this tutorial evaluates.
@@ -58,17 +54,6 @@ public final class Candidate {
             run(FIXTURES, "./materialize-large-candidate.sh");
         }
         return workspace;
-    }
-
-    /** The context a judge is given: the goal, the workspace, and how the run went. */
-    public static JudgmentContext contextFor(Path workspace) {
-        return JudgmentContext.builder()
-            .goal(GOAL)
-            .workspace(workspace)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofMinutes(4))
-            .build();
     }
 
     private static Path locateFixtures() {

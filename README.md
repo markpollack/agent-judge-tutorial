@@ -1,4 +1,4 @@
-# Agent Judge Tutorial
+# Agent Eval Tutorial
 
 > **Documentation**: https://lab.pollack.ai/docs/agent-judge/tutorial | [API Reference](https://lab.pollack.ai/docs/agent-judge/api-reference)
 
@@ -179,3 +179,7 @@ committed examples target 0.17.0.
 - [Agent Judge](https://github.com/markpollack/agent-judge) - the library
 - [Documentation](https://lab.pollack.ai/docs/agent-judge/getting-started)
 - [Agent Experiment](https://github.com/markpollack/agent-experiment) - the runner that uses these juries
+
+The separate [PetClinic case-study reactor](case-studies/spec-driven-petclinic/CONFIGURED-RUN.md)
+uses the configured 0.18 source API and requires locally built artifacts from its exact source pin.
+The fundamentals commands and released 0.17.0 dependency above apply to the root reactor.

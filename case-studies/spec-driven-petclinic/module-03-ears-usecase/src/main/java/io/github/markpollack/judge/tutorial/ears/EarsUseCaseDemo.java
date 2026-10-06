@@ -12,16 +12,21 @@
  */
 package io.github.markpollack.judge.tutorial.ears;
 
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.tutorial.support.Candidate;
-import io.github.markpollack.judge.ai.requirements.EarsCriterion;
+import io.github.markpollack.judge.ai.requirements.EarsRequirement;
 import io.github.markpollack.judge.tutorial.support.JudgeBackends;
-import io.github.markpollack.judge.ai.requirements.EarsJudge;
+import io.github.markpollack.judge.ai.requirements.EarsJury;
+import io.github.markpollack.judge.verdict.Verdict;
+import io.github.markpollack.judge.jury.Jury;
+import io.github.markpollack.judge.ai.model.EvalModel;
+import io.github.markpollack.judge.tutorial.support.RosterResults;
 import io.github.markpollack.judge.ai.requirements.Observation;
 
 public class EarsUseCaseDemo {
@@ -29,35 +34,40 @@ public class EarsUseCaseDemo {
     private static final Path CRITERIA =
         Candidate.SPEC.resolve("manage-appointment-lifecycle/criteria.md");
 
+
+    /** Configure one whole-roster investigation. Workspace/tools belong to the runtime. */
+    public static Jury jury(EvalModel runtime) {
+        return EarsJury.builder().runtime(runtime).requirements(EarsRequirement.from(CRITERIA, "petclinic:fc9df4af")).build();
+    }
+
     public static void main(String[] args) {
         System.out.println("=== Module 03: Run the whole spec ===\n");
         System.out.println("The six we sampled passed.");
         System.out.println("Now run the complete use-case specification.\n");
 
-        List<EarsCriterion> criteria = EarsCriterion.from(CRITERIA);
+        List<EarsRequirement> criteria = EarsRequirement.from(CRITERIA, "petclinic:fc9df4af");
         Path workspace = Candidate.workspace();
 
         System.out.println("  " + criteria.size() + " required criteria\n");
 
-        Judgment judgment = EarsJudge
-            .create("appointment-lifecycle", criteria, JudgeBackends.forRecording(workspace, "spec-conformance-uc6"))
-            .judge(Candidate.contextFor(workspace));
+        Verdict verdict = jury(JudgeBackends.forRecording(workspace, "spec-conformance-uc6")).vote();
+        Judgment judgment = verdict.judgment();
 
-        Map<String, EarsCriterion> byId = criteria.stream()
-            .collect(java.util.stream.Collectors.toMap(EarsCriterion::id, c -> c, (a, b) -> a));
-        List<String> unestablished = unestablished(judgment);
-        long established = judgment.checks().stream().filter(Check::passed).count();
-        long refuted = judgment.checks().size() - established - unestablished.size();
+        Map<String, EarsRequirement> byId = criteria.stream()
+            .collect(java.util.stream.Collectors.toMap(EarsRequirement::id, c -> c, (a, b) -> a));
+        List<String> unestablished = RosterResults.checks(verdict).stream().filter(c -> c.judgment().status() == JudgmentStatus.ABSTAIN).map(Check::id).toList();
+        long established = RosterResults.checks(verdict).stream().filter(c -> c.judgment().status() == JudgmentStatus.PASS).count();
+        long refuted = RosterResults.checks(verdict).stream().filter(c -> c.judgment().status() == JudgmentStatus.FAIL).count();
 
         System.out.printf("  %2d PASS%n", established);
         System.out.printf("  %2d FAIL%n", refuted);
         System.out.printf("  %2d ABSTAIN%n%n", unestablished.size());
-        System.out.println("  Overall: " + judgment.status() + "\n");
+        System.out.println("  Overall: " + verdict.conclusion() + "\n");
 
         if (!unestablished.isEmpty()) {
             System.out.println("  Cannot establish:");
             unestablished.forEach(id -> System.out.println("    " + id + "  "
-                + (byId.containsKey(id) ? byId.get(id).title() : "")));
+                + (byId.containsKey(id) ? byId.get(id).specification().title() : "")));
             System.out.println();
         }
 
@@ -73,13 +83,6 @@ public class EarsUseCaseDemo {
             51 out of 52 into 98% and call it done.
             """);
         System.out.println("Done.");
-    }
-
-    /** The criteria the audit could not settle. Not a failure of the code — a gap in the evidence. */
-    private static List<String> unestablished(Judgment judgment) {
-        Object stored = judgment.metadata().get("unestablished");
-        String ids = stored == null ? "" : stored.toString();
-        return ids.isBlank() ? List.of() : List.of(ids.split(","));
     }
 
     private static void para(String text) {

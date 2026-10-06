@@ -9,7 +9,7 @@
     "=== Module 02: Run the spec ===",
     "  UC6-AC7     PASS\n  UC6-AC8     PASS\n  UC6-AC9     PASS\n  UC6-AC10    PASS\n  UC6-AC11    PASS\n  UC6-AC12    PASS",
     "Overall: PASS",
-    "all 6 requirements established",
+    "Every applicable declared requirement passed",
     "Also noticed, changing nothing above:",
     "Done."
   ],

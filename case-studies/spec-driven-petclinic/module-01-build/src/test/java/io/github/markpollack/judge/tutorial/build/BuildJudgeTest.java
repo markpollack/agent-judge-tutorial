@@ -5,8 +5,8 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 import io.github.markpollack.judge.exec.BuildSuccessJudge;
-import io.github.markpollack.judge.junit.JudgeAssertions;
-import io.github.markpollack.judge.result.JudgmentStatus;
+import static io.github.markpollack.judge.assertj.Assertions.assertThat;
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import io.github.markpollack.judge.tutorial.support.Candidate;
 
 /**
@@ -20,7 +20,6 @@ class BuildJudgeTest {
     @Test
     void theCandidateBuildsAndItsTestsPass() {
         Path workspace = Candidate.workspace();
-        JudgeAssertions.assertStatus(JudgmentStatus.PASS,
-            BuildSuccessJudge.maven("test"), Candidate.contextFor(workspace));
+        assertThat(BuildSuccessJudge.maven("test").evidence(workspace).build()).isPassed();
     }
 }

@@ -24,6 +24,15 @@
     <name>Case Study - Running the Spec You Already Wrote</name>
     <description>Evaluating a spec-driven generated system against the requirements written before it</description>
 
+    <properties>
+        <agent-judge.version>0.18.0-SNAPSHOT</agent-judge.version>
+        <agent-client.version>0.30.0</agent-client.version>
+    </properties>
+    <dependencyManagement><dependencies>
+        <dependency><groupId>io.github.markpollack</groupId><artifactId>agent-judge-assertj</artifactId><version>${agent-judge.version}</version></dependency>
+        <dependency><groupId>io.github.markpollack</groupId><artifactId>agent-judge-json-jackson2</artifactId><version>${agent-judge.version}</version></dependency>
+    </dependencies></dependencyManagement>
+
     <modules>
         <module>tutorial-support</module>
         <module>module-01-build</module>

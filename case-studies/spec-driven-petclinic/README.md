@@ -24,9 +24,9 @@ Numbering is local to this case study.
 | Module | Question | Instrument |
 |---|---|---|
 | `module-01-build` | Does it build and pass its existing tests? | `BuildSuccessJudge`, no model |
-| `module-02-ears-slice` | Six readable acceptance criteria | `EarsJudge` |
-| `module-03-ears-usecase` | All 52 criteria for one use case | `EarsJudge` |
-| `module-04-rfc2119-rules` | The 13 architectural MUSTs | `Rfc2119Judge` |
+| `module-02-ears-slice` | Six readable acceptance criteria | `EarsJury` |
+| `module-03-ears-usecase` | All 52 criteria for one use case | `EarsJury` |
+| `module-04-rfc2119-rules` | The 13 architectural MUSTs | `Rfc2119Jury` |
 | `module-05-investigation` | What does one failure actually mean, and can it happen? | investigation tier |
 | `module-06-promotion` | Which findings can leave the model path? | deterministic tooling |
 
@@ -43,27 +43,12 @@ into a backlog.
 
 ## Run it
 
-This checkout uses released **Agent Judge 0.17.0**. Start at the repository root with Java 21
-and the committed Maven wrapper. The first build downloads dependencies, including those needed
-by the real PetClinic build:
-
-```bash
-./mvnw install
-./mvnw -f case-studies/spec-driven-petclinic/pom.xml install
-./mvnw -q -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl module-02-ears-slice
-```
-
-The root install supplies `judge-junit`, which the separate case-study reactor consumes.
-The first demo invocation also caches the execution plugin.
-After preparation, replay without model credentials and with Maven offline (including child builds):
-
-```bash
-unset ANTHROPIC_API_KEY AGENT_JUDGE_TUTORIAL_AGENT
-export MAVEN_ARGS="${MAVEN_ARGS:-} -o"
-for module in module-01-build module-02-ears-slice module-03-ears-usecase module-04-rfc2119-rules module-05-investigation; do
-  ./mvnw -q -f case-studies/spec-driven-petclinic/pom.xml exec:java -pl "$module"
-done
-```
+This case-study reactor uses the configured **Agent Eval 0.18 source API**; the separate
+fundamentals reactor remains on released Agent Judge 0.17.0. Coordinates keep `agent-judge`.
+Build artifacts from exact producer commit `0d0abe47b34c0e638e68ed81c5a764d6b424bc86`
+in an isolated Maven repository. See [CONFIGURED-RUN.md](CONFIGURED-RUN.md) for reproducible
+source preparation, cached replay, complete results, and AssertJ commands.
+Do not resolve an arbitrary older `0.18.0-SNAPSHOT` or assume these artifacts are BOM-managed.
 
 Module 01 executes a real build; modules 02–05 replay committed model responses. Expected results:
 
@@ -71,7 +56,7 @@ Module 01 executes a real build; modules 02–05 replay committed model response
 |---|---|
 | 01 | PASS |
 | 02 | Six established; PASS |
-| 03 | 51 PASS, zero FAIL, one ABSTAIN (`UC6-AC41`); overall ABSTAIN |
+| 03 | 51 PASS, zero FAIL, one ABSTAIN (`UC6-AC41`); overall INCONCLUSIVE |
 | 04 | Five PASS, eight FAIL; overall FAIL |
 | 05 | One RULE-4 investigation; recorded CONFIRMED / REACHABLE |
 
@@ -84,14 +69,15 @@ With JBang installed, verify all five demo outputs:
 ```
 
 Ordinary tests assert these recorded outcomes and pass. The separate `ShouldIMerge*Demo` tests
-require PASS: the slice passes, the full behavioral specification rejects on ABSTAIN, and the
+use the producer AssertJ `isPassed()` terminal: the slice passes, the full behavioral specification rejects on ABSTAIN, and the
 architecture rejects on FAIL. See the walkthrough for exact commands. Investigation is diagnosis;
 it does not turn a rejected merge gate green.
 
 ## Presenting it
 
-**[`DRY-RUN.md`](DRY-RUN.md) is the authoritative walkthrough** — one preflight command, the
-IntelliJ run, expected results, and a terminal fallback.
+**[CONFIGURED-RUN.md](CONFIGURED-RUN.md) is the current source-API walkthrough.**
+[DRY-RUN.md](DRY-RUN.md) preserves the historical 0.17 conference script and output;
+its old assertion messages and commands are historical.
 
 ## Learn the concepts
 
