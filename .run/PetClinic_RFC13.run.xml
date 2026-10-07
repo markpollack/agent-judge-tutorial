@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PetClinic - RFC13" type="Application" factoryName="Application">
+    <module name="module-04-rfc2119-rules" />
+    <option name="MAIN_CLASS_NAME" value="io.github.markpollack.judge.tutorial.rules.Rfc2119RulesDemo" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <envs>
+      <env name="AGENT_JUDGE_TUTORIAL_AGENT" value="recorded" />
+      <env name="AGENT_JUDGE_TUTORIAL_CAPTURE" value="" />
+      <env name="AGENT_JUDGE_TUTORIAL_AI_VALIDATE" value="" />
+      <env name="MAVEN_ARGS" value="-o" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

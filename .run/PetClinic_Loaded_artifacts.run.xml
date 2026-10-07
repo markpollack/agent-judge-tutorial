@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PetClinic - Loaded artifacts" type="JUnit" factoryName="JUnit">
+    <module name="module-02-ears-slice" />
+    <option name="MAIN_CLASS_NAME" value="io.github.markpollack.judge.tutorial.ears.LoadedArtifactsTest" />
+    <option name="PACKAGE_NAME" value="io.github.markpollack.judge.tutorial.ears" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="VM_PARAMETERS" value="-Deval.artifacts=$PROJECT_DIR$/.petclinic-demo/artifacts.sha256" />
+    <envs>
+      <env name="AGENT_JUDGE_TUTORIAL_AGENT" value="recorded" />
+      <env name="AGENT_JUDGE_TUTORIAL_CAPTURE" value="" />
+      <env name="AGENT_JUDGE_TUTORIAL_AI_VALIDATE" value="" />
+      <env name="MAVEN_ARGS" value="-o" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

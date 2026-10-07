@@ -9,16 +9,15 @@ truth. The subject is Anton Arhipov's `appointment-scheduling-spec-with-usecases
 Prepare from the tutorial root: `./scripts/prepare-petclinic-demo.sh`.
 Verify the offline fallback: `./scripts/rehearse-petclinic-demo.sh`.
 Both select replay even if the calling shell was set to live. Java 21, Python 3 and JBang are needed.
-Keep the prepared worktree, `.petclinic-demo/m2`, materialized candidate and wrapper/JBang caches
-on the presentation machine. [CONFIGURED-RUN.md](CONFIGURED-RUN.md) explains artifact identity.
+Keep the ordinary tutorial checkout, prepared `~/.m2/repository`, materialized candidate and
+wrapper/JBang caches on the presentation machine. [CONFIGURED-RUN.md](CONFIGURED-RUN.md) explains artifact identity.
 
 For the short commands below, from the tutorial root:
 
 ```bash
-export EVAL_M2="$PWD/.petclinic-demo/m2"
-export MAVEN_ARGS="-o -Dmaven.repo.local=$EVAL_M2"
+export MAVEN_ARGS="-o"
 export AGENT_JUDGE_TUTORIAL_AGENT=recorded
-unset AGENT_JUDGE_TUTORIAL_CAPTURE
+unset AGENT_JUDGE_TUTORIAL_CAPTURE AGENT_JUDGE_TUTORIAL_AI_VALIDATE
 CS=case-studies/spec-driven-petclinic
 ```
 
@@ -83,24 +82,43 @@ producer or policy execution.
 
 ## IntelliJ and fallback
 
-Open the tutorial root with JDK 21. Link the root `pom.xml` and the separate `$CS/pom.xml` as Maven
-projects. In **Settings → Build Tools → Maven**, use the wrapper and set **Local repository** to
-the absolute prepared `$EVAL_M2` path, then reload both projects. Enable **Work offline** after
-preparation. Also set `-Dmaven.repo.local=<absolute EVAL_M2>` in Maven runner VM options.
-Do not use the default `~/.m2/repository` for the case-study import.
+1. Run preparation from the normal tutorial checkout, with the normal sibling Agent Judge checkout
+   at the pinned revision. Open **the tutorial directory**, rather than only a case-study module.
+2. In **Settings → Build Tools → Maven**, select the wrapper. Leave **Local repository** at its default
+   `~/.m2/repository` and remove any old `-Dmaven.repo.local` runner override. Use JDK 21 for the project,
+   Maven importer and runner. No special repository setting is required.
+3. Link root `pom.xml`. Then use **Maven → Link Maven Projects** (the `+` button) to add
+   `case-studies/spec-driven-petclinic/pom.xml`. Alternatively, open that POM in the editor and use
+   **Add as Maven Project**. The root reactor does not include PetClinic.
+   Reload both Maven projects after installation; enable **Work offline** once prepared.
+4. Select the shared configurations from the run dropdown. All use `$PROJECT_DIR$` as working
+   directory, set recorded mode, clear capture/AI validation and set `MAVEN_ARGS=-o` for child builds.
+   They use the project's JDK and imported Maven classpaths, without a custom local repository.
 
-For portable Maven run configurations, use tutorial root as the working directory and copy the
-goals above (for example `-o -Dmaven.repo.local=<absolute EVAL_M2> -f case-studies/spec-driven-petclinic/pom.xml
--pl module-02-ears-slice -Dtest=RequirementExamplesTest test`). Set the replay environment shown
-above. Maven run configurations keep the child build on the same repository through `MAVEN_ARGS`.
-If using direct Java/JUnit run configurations, also set their working directory to the tutorial
-root and `MAVEN_ARGS=-o -Dmaven.repo.local=<absolute EVAL_M2>` for child builds/materialization.
+| Shared configuration | Expected result |
+|---|---|
+| `PetClinic - Loaded artifacts` | One green test; actual class locations/hashes match `.petclinic-demo/artifacts.sha256` in the standard repository |
+| `PetClinic - Requirement examples` | Four green JUnit examples: RFC/EARS Judges, requirement-first assertions and conclusion/policy separation |
+| `PetClinic - EARS6` | Console replay: 6 PASS → PASS |
+| `PetClinic - EARS52` | Console replay: 51 PASS, 1 ABSTAIN → INCONCLUSIVE |
+| `PetClinic - RFC13` | Console replay: 5 PASS, 8 FAIL → FAIL |
+| `PetClinic - ShouldIMerge slice` | One green JUnit test |
+| `PetClinic - ShouldIMerge behavior` | One intentionally red assertion, INCONCLUSIVE; zero errors |
+| `PetClinic - ShouldIMerge architecture` | One intentionally red assertion, FAIL; zero errors |
 
-Run `LoadedArtifactsTest` with
-`-Dmaven.repo.local=<absolute EVAL_M2> -Deval.artifacts=<absolute tutorial root>/.petclinic-demo/artifacts.sha256`
-to compare actual class locations/hashes with preparation. This is more reliable than a snapshot
-version label. CLI commands were rehearsed; interactive IntelliJ operation has not been verified.
-Use the prepared terminal sequence if an IDE import or runner is uncertain.
+Run **Loaded artifacts** first after import. It compares actual loaded producer JAR bytes with the
+preparation manifest; a version label alone cannot detect an old snapshot. For the terminal equivalent:
+
+```bash
+./mvnw -o -f "$CS/pom.xml" -pl module-02-ears-slice -Dtest=LoadedArtifactsTest \
+  -Deval.artifacts="$PWD/.petclinic-demo/artifacts.sha256" test
+```
+
+The optional `--isolated` mode requires explicit cache settings and its separate manifest; it is
+not the ordinary IDE setup. All eight shared configurations were directly rehearsed in IntelliJ
+IDEA 2026.2.3 with Java 21, both Maven projects linked and the default repository. The loaded-JAR
+check matched the preparation manifest. Module 01 and module 05 were verified through the CLI
+harness. CLI rehearsal is the offline fallback if import or an IDE runner fails.
 
 For a credential-free fallback, keep `recorded` selected and run the same offline sequence; do
 not improvise a live run. The existing opt-in live console path is documented in CONFIGURED-RUN,

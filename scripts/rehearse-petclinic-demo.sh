@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 # All ordinary regressions and harness demos, plus separately verified instructional failures.
 set -euo pipefail
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$(dirname "${BASH_SOURCE[0]}")/petclinic-demo-env.sh"
 cd "$REPO"
-STATE="$REPO/.petclinic-demo"
-export EVAL_M2="${EVAL_M2:-$STATE/m2}"
-export AGENT_JUDGE_TUTORIAL_AGENT=recorded
-unset AGENT_JUDGE_TUTORIAL_CAPTURE AGENT_JUDGE_TUTORIAL_AI_VALIDATE
-test "$(cat "$STATE/producer-commit.txt")" = b7d2d88ace7cbf110dbfd47ab57221d9e364fb7e
+test "$(cat "$STATE/producer-commit.txt")" = "$PIN"
+test "$(cat "$STATE/repository.txt")" = "$EVAL_M2"
 sha256sum --check "$STATE/artifacts.sha256"
 export MAVEN_ARGS="-B -ntp -o -Dmaven.repo.local=$EVAL_M2"
 CASE=case-studies/spec-driven-petclinic
