@@ -41,7 +41,10 @@ public class Rfc2119RulesDemo {
 
     /** Configure one whole-roster investigation. Workspace/tools belong to the runtime. */
     public static Jury jury(EvalModel runtime) {
-        return Rfc2119Jury.builder().runtime(runtime).requirements(Rfc2119Requirement.from(RULES, "petclinic:fc9df4af")).build();
+        return Rfc2119Jury.builder()
+            .runtime(runtime)
+            .requirements(Rfc2119Requirement.from(RULES, "petclinic:fc9df4af"))
+            .build();
     }
 
     public static void main(String[] args) {

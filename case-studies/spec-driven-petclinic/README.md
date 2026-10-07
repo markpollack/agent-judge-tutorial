@@ -45,7 +45,7 @@ into a backlog.
 
 This case-study reactor uses the configured **Agent Eval 0.18 source API**; the separate
 fundamentals reactor remains on released Agent Judge 0.17.0. Coordinates keep `agent-judge`.
-Build artifacts from exact producer commit `9ccddd31862cc79c7dc2b2d41f4fb1596a56972a`
+Build artifacts from exact producer commit `b7d2d88ace7cbf110dbfd47ab57221d9e364fb7e`
 in an isolated Maven repository. See [CONFIGURED-RUN.md](CONFIGURED-RUN.md) for reproducible
 source preparation, cached replay, complete results, and AssertJ commands.
 Do not resolve an arbitrary older `0.18.0-SNAPSHOT` or assume these artifacts are BOM-managed.
@@ -75,7 +75,8 @@ it does not turn a rejected merge gate green.
 
 ## Presenting it
 
-**[CONFIGURED-RUN.md](CONFIGURED-RUN.md) is the current source-API walkthrough.**
+**[PRESENTER-RUNBOOK.md](PRESENTER-RUNBOOK.md) is the current stage sequence.**
+[CONFIGURED-RUN.md](CONFIGURED-RUN.md) explains pinned preparation, artifact verification and API behavior.
 [DRY-RUN.md](DRY-RUN.md) preserves the historical 0.17 conference script and output;
 its old assertion messages and commands are historical.
 

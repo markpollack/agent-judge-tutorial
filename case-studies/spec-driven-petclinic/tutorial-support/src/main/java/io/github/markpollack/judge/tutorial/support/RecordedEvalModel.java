@@ -63,6 +63,33 @@ public final class RecordedEvalModel implements EvalModel {
         this.recording = recording;
     }
 
+    /**
+     * Replay one verbatim answer line from an archived roster response, retaining the complete
+     * original response and provenance. This is an extraction for teaching a single Judge;
+     * it is not a new single-requirement investigation. Roster demos replay the full recording.
+     */
+    public static EvalModel singleRequirement(String recording, String requirementId) {
+        RecordedEvalModel archive = new RecordedEvalModel(recording);
+        return request -> {
+            EvalModelResponse original = archive.generate(request);
+            if (!original.completed()) {
+                return original;
+            }
+            var lines = original.text().lines()
+                .filter(line -> line.startsWith(requirementId + ":"))
+                .toList();
+            if (lines.size() != 1) {
+                throw new IllegalStateException("Expected one archived answer for " + requirementId
+                    + " in " + recording + "; found " + lines.size());
+            }
+            var facts = new java.util.LinkedHashMap<>(original.metadata());
+            facts.put("archivedRosterResponse", original.text());
+            facts.put("selectedRequirement", requirementId);
+            facts.put("replayMode", "verbatim single-line extraction; not fresh inference");
+            return new EvalModelResponse(lines.getFirst(), original.model(), original.usage(), facts, true);
+        };
+    }
+
     @Override
     public EvalModelResponse generate(EvalModelRequest request) {
         String path = "/recordings/" + recording + ".txt";

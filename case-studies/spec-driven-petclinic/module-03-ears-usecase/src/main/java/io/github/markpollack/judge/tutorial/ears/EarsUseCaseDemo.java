@@ -37,7 +37,10 @@ public class EarsUseCaseDemo {
 
     /** Configure one whole-roster investigation. Workspace/tools belong to the runtime. */
     public static Jury jury(EvalModel runtime) {
-        return EarsJury.builder().runtime(runtime).requirements(EarsRequirement.from(CRITERIA, "petclinic:fc9df4af")).build();
+        return EarsJury.builder()
+            .runtime(runtime)
+            .requirements(EarsRequirement.from(CRITERIA, "petclinic:fc9df4af"))
+            .build();
     }
 
     public static void main(String[] args) {
