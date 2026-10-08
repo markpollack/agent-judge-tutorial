@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Shared paths for preparation and rehearsal; source from those entry points.
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PIN=b7d2d88ace7cbf110dbfd47ab57221d9e364fb7e
+PIN=904c1983c3c919b873ca03beb7e321759580ee14
 STATE="$REPO/.petclinic-demo"
 ISOLATED=false
 for argument in "$@"; do

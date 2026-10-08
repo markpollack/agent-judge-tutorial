@@ -4,7 +4,7 @@ Say up front: **the build is real; model answers are committed-response replay.*
 current Agent Eval APIs over archived responses, without fresh inference or a new claim of subject
 truth. The subject is Anton Arhipov's `appointment-scheduling-spec-with-usecases` at
 `fc9df4af46171bf7b6146d0477cc68d70e8532ad`. The producer is integrated source
-`b7d2d88ace7cbf110dbfd47ab57221d9e364fb7e`, locally built as `0.18.0-SNAPSHOT`.
+`904c1983c3c919b873ca03beb7e321759580ee14`, locally built as `0.18.0-SNAPSHOT`.
 
 Prepare from the tutorial root: `./scripts/prepare-petclinic-demo.sh`.
 Verify the offline fallback: `./scripts/rehearse-petclinic-demo.sh`.

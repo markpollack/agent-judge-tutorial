@@ -1,7 +1,7 @@
 # Configured Agent Eval walkthrough
 
 Use Java 21 and the tutorial Maven wrapper. This separate reactor uses Agent Eval source
-`b7d2d88ace7cbf110dbfd47ab57221d9e364fb7e` at `0.18.0-SNAPSHOT`; the root fundamentals
+`904c1983c3c919b873ca03beb7e321759580ee14` at `0.18.0-SNAPSHOT`; the root fundamentals
 reactor still uses released 0.17.0. No published snapshot or AgentWorks BOM entry is assumed.
 
 From the tutorial root, prepare the exact source, callers, Maven plugins, JBang harness and
