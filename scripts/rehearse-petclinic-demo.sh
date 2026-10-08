@@ -3,7 +3,7 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/petclinic-demo-env.sh"
 cd "$REPO"
-test "$(cat "$STATE/producer-commit.txt")" = "$PIN"
+test "$(cat "$STATE/producer.txt")" = "$(producer_identity)"
 test "$(cat "$STATE/repository.txt")" = "$EVAL_M2"
 sha256sum --check "$STATE/artifacts.sha256"
 export MAVEN_ARGS="-B -ntp -o -Dmaven.repo.local=$EVAL_M2"

@@ -1,42 +1,45 @@
 # Configured Agent Eval walkthrough
 
-Use Java 21 and the tutorial Maven wrapper. This separate reactor uses Agent Eval source
-`904c1983c3c919b873ca03beb7e321759580ee14` at `0.18.0-SNAPSHOT`; the root fundamentals
-reactor still uses released 0.17.0. No published snapshot or AgentWorks BOM entry is assumed.
+Use Java 21 and the tutorial Maven wrapper. This separate reactor uses the released Agent Eval
+coordinates `io.github.markpollack:agent-judge-*:0.18.0` from Maven Central; the root fundamentals
+reactor still uses released 0.17.0. No snapshot, local producer build or AgentWorks BOM entry is assumed.
 
-From the tutorial root, prepare the exact source, callers, Maven plugins, JBang harness and
+From the tutorial root, resolve the release and prepare callers, Maven plugins, JBang harness and
 materialized child build with one command (Java 21, Python 3 and JBang required):
 
 ```bash
 ./scripts/prepare-petclinic-demo.sh
 ```
 
-Preparation may download dependencies. By default it uses your existing sibling `../agent-judge`
-checkout and the standard `~/.m2/repository`; no second producer clone or custom Maven repository
-setting is needed. Safely update that checkout to the exact source revision above before preparation.
-The script refuses to move it or overwrite local source changes. Select Java 21 in `JAVA_HOME` and
-`PATH`. It runs the **complete** producer reactor's `clean install` through its wrapper, including
-its parent and every module, with tests enabled. The equivalent library-only command is:
+Preparation downloads dependencies, including the released Agent Eval artifacts, into the standard
+`~/.m2/repository`; no producer checkout or custom Maven repository setting is needed. Select Java 21
+in `JAVA_HOME` and `PATH`. Unrelated versions and artifacts are retained. Maven 3.8.6 does not read
+`MAVEN_ARGS`; the preparation script passes its chosen repository explicitly. The root tutorial install
+supplies its parent and keeps fundamentals on released 0.17.0; the separate case install supplies the
+demo dependencies. The child build is cleaned to remove stale compiled tests/reports before it runs;
+every harness caller also runs during preparation so dependencies and plugins are usable offline.
+Java 21, Python 3 and JBang must already be available.
+
+Building the producer from source is optional and not needed for the walkthrough. With
+`./scripts/prepare-petclinic-demo.sh --source` the script first runs the **complete** producer
+reactor's `clean install` (wrapper, tests enabled) from the sibling `../agent-judge` checkout, which
+must be clean and at the `v0.18.0` release tag; the script refuses to move it or overwrite local
+source changes. The installed bytes then occupy the same `0.18.0` coordinates. The equivalent
+library-only command is:
 
 ```bash
 cd ../agent-judge
+git checkout v0.18.0
 ./mvnw -B -ntp clean install
 cd ../agent-judge-tutorial
 ```
 
-The corrected `0.18.0-SNAPSHOT` artifacts replace older artifacts at those coordinates. Unrelated
-versions and artifacts are retained. Maven 3.8.6 does not read `MAVEN_ARGS`; the preparation script
-passes its chosen repository explicitly. The root tutorial install supplies its parent and keeps
-fundamentals on released 0.17.0; the separate case install supplies the demo dependencies. The child
-build is cleaned to remove stale compiled tests/reports before it runs; every harness caller also
-runs during preparation so dependencies and plugins are usable offline. Java 21, Python 3 and JBang must already be available.
-
-For an explicitly isolated reproduction, use `./scripts/prepare-petclinic-demo.sh --isolated` and
-`./scripts/rehearse-petclinic-demo.sh --isolated`. This optional mode clones the pinned producer into
-`.petclinic-demo/isolated/agent-judge` and installs into `.petclinic-demo/isolated/m2`, both ignored.
-`EVAL_SOURCE` can reuse any existing clean checkout at the exact pin in either mode; `EVAL_M2` can
-select a different cache (absolute path without whitespace). Supply the same mode and overrides to
-both scripts. Isolated mode has its own manifests and does not replace the standard-cache receipts.
+For an explicitly isolated source reproduction, use `./scripts/prepare-petclinic-demo.sh --isolated` and
+`./scripts/rehearse-petclinic-demo.sh --isolated`. This optional mode clones the producer at `v0.18.0`
+into `.petclinic-demo/isolated/agent-judge` and installs into `.petclinic-demo/isolated/m2`, both ignored.
+`EVAL_SOURCE` can reuse any existing clean checkout at the tag in source modes; `EVAL_M2` can
+select a different cache (absolute path without whitespace) in any mode. Supply the same mode and
+overrides to both scripts. Isolated mode has its own manifests and does not replace the standard-cache receipts.
 
 Rehearse all ordinary checks, all five demos and the separate intentional assertion failures:
 
@@ -52,7 +55,7 @@ unset AGENT_JUDGE_TUTORIAL_CAPTURE AGENT_JUDGE_TUTORIAL_AI_VALIDATE
 export MAVEN_ARGS="-o"
 ```
 
-`.petclinic-demo/producer-commit.txt` records source identity; `artifacts.sha256` records the
+`.petclinic-demo/producer.txt` records the producer identity (the release, or the source tag and commit); `artifacts.sha256` records the
 installed POM/JAR bytes; `repository.txt` records the chosen cache. The rehearsal checks every hash
 before and after execution.
 `LoadedArtifactsTest` prints the actual class locations and SHA-256 values for the six loaded

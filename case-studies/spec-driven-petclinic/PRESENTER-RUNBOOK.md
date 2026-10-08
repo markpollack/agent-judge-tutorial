@@ -3,8 +3,8 @@
 Say up front: **the build is real; model answers are committed-response replay.** This demonstrates
 current Agent Eval APIs over archived responses, without fresh inference or a new claim of subject
 truth. The subject is Anton Arhipov's `appointment-scheduling-spec-with-usecases` at
-`fc9df4af46171bf7b6146d0477cc68d70e8532ad`. The producer is integrated source
-`904c1983c3c919b873ca03beb7e321759580ee14`, locally built as `0.18.0-SNAPSHOT`.
+`fc9df4af46171bf7b6146d0477cc68d70e8532ad`. The producer is released Agent Eval
+`io.github.markpollack:agent-judge-*:0.18.0`, resolved from Maven Central.
 
 Prepare from the tutorial root: `./scripts/prepare-petclinic-demo.sh`.
 Verify the offline fallback: `./scripts/rehearse-petclinic-demo.sh`.
@@ -82,8 +82,8 @@ producer or policy execution.
 
 ## IntelliJ and fallback
 
-1. Run preparation from the normal tutorial checkout, with the normal sibling Agent Judge checkout
-   at the pinned revision. Open **the tutorial directory**, rather than only a case-study module.
+1. Run preparation from the normal tutorial checkout; it resolves released Agent Eval 0.18.0, so no
+   producer checkout is needed. Open **the tutorial directory**, rather than only a case-study module.
 2. In **Settings → Build Tools → Maven**, select the wrapper. Leave **Local repository** at its default
    `~/.m2/repository` and remove any old `-Dmaven.repo.local` runner override. Use JDK 21 for the project,
    Maven importer and runner. No special repository setting is required.
@@ -107,7 +107,7 @@ producer or policy execution.
 | `PetClinic - ShouldIMerge architecture` | One intentionally red assertion, FAIL; zero errors |
 
 Run **Loaded artifacts** first after import. It compares actual loaded producer JAR bytes with the
-preparation manifest; a version label alone cannot detect an old snapshot. For the terminal equivalent:
+preparation manifest; a version label alone cannot detect stale or locally rebuilt bytes. For the terminal equivalent:
 
 ```bash
 ./mvnw -o -f "$CS/pom.xml" -pl module-02-ears-slice -Dtest=LoadedArtifactsTest \

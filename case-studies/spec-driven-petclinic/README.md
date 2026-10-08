@@ -43,12 +43,12 @@ into a backlog.
 
 ## Run it
 
-This case-study reactor uses the configured **Agent Eval 0.18 source API**; the separate
+This case-study reactor uses released **Agent Eval 0.18.0**
+(`io.github.markpollack:agent-judge-*:0.18.0`, from Maven Central); the separate
 fundamentals reactor remains on released Agent Judge 0.17.0. Coordinates keep `agent-judge`.
-Build artifacts from exact producer commit `904c1983c3c919b873ca03beb7e321759580ee14`
-into the standard `~/.m2/repository` from the sibling Agent Judge checkout. See [CONFIGURED-RUN.md](CONFIGURED-RUN.md) for reproducible
-source preparation, cached replay, complete results, and AssertJ commands.
-Do not resolve an arbitrary older `0.18.0-SNAPSHOT` or assume these artifacts are BOM-managed.
+No producer checkout or source build is needed. See [CONFIGURED-RUN.md](CONFIGURED-RUN.md) for
+preparation, cached replay, complete results, AssertJ commands, and the optional source build.
+Do not assume these artifacts are BOM-managed.
 
 Module 01 executes a real build; modules 02–05 replay committed model responses. Expected results:
 
@@ -76,7 +76,7 @@ it does not turn a rejected merge gate green.
 ## Presenting it
 
 **[PRESENTER-RUNBOOK.md](PRESENTER-RUNBOOK.md) is the current stage sequence.**
-[CONFIGURED-RUN.md](CONFIGURED-RUN.md) explains pinned preparation, artifact verification and API behavior.
+[CONFIGURED-RUN.md](CONFIGURED-RUN.md) explains release preparation, artifact verification and API behavior.
 [DRY-RUN.md](DRY-RUN.md) preserves the historical 0.17 conference script and output;
 its old assertion messages and commands are historical.
 

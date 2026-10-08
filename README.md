@@ -181,5 +181,5 @@ committed examples target 0.17.0.
 - [Agent Experiment](https://github.com/markpollack/agent-experiment) - the runner that uses these juries
 
 The separate [PetClinic case-study reactor](case-studies/spec-driven-petclinic/CONFIGURED-RUN.md)
-uses the configured 0.18 source API and requires locally built artifacts from its exact source pin.
+uses released Agent Eval 0.18.0 from Maven Central; building the producer from source is optional.
 The fundamentals commands and released 0.17.0 dependency above apply to the root reactor.
