@@ -25,8 +25,8 @@
     <description>Evaluating a spec-driven generated system against the requirements written before it</description>
 
     <properties>
-        <agent-judge.version>0.18.0</agent-judge.version>
-        <agent-client.version>0.30.0</agent-client.version>
+        <agent-judge.version>1.0.0</agent-judge.version>
+        <agent-client.version>0.32.0</agent-client.version>
     </properties>
     <dependencyManagement><dependencies>
         <dependency><groupId>io.github.markpollack</groupId><artifactId>agent-judge-assertj</artifactId><version>${agent-judge.version}</version></dependency>

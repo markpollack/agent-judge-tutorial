@@ -8,11 +8,11 @@ Module 01 needed a model because the criterion had no expected value. Most crite
 not like that.
 
 The compiler decides whether the code compiles. JUnit decides whether the tests pass. Both
-are exact, both are already trusted, and neither is part of Agent Judge.
+are exact, both are already trusted, and neither is part of Agent Eval.
 
 ```java
-Judge compiles = BuildSuccessJudge.maven("compile");
-Judge tested   = BuildSuccessJudge.maven("test");
+Judge compiles = BuildSuccessJudge.maven("compile").evidence(workspace).build();
+Judge tested   = BuildSuccessJudge.maven("test").evidence(workspace).build();
 ```
 
 `BuildSuccessJudge.maven()` prefers `./mvnw` in the workspace and falls back to `mvn` on

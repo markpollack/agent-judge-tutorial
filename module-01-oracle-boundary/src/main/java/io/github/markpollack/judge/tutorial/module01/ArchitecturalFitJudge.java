@@ -6,14 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import io.github.markpollack.judge.ai.JudgmentClassifier;
 import io.github.markpollack.judge.ai.ModelBackedJudge;
 import io.github.markpollack.judge.ai.prompt.JudgePromptTemplate;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
 
 /**
  * One question:
@@ -39,9 +38,17 @@ public final class ArchitecturalFitJudge {
     }
 
     /**
-     * The prompt is ordinary text rendered from the context. Nothing here is Agent Judge
-     * magic: {@code {{goal}}} and {@code {{metadata.*}}} are substituted from the
-     * {@link JudgmentContext} the caller built.
+     * The evidence this judge reads: the goal, the controller the codebase already has,
+     * and the controller under review. It is bound when the judge is built, so running
+     * the judge takes no argument.
+     */
+    public record Review(String goal, String conventionSource, String subjectSource) {
+    }
+
+    /**
+     * The prompt is ordinary text rendered from the evidence. Nothing here is Agent Eval
+     * magic: {@code {{goal}}}, {@code {{conventionSource}}} and {@code {{subjectSource}}}
+     * are substituted from the {@link Review} the caller built.
      */
     private static final JudgePromptTemplate TEMPLATE = JudgePromptTemplate.fromString(
         "architectural-fit",
@@ -51,11 +58,11 @@ public final class ArchitecturalFitJudge {
         This is the controller the codebase already has. Every controller here is
         expected to resemble it:
 
-        {{metadata.conventionSource}}
+        {{conventionSource}}
 
         This is the controller the agent added:
 
-        {{metadata.subjectSource}}
+        {{subjectSource}}
 
         The goal the agent was given was: {{goal}}
 
@@ -69,14 +76,19 @@ public final class ArchitecturalFitJudge {
           SUMMARY: <one sentence>
         """);
 
-    /** Build the judge. Replace the model to call a real one; nothing else changes. */
-    public static ModelBackedJudge create() {
-        return ModelBackedJudge.builder()
+    /** Build the judge for one review. Replace the model to call a real one; nothing else changes. */
+    public static ModelBackedJudge<Review> create(Review review) {
+        return ModelBackedJudge.<Review>builder()
             .name("architectural-fit")
             .description("Does this controller fit the conventions and idioms of this codebase?")
             .promptTemplate(TEMPLATE)
-            .model(new FixtureJudgeModel())
+            .variables(evidence -> Map.of(
+                "goal", evidence.goal(),
+                "conventionSource", evidence.conventionSource(),
+                "subjectSource", evidence.subjectSource()))
+            .model(new FixtureEvalModel())
             .judgmentClassifier(classifier())
+            .evidence(review)
             .build();
     }
 
@@ -91,7 +103,7 @@ public final class ArchitecturalFitJudge {
     private static JudgmentClassifier classifier() {
         return response -> {
             String text = response.text().strip();
-            if (text.isEmpty() || FixtureJudgeModel.NO_RECORDING.equals(text)) {
+            if (text.isEmpty() || FixtureEvalModel.NO_RECORDING.equals(text)) {
                 // The judge did not reach a finding. That is ERROR, not FAIL: the
                 // subject has not been rejected, it has not been reviewed.
                 return Judgment.error("No review was produced for this subject");
@@ -127,27 +139,9 @@ public final class ArchitecturalFitJudge {
         };
     }
 
-    /**
-     * Build a context for one controller. The convention and the subject travel as
-     * context metadata because that is what the prompt renders from.
-     */
-    public static JudgmentContext contextFor(Path workspace, String goal, String subjectPath) {
-        return contextBuilder(workspace, goal, subjectPath).build();
-    }
-
-    /**
-     * The same context, still open, for callers that need to add their own metadata -
-     * module 06 supplies a coverage baseline alongside these sources.
-     */
-    public static JudgmentContext.Builder contextBuilder(Path workspace, String goal, String subjectPath) {
-        return JudgmentContext.builder()
-            .goal(goal)
-            .workspace(workspace)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(java.time.Instant.now())
-            .executionTime(java.time.Duration.ofMinutes(2))
-            .metadata("conventionSource", read(workspace.resolve(CONVENTION)))
-            .metadata("subjectSource", read(workspace.resolve(subjectPath)));
+    /** Read the evidence for one controller: the codebase's convention and the subject. */
+    public static Review reviewOf(Path workspace, String goal, String subjectPath) {
+        return new Review(goal, read(workspace.resolve(CONVENTION)), read(workspace.resolve(subjectPath)));
     }
 
     private static String read(Path path) {

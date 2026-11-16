@@ -7,18 +7,22 @@ The agent says it is done. Should you merge?
 Part of that question already has an answer you know how to write down: it compiles, the
 tests pass, the file is there. Part of it does not.
 
-> **JUnit handles assertions where we know how to write the oracle. Agent Judge extends
+> **JUnit handles assertions where we know how to write the oracle. Agent Eval extends
 > that testing discipline to criteria whose oracle requires richer evidence or judgment.**
 
-Eleven executable Maven modules for **[Agent Judge](https://github.com/markpollack/agent-judge)**,
-sequenced by the evaluation problem rather than by the API. Released Agent Judge **0.17.0**; no API key or
-model calls. First builds download Maven dependencies; prepared builds can run offline.
+Eleven executable Maven modules for **[Agent Eval](https://github.com/markpollack/agent-judge)**,
+sequenced by the evaluation problem rather than by the API. Released Agent Eval **1.0.0** from
+Maven Central; no API key or model calls. First builds download Maven dependencies; prepared builds
+can run offline.
+
+Agent Eval was formerly Agent Judge; its Maven coordinates (`io.github.markpollack:agent-judge-*`)
+are unchanged, and so are its packages and its Judge and Jury class names.
 
 There are two paths through this repository.
 
 | Path | What it is | Where |
 |---|---|---|
-| **Learn Agent Judge** | Small progressive examples, one concept at a time | the `module-01`…`module-11` sequence below |
+| **Learn Agent Eval** | Small progressive examples, one concept at a time | the `module-01`…`module-11` sequence below |
 | **Case study** | *Running the Spec You Already Wrote* — a real spec-driven generated system evaluated end to end against requirements written before the implementation | [`case-studies/spec-driven-petclinic/`](case-studies/spec-driven-petclinic/) |
 
 The case study has its own module numbering, local to itself, and its own README with
@@ -98,7 +102,7 @@ dependencies; with those dependencies prepared, the path can run offline as desc
 | Module | The problem it introduces |
 |---|---|
 | [01](module-01-oracle-boundary) | A criterion with no expected value. Known oracle vs. judgment oracle. |
-| [02](module-02-build-and-tests) | The compiler and JUnit are already oracles; Agent Judge carries their answers. |
+| [02](module-02-build-and-tests) | The compiler and JUnit are already oracles; Agent Eval carries their answers. |
 | [03](module-03-coverage-evidence) | A measurement is not an acceptance decision. A score is not a status. |
 | [04](module-04-custom-judge) | Writing one: task → criterion → evidence → judgment. |
 | [05](module-05-derived-judge) | A derived oracle: several objective facts, one finding, all parts kept. |
@@ -109,7 +113,7 @@ dependencies; with those dependencies prepared, the path can run offline as desc
 | [10](module-10-koog-evaluation) | The same bar, applied to a Koog agent. |
 | [11](module-11-langchain4j-evaluation) | The same bar, applied to a LangChain4j result. |
 
-Plus [`judge-junit`](judge-junit) - a small bridge turning an Agent Judge outcome into a
+Plus [`judge-junit`](judge-junit) - a small bridge turning an Agent Eval outcome into a
 useful JUnit assertion failure.
 
 ## Three kinds of oracle
@@ -129,7 +133,7 @@ code rather than teaching it up front.
 ## The two rules the sequence is built on
 
 **Use the least interpretive instrument that can reliably answer the question.** Agent
-Judge does not replace JUnit, AssertJ, ArchUnit, Checkstyle, JaCoCo, JApiCmp, or the
+Eval does not replace JUnit, AssertJ, ArchUnit, Checkstyle, JaCoCo, JApiCmp, or the
 compiler. Module 01 keeps four criteria in plain `assertTrue` on purpose.
 
 **Compose requirements. Aggregate estimates of the same uncertain property.** A definition
@@ -146,7 +150,7 @@ produced. Everything in the tutorial judges that change.
 
 | | |
 |---|---|
-| Agent Judge | `0.17.0` |
+| Agent Eval (`io.github.markpollack:agent-judge-*`) | `1.0.0` |
 | Koog | `1.1.1` |
 | LangChain4j | `1.19.0` |
 
@@ -172,14 +176,14 @@ jbang RunIntegrationTest.java module-01-oracle-boundary
 Optional Claude validation runs only when `AGENT_JUDGE_TUTORIAL_AI_VALIDATE=true`.
 Candidate verification can select an isolated repository and pre-release artifact with
 `AGENT_JUDGE_TUTORIAL_MAVEN_REPO` and `AGENT_JUDGE_TUTORIAL_AGENT_JUDGE_VERSION`; the
-committed examples target 0.17.0.
+committed examples target 1.0.0.
 
 ## Related
 
-- [Agent Judge](https://github.com/markpollack/agent-judge) - the library
+- [Agent Eval](https://github.com/markpollack/agent-judge) - the library
 - [Documentation](https://lab.pollack.ai/docs/agent-judge/getting-started)
 - [Agent Experiment](https://github.com/markpollack/agent-experiment) - the runner that uses these juries
 
 The separate [PetClinic case-study reactor](case-studies/spec-driven-petclinic/CONFIGURED-RUN.md)
-uses released Agent Eval 0.18.0 from Maven Central; building the producer from source is optional.
-The fundamentals commands and released 0.17.0 dependency above apply to the root reactor.
+uses the same released Agent Eval 1.0.0 from Maven Central; building the producer from source is
+optional. Both reactors resolve every Agent Eval artifact from Central releases.

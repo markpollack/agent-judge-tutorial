@@ -1,20 +1,15 @@
 package io.github.markpollack.judge.junit;
 
 import io.github.markpollack.judge.Judges;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.jury.MajorityVotingStrategy;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import io.github.markpollack.judge.jury.SimpleJury;
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.result.JudgmentStatus;
+import io.github.markpollack.judge.voting.MajorityVotingStrategy;
 
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -30,14 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * than from what the code currently does.
  */
 class JudgeAssertionsTest {
-
-    private static final JudgmentContext CONTEXT = JudgmentContext.builder()
-        .goal("Add a sales report endpoint")
-        .workspace(Path.of("test-workspace"))
-        .status(ExecutionStatus.SUCCESS)
-        .startedAt(Instant.now())
-        .executionTime(Duration.ofSeconds(1))
-        .build();
 
     @Test
     void passingJudgmentDoesNotThrow() {
@@ -193,7 +180,7 @@ class JudgeAssertionsTest {
     @Test
     void judgeOverloadRunsTheJudgeAndReturnsTheJudgment() {
         Judgment judgment = JudgeAssertions.assertPass(
-            Judges.named(context -> Judgment.pass("ran"), "runs"), CONTEXT);
+            Judges.named(() -> Judgment.pass("ran"), "runs"));
 
         assertEquals("ran", judgment.reasoning());
     }
@@ -205,18 +192,18 @@ class JudgeAssertionsTest {
         // returned PASS at 2 of 3. That is why module 06 does not build a definition
         // of done out of a jury.
         SimpleJury jury = SimpleJury.builder()
-            .judge(Judges.named(context -> Judgment.pass("4 tests, 0 failures"), "build"), 1.0)
-            .judge(Judges.named(context -> Judgment.verdict(false)
+            .judge(Judges.named(() -> Judgment.pass("4 tests, 0 failures"), "build"), 1.0)
+            .judge(Judges.named(() -> Judgment.verdict(false)
                 .reasoning("line coverage 36.0% is below the 90.0% floor")
                 .check(Check.fail("line_coverage", "36.0% < 90.0%"))
                 .build(), "coverage"), 1.0)
-            .judge(Judges.named(context -> Judgment.fail("opens its own java.sql.Connection"),
+            .judge(Judges.named(() -> Judgment.fail("opens its own java.sql.Connection"),
                 "architectural-fit"), 1.0)
             .votingStrategy(new MajorityVotingStrategy())
             .build();
 
         AssertionFailedError error =
-            assertThrows(AssertionFailedError.class, () -> JudgeAssertions.assertPass(jury, CONTEXT));
+            assertThrows(AssertionFailedError.class, () -> JudgeAssertions.assertPass(jury));
 
         assertAll(
             () -> assertTrue(error.getMessage().contains("3 judges:"), error.getMessage()),
@@ -231,11 +218,11 @@ class JudgeAssertionsTest {
     @Test
     void passingVerdictDoesNotThrow() {
         SimpleJury jury = SimpleJury.builder()
-            .judge(Judges.named(context -> Judgment.pass("compiles"), "build"), 1.0)
-            .judge(Judges.named(context -> Judgment.pass("tests green"), "tests"), 1.0)
+            .judge(Judges.named(() -> Judgment.pass("compiles"), "build"), 1.0)
+            .judge(Judges.named(() -> Judgment.pass("tests green"), "tests"), 1.0)
             .votingStrategy(new MajorityVotingStrategy())
             .build();
 
-        assertDoesNotThrow(() -> JudgeAssertions.assertPass(jury, CONTEXT));
+        assertDoesNotThrow(() -> JudgeAssertions.assertPass(jury));
     }
 }

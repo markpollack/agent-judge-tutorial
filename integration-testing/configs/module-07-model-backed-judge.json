@@ -7,7 +7,7 @@
   "expectedBehavior": "Print the rendered prompt, then classify a recognised PASS reply, a recognised FAIL reply, and an unrecognised reply that must produce ABSTAIN rather than a guess or a default PASS.",
   "requiredOutput": [
     "=== Module 07: Inside the judgment oracle ===",
-    "The prompt, rendered from the context",
+    "The prompt, rendered from the evidence",
     "SATISFIED",
     "status:    PASS",
     "status:    FAIL",

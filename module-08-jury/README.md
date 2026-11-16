@@ -56,8 +56,15 @@ Rejection belongs to the gate, not to the aggregation step.
 A verdict recording only `FAIL, 2 of 3` could not tell you who disagreed or why - the
 first thing worth reading when a panel splits.
 
-⚠️ Note the key space: `weights` is keyed by the judge's **position** in the builder, while
-`individualByName()` is keyed by its **name**. Join them by order, not by name.
+Each `Seat` in the verdict records the judge's **position** in the builder, the **name** its
+judgment is filed under, and its declared **weight**, so a weight and the opinion it weighted
+are joined by the verdict itself:
+
+```
+  seat 0  reviewer-a   weight 1.0
+  seat 1  reviewer-b   weight 1.0
+  seat 2  reviewer-c   weight 1.0
+```
 
 ## What this module deliberately does not do
 

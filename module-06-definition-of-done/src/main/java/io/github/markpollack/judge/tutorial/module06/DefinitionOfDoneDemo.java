@@ -17,19 +17,16 @@
 package io.github.markpollack.judge.tutorial.module06;
 
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.markpollack.judge.Judge;
 import io.github.markpollack.judge.Judges;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
+import io.github.markpollack.judge.coverage.CoverageComparison;
 import io.github.markpollack.judge.coverage.CoveragePreservationJudge;
 import io.github.markpollack.judge.exec.BuildSuccessJudge;
-import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.result.JudgmentStatus;
+import io.github.markpollack.judge.judgment.Judgment;
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import io.github.markpollack.judge.tutorial.module01.ArchitecturalFitJudge;
 import io.github.markpollack.judge.tutorial.module05.PackageStructureJudge;
 
@@ -48,24 +45,21 @@ public class DefinitionOfDoneDemo {
     public static void main(String[] args) {
         System.out.println("=== Module 06: The definition of done ===\n");
 
-        // The architectural-fit judge needs the sources in metadata; every other
-        // judge reads the workspace. One context serves all five.
-        JudgmentContext context = ArchitecturalFitJudge
-            .contextBuilder(WORKSPACE, GOAL, SUBJECT)
-            .metadata("baselineCoverage", 100.0)
-            .build();
-
+        // Each judge is built with the evidence it reads: four read the workspace,
+        // and architectural-fit reads the two controller sources. Nothing is
+        // shared between them, so the list below is the whole definition of done.
         List<Criterion> definitionOfDone = List.of(
             new Criterion("build", "known",
-                BuildSuccessJudge.maven("compile")),
+                BuildSuccessJudge.maven("compile").evidence(WORKSPACE).build()),
             new Criterion("tests", "known",
-                BuildSuccessJudge.maven("test")),
+                BuildSuccessJudge.maven("test").evidence(WORKSPACE).build()),
             new Criterion("coverage", "known",
-                new CoveragePreservationJudge(5.0)),
+                CoveragePreservationJudge.builder(5.0)
+                    .evidence(new CoverageComparison(WORKSPACE, 100.0)).build()),
             new Criterion("package-structure", "derived",
-                new PackageStructureJudge("com.example", "ReportController")),
+                new PackageStructureJudge(WORKSPACE, "com.example", "ReportController")),
             new Criterion("architectural-fit", "judgment",
-                ArchitecturalFitJudge.create()));
+                ArchitecturalFitJudge.create(ArchitecturalFitJudge.reviewOf(WORKSPACE, GOAL, SUBJECT))));
 
         // ---------------------------------------------------------------
         // Every criterion evaluated. Every result kept.
@@ -73,7 +67,7 @@ public class DefinitionOfDoneDemo {
         System.out.println("Evaluating " + definitionOfDone.size() + " criteria...\n");
 
         List<Judgment> results = definitionOfDone.stream()
-            .map(criterion -> criterion.judge().judge(context))
+            .map(criterion -> criterion.judge().judge())
             .toList();
 
         System.out.printf("  %-18s %-10s %s%n", "CRITERION", "ORACLE", "STATUS");
@@ -125,13 +119,13 @@ public class DefinitionOfDoneDemo {
         // than something the comment claims.
         AtomicInteger invoked = new AtomicInteger();
         Judge all = Judges.allOf(definitionOfDone.stream()
-            .map(criterion -> (Judge) context1 -> {
+            .map(criterion -> (Judge) () -> {
                 invoked.incrementAndGet();
-                return criterion.judge().judge(context1);
+                return criterion.judge().judge();
             })
             .toArray(Judge[]::new));
 
-        Judgment composed = all.judge(context);
+        Judgment composed = all.judge();
         System.out.println("  status:    " + composed.status());
         System.out.println("  reasoning:");
         wrap(composed.reasoning());

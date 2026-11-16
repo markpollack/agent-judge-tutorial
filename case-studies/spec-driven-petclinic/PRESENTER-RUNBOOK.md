@@ -4,7 +4,7 @@ Say up front: **the build is real; model answers are committed-response replay.*
 current Agent Eval APIs over archived responses, without fresh inference or a new claim of subject
 truth. The subject is Anton Arhipov's `appointment-scheduling-spec-with-usecases` at
 `fc9df4af46171bf7b6146d0477cc68d70e8532ad`. The producer is released Agent Eval
-`io.github.markpollack:agent-judge-*:0.18.0`, resolved from Maven Central.
+`io.github.markpollack:agent-judge-*:1.0.0`, resolved from Maven Central.
 
 Prepare from the tutorial root: `./scripts/prepare-petclinic-demo.sh`.
 Verify the offline fallback: `./scripts/rehearse-petclinic-demo.sh`.
@@ -82,7 +82,7 @@ producer or policy execution.
 
 ## IntelliJ and fallback
 
-1. Run preparation from the normal tutorial checkout; it resolves released Agent Eval 0.18.0, so no
+1. Run preparation from the normal tutorial checkout; it resolves released Agent Eval 1.0.0, so no
    producer checkout is needed. Open **the tutorial directory**, rather than only a case-study module.
 2. In **Settings → Build Tools → Maven**, select the wrapper. Leave **Local repository** at its default
    `~/.m2/repository` and remove any old `-Dmaven.repo.local` runner override. Use JDK 21 for the project,

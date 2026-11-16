@@ -3,7 +3,7 @@
 The workspace an agent modified. Every judge in this tutorial evaluates this project.
 
 It is a plain Maven project, deliberately: the compiler, Surefire, and JaCoCo are real
-oracles, and none of them is part of Agent Judge.
+oracles, and none of them is part of Agent Eval.
 
 ## The convention
 

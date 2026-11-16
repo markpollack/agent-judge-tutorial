@@ -8,7 +8,7 @@
 //SOURCES jbang-lib/AIValidator.java
 
 /**
- * Single entry point for running Agent Judge Tutorial integration tests.
+ * Single entry point for running Agent Eval Tutorial integration tests.
  *
  * Usage:
  *   cd integration-testing
@@ -46,7 +46,7 @@ public class RunIntegrationTest {
 
     private static void printUsage() {
         System.out.println("""
-            Integration Test Runner for Agent Judge Tutorial
+            Integration Test Runner for Agent Eval Tutorial
 
             Usage: jbang RunIntegrationTest.java <module-id>
 

@@ -20,7 +20,7 @@ ai_validation="${AGENT_JUDGE_TUTORIAL_AI_VALIDATE:-false}"
 # Optional: EVAL_M2 selects a non-default local repository for outer and nested builds.
 [ -z "${EVAL_M2:-}" ] || export MAVEN_ARGS="${MAVEN_ARGS:-} -Dmaven.repo.local=$EVAL_M2"
 version="$(sed -n 's:.*<agent-judge.version>\(.*\)</agent-judge.version>.*:\1:p' "$CASE/pom.xml")"
-[ "$version" = 0.18.0 ] || stop "expected released Agent Eval 0.18.0; found $version."
+[ "$version" = 1.0.0 ] || stop "expected released Agent Eval 1.0.0; found $version."
 for module in module-01-build module-02-ears-slice module-03-ears-usecase module-04-rfc2119-rules module-05-investigation; do
     [ -f "$CASE/$module/pom.xml" ] || stop "missing current module $module."
 done

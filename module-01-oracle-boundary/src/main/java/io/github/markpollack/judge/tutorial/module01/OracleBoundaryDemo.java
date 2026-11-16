@@ -4,7 +4,7 @@
  * The agent says it is done. Should I merge?
  *
  * Some of that question has a known oracle - an exact answer exists and we can
- * write it down in advance. That is what assertTrue is, and Agent Judge is not
+ * write it down in advance. That is what assertTrue is, and Agent Eval is not
  * an improvement on it.
  *
  * The rest of the question does not. This module is the boundary between them.
@@ -17,9 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import io.github.markpollack.judge.Judge;
-import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.fs.FileExistsJudge;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.file.FileExistsJudge;
+import io.github.markpollack.judge.judgment.Judgment;
 
 public class OracleBoundaryDemo {
 
@@ -62,10 +61,8 @@ public class OracleBoundaryDemo {
         // A deterministic judge is the same known oracle wearing a different
         // coat. Worth having when a jury needs the result as evidence; not
         // worth reaching for when you are already inside a JUnit test.
-        JudgmentContext context =
-            ArchitecturalFitJudge.contextFor(WORKSPACE, GOAL, SUBJECT);
-        Judge fileExists = new FileExistsJudge(SUBJECT);
-        Judgment exists = fileExists.judge(context);
+        Judge fileExists = FileExistsJudge.builder(SUBJECT).evidence(WORKSPACE).build();
+        Judgment exists = fileExists.judge();
         System.out.println("  FileExistsJudge, for comparison: " + exists.status()
             + "  (same oracle, other instrument)");
 
@@ -81,14 +78,15 @@ public class OracleBoundaryDemo {
             known in advance; it has to be produced. That is what a judge is.
             """);
 
-        Judgment fit = ArchitecturalFitJudge.create().judge(context);
+        Judgment fit = ArchitecturalFitJudge.create(
+            ArchitecturalFitJudge.reviewOf(WORKSPACE, GOAL, SUBJECT)).judge();
 
         System.out.println("  architectural-fit  " + fit.status());
         wrap(fit.reasoning());
         System.out.println();
         fit.checks().forEach(check ->
             System.out.printf("    %-4s  %-18s %s%n",
-                check.passed() ? "PASS" : "FAIL", check.name(), check.message()));
+                check.judgment().status(), check.id(), check.judgment().reasoning()));
 
         para("""
             The judgment keeps its parts. Five failing criteria and one passing
@@ -105,8 +103,8 @@ public class OracleBoundaryDemo {
         // The same judge, on the controller the codebase already had.
         // ---------------------------------------------------------------
         System.out.println("\n--- The same judge, on the idiomatic controller ---\n");
-        Judgment control = ArchitecturalFitJudge.create().judge(ArchitecturalFitJudge.contextFor(
-            WORKSPACE, GOAL, "src/main/java/com/example/HelloController.java"));
+        Judgment control = ArchitecturalFitJudge.create(ArchitecturalFitJudge.reviewOf(
+            WORKSPACE, GOAL, "src/main/java/com/example/HelloController.java")).judge();
         System.out.println("  architectural-fit  " + control.status());
         wrap(control.reasoning());
         para("""
@@ -118,7 +116,7 @@ public class OracleBoundaryDemo {
         System.out.println("\n--- Where this goes ---");
         para("""
             JUnit handles assertions where we know how to write the oracle.
-            Agent Judge extends that same testing discipline to criteria whose
+            Agent Eval extends that same testing discipline to criteria whose
             oracle needs richer evidence, or judgment.
 
             Modules 02 and 03 widen the known oracle: the build, the tests, and

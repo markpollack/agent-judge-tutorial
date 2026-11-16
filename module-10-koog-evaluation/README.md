@@ -5,10 +5,11 @@
 ```
 
 Everything so far judged a workspace. An agent framework hands you its own result type
-instead, and an **evaluator** is the adapter: it runs or wraps that result, puts it in a
-`JudgmentContext`, and then applies an ordinary `Judge`.
+instead, and an **evaluator** is the adapter: it runs or wraps that result, records it as
+`CompletionEvidence`, and then builds and applies an ordinary `Judge` over that evidence.
 
 ```java
+Function<CompletionEvidence, Judge> judge = evidence -> () -> ...;
 Judgment judgment = KoogEvaluator.evaluate(agent, "Explain dependency injection", judge);
 ```
 
@@ -27,7 +28,7 @@ warnings and a CDS notice. `.mvn/jvm.config` at the repository root turns them o
 
 ## The committed target
 
-Agent Judge `0.15.2`, Koog `1.1.1`.
+Agent Eval `1.0.0`, Koog `1.1.1`.
 
 ## Next
 

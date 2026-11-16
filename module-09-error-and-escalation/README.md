@@ -24,7 +24,7 @@ same judge module 03 used, and the `ERROR` is real:
   coverage   ERROR    No JaCoCo report found in workspace
 ```
 
-## The same panel, under each `ErrorPolicy`
+## The same panel, under each `ErrorHandling`
 
 ```
   POLICY             STATUS   ROSTER
@@ -71,9 +71,13 @@ Nothing is hidden - both counts are recorded - but nothing raises its voice eith
 
 ```
   status:    ABSTAIN
-  reasoning: No baselineCoverage in metadata
+  reasoning: No baseline coverage was recorded, so a coverage drop cannot be measured
   pass():    false
 ```
+
+`CoveragePreservationJudge` cannot be built without a baseline - its `CoverageComparison`
+evidence requires one - so the question moves to whoever supplies the evidence. The demo's
+caller has none, and abstains rather than guess.
 
 `pass()` is `false` for `FAIL`, `ERROR`, `ABSTAIN` **and** `NOT_APPLICABLE` alike. A consumer that branches
 on `!pass()` cannot distinguish a rejection from an undecided question or an exclusion.
@@ -93,11 +97,11 @@ further:
 
 ```
   a subject that survives the cheap tier:
-    /structural   REJECT_ON_ANY_FAIL  PASS
-    /content      FINAL_TIER          FAIL
+    /structural   STOP_ON_ANY_OPINION_FAIL  PASS
+    /content      FINAL_TIER                FAIL
 
   a subject that does not:
-    /structural   REJECT_ON_ANY_FAIL  FAIL
+    /structural   STOP_ON_ANY_OPINION_FAIL  FAIL
 ```
 
 Only `/structural` appears for the second subject. Which tiers are present is itself the

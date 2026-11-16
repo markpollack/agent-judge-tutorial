@@ -4,21 +4,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import io.github.markpollack.judge.DeterministicJudge;
-import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
 
 /**
  * A reusable deterministic judge that verifies Java package structure.
  * Extends DeterministicJudge for metadata support and granular checks.
+ *
+ * <p>The evidence is the workspace to inspect, bound when the judge is built.
  */
-public class PackageStructureJudge extends DeterministicJudge {
+public class PackageStructureJudge extends DeterministicJudge<Path> {
 
     private final String expectedPackage;
     private final String expectedClass;
 
-    public PackageStructureJudge(String expectedPackage, String expectedClass) {
-        super("package-structure",
+    public PackageStructureJudge(Path workspace, String expectedPackage, String expectedClass) {
+        super(() -> workspace, "package-structure",
             String.format("Verifies %s.%s exists with correct package",
                 expectedPackage, expectedClass));
         this.expectedPackage = expectedPackage;
@@ -26,10 +27,10 @@ public class PackageStructureJudge extends DeterministicJudge {
     }
 
     @Override
-    public Judgment judge(JudgmentContext context) {
+    protected Judgment evaluate(Path workspace) {
         // Convert package to path: com.example -> src/main/java/com/example
         String packagePath = "src/main/java/" + expectedPackage.replace('.', '/');
-        Path packageDir = context.workspace().resolve(packagePath);
+        Path packageDir = workspace.resolve(packagePath);
         Path javaFile = packageDir.resolve(expectedClass + ".java");
 
         boolean dirExists = Files.isDirectory(packageDir);

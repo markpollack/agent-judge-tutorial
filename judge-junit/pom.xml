@@ -12,7 +12,7 @@
 
     <artifactId>judge-junit</artifactId>
     <name>Judge JUnit Bridge</name>
-    <description>Turns an Agent Judge outcome into a useful JUnit assertion failure</description>
+    <description>Turns an Agent Eval outcome into a useful JUnit assertion failure</description>
 
     <!--
       Deliberately two dependencies. The bridge's whole job is to render an

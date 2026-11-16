@@ -4,7 +4,7 @@
   "timeoutSec": 120,
   "requiredEnv": [],
   "requiresPackage": false,
-  "expectedBehavior": "LangChain4jEvaluator adapts a directly constructed Result<String> into a JudgmentContext and applies an ordinary Judge, which must PASS.",
+  "expectedBehavior": "LangChain4jEvaluator adapts a directly constructed Result<String> into CompletionEvidence and applies an ordinary Judge, which must PASS.",
   "requiredOutput": [
     "=== Module 11: Evaluating a LangChain4j result ===",
     "Status:    PASS",

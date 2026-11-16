@@ -11,10 +11,13 @@ Modules 01–03 *used* judges. This one writes them, and the whole job is four s
 `Judge` is a `@FunctionalInterface`, so the smallest judge that can exist is a lambda:
 
 ```java
-Judge pomCheck = ctx -> Files.exists(ctx.workspace().resolve("pom.xml"))
+Judge pomCheck = () -> Files.exists(workspace.resolve("pom.xml"))
     ? Judgment.pass("pom.xml found")
     : Judgment.fail("pom.xml missing");
 ```
+
+`judge()` takes no argument. The evidence - here, the workspace the lambda closes over - is
+bound when the judge is made, so the same judge always looks at the same thing.
 
 Start there. Add only what the criterion actually needs.
 

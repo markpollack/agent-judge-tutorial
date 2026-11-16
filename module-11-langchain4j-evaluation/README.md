@@ -4,8 +4,8 @@
 ./mvnw exec:java -pl module-11-langchain4j-evaluation
 ```
 
-LangChain4j hands back a `Result<T>`. `LangChain4jEvaluator` adapts it into a
-`JudgmentContext` and applies an ordinary `Judge` - the same shape as
+LangChain4j hands back a `Result<T>`. `LangChain4jEvaluator` adapts it into
+`CompletionEvidence` and applies an ordinary `Judge` - the same shape as
 [module 10](../module-10-koog-evaluation), with a different framework on the far side.
 
 ```java
@@ -22,7 +22,7 @@ adapter path is still exercised - including finish reason and token usage extrac
 
 ## The committed target
 
-Agent Judge `0.15.2`, LangChain4j `1.19.0`.
+Agent Eval `1.0.0`, LangChain4j `1.19.0`.
 
 ## Where this goes
 

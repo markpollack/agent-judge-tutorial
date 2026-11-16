@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import io.github.markpollack.judge.context.JudgmentContext;
+import io.github.markpollack.judge.judgment.Judgment;
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import io.github.markpollack.judge.junit.JudgeAssertions;
-import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.result.JudgmentStatus;
 
 import org.junit.jupiter.api.Test;
 
@@ -54,12 +53,12 @@ class OracleBoundaryTest {
 
     @Test
     void reportControllerDoesNotFitTheCodebaseConventions() {
-        Judgment judgment = JudgeAssertions.assertFail(
-            ArchitecturalFitJudge.create(), contextFor(REPORT_CONTROLLER));
+        Judgment judgment = JudgeAssertions.assertFail(judgeFor(REPORT_CONTROLLER));
 
         // The judgment kept its parts, so the binding criterion is recoverable.
         assertTrue(judgment.checks().stream()
-                .anyMatch(check -> check.name().equals("layering") && !check.passed()),
+                .anyMatch(check -> check.id().equals("layering")
+                    && check.judgment().status() == JudgmentStatus.FAIL),
             "layering should be the criterion that binds");
     }
 
@@ -69,7 +68,7 @@ class OracleBoundaryTest {
      */
     @Test
     void helloControllerDoesFitTheCodebaseConventions() {
-        JudgeAssertions.assertPass(ArchitecturalFitJudge.create(), contextFor(HELLO_CONTROLLER));
+        JudgeAssertions.assertPass(judgeFor(HELLO_CONTROLLER));
     }
 
     /**
@@ -79,23 +78,16 @@ class OracleBoundaryTest {
      */
     @Test
     void anUnreviewedSubjectErrorsRatherThanPassing() {
-        JudgmentContext unreviewed = JudgmentContext.builder()
-            .goal(GOAL)
-            .workspace(WORKSPACE)
-            .status(io.github.markpollack.judge.context.ExecutionStatus.SUCCESS)
-            .startedAt(java.time.Instant.now())
-            .executionTime(java.time.Duration.ofSeconds(1))
-            .metadata("conventionSource", "class SomethingElse {}")
-            .metadata("subjectSource", "class SomethingElse {}")
-            .build();
+        var unreviewed = new ArchitecturalFitJudge.Review(
+            GOAL, "class SomethingElse {}", "class SomethingElse {}");
 
         Judgment judgment = JudgeAssertions.assertStatus(
-            JudgmentStatus.ERROR, ArchitecturalFitJudge.create(), unreviewed);
+            JudgmentStatus.ERROR, ArchitecturalFitJudge.create(unreviewed));
 
         assertEquals("No review was produced for this subject", judgment.reasoning());
     }
 
-    private static JudgmentContext contextFor(String subjectPath) {
-        return ArchitecturalFitJudge.contextFor(WORKSPACE, GOAL, subjectPath);
+    private static io.github.markpollack.judge.Judge judgeFor(String subjectPath) {
+        return ArchitecturalFitJudge.create(ArchitecturalFitJudge.reviewOf(WORKSPACE, GOAL, subjectPath));
     }
 }

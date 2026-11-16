@@ -12,7 +12,7 @@
 
     <artifactId>module-02-build-and-tests</artifactId>
     <name>Module 02 - Build and Tests</name>
-    <description>The compiler and JUnit are already oracles; Agent Judge carries their answers</description>
+    <description>The compiler and JUnit are already oracles; Agent Eval carries their answers</description>
 
     <dependencies>
         <dependency>

@@ -2,7 +2,7 @@
 # Shared paths for preparation and rehearsal; source from those entry points.
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Released Agent Eval coordinates io.github.markpollack:agent-judge-*:$RELEASE, from Maven Central.
-RELEASE=0.18.0
+RELEASE=1.0.0
 # Optional source mode builds the producer from its release tag instead of downloading it.
 SOURCE_REF="v$RELEASE"
 STATE="$REPO/.petclinic-demo"

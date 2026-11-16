@@ -24,13 +24,9 @@
 package io.github.markpollack.judge.tutorial.module05;
 
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 
 import io.github.markpollack.judge.JudgeWithMetadata;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Judgment;
 
 public class DerivedJudgeDemo {
 
@@ -39,17 +35,9 @@ public class DerivedJudgeDemo {
 
         Path workspace = Path.of("test-workspace");
 
-        JudgmentContext context = JudgmentContext.builder()
-            .goal("Expose a sales report endpoint")
-            .workspace(workspace)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofSeconds(5))
-            .build();
-
         // PackageStructureJudge extends DeterministicJudge
         PackageStructureJudge judge = new PackageStructureJudge(
-            "com.example", "ReportController");
+            workspace, "com.example", "ReportController");
 
         // Metadata is available from the superclass
         System.out.println("Judge metadata:");
@@ -60,7 +48,7 @@ public class DerivedJudgeDemo {
         }
 
         System.out.println();
-        Judgment result = judge.judge(context);
+        Judgment result = judge.judge();
 
         System.out.println("Result:");
         System.out.println("  Status:    " + result.status());
@@ -73,22 +61,22 @@ public class DerivedJudgeDemo {
         System.out.println("\nThe evidence it derived the verdict from:");
         result.checks().forEach(check ->
             System.out.printf("  %s %-15s %s%n",
-                check.passed() ? "PASS" : "FAIL",
-                check.name(),
-                check.message()));
+                check.judgment().status(),
+                check.id(),
+                check.judgment().reasoning()));
 
         // Watched red. A judge nobody has seen fail is not yet evidence.
         System.out.println("\n--- A class that is not there ---");
         PackageStructureJudge missingJudge = new PackageStructureJudge(
-            "com.example", "MissingController");
-        Judgment missingResult = missingJudge.judge(context);
+            workspace, "com.example", "MissingController");
+        Judgment missingResult = missingJudge.judge();
 
         System.out.println("Result: " + missingResult.status());
         missingResult.checks().forEach(check ->
             System.out.printf("  %s %-15s %s%n",
-                check.passed() ? "PASS" : "FAIL",
-                check.name(),
-                check.message()));
+                check.judgment().status(),
+                check.id(),
+                check.judgment().reasoning()));
 
         System.out.println();
         para("""

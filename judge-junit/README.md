@@ -1,19 +1,19 @@
 # judge-junit
 
-`Agent Judge outcome → useful JUnit assertion failure.` That is the whole responsibility.
+`Agent Eval outcome → useful JUnit assertion failure.` That is the whole responsibility.
 
 ```java
 JudgeAssertions.assertPass(judgment);
-JudgeAssertions.assertPass(judge, context);
+JudgeAssertions.assertPass(judge);
 JudgeAssertions.assertPass(verdict);
-JudgeAssertions.assertPass(jury, context);
+JudgeAssertions.assertPass(jury);
 
 JudgeAssertions.assertFail(judgment);
 JudgeAssertions.assertStatus(JudgmentStatus.ABSTAIN, judgment);
 ```
 
-The `(judge, context)` and `(jury, context)` overloads run the judge and return the
-`Judgment` or `Verdict`, so a test can go on to inspect it.
+The `(judge)` and `(jury)` overloads run the judge or jury and return the `Judgment` or
+`Verdict`, so a test can go on to inspect it.
 
 ## Why not `assertTrue(judgment.pass())`
 
@@ -75,12 +75,11 @@ policy, and policy belongs in the judge.
 
 ## Lambdas
 
-`Judge` and `Jury` are both functional interfaces over `JudgmentContext`, so an implicitly
-typed lambda is ambiguous across the two-argument overloads. Name it first - worth doing
-anyway, since an unnamed judge has no identity in a verdict:
+A `Judge` receives its evidence when it is built, so `judge()` takes no argument. Name a
+lambda judge before asserting on it, since an unnamed judge has no identity in a verdict:
 
 ```java
-assertPass(Judges.named(ctx -> ..., "has-tests"), context);
+assertPass(Judges.named(() -> ..., "has-tests"));
 ```
 
 ## Status

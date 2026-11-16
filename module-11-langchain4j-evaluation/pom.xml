@@ -12,7 +12,7 @@
 
     <artifactId>module-11-langchain4j-evaluation</artifactId>
     <name>Module 11 - LangChain4j Evaluation</name>
-    <description>Evaluate a LangChain4j Result with Agent Judge</description>
+    <description>Evaluate a LangChain4j Result with Agent Eval</description>
 
     <dependencies>
         <dependency>

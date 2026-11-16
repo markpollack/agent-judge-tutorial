@@ -2,7 +2,7 @@
 
 > **Documentation**: https://lab.pollack.ai/docs/agent-judge/tutorial | [API Reference](https://lab.pollack.ai/docs/agent-judge/api-reference)
 
-A case study, not a tutorial. The progressive tutorial at the repository root teaches Agent Judge
+A case study, not a tutorial. The progressive tutorial at the repository root teaches Agent Eval
 one concept at a time; this evaluates one real system end to end.
 
 ## The situation
@@ -43,9 +43,9 @@ into a backlog.
 
 ## Run it
 
-This case-study reactor uses released **Agent Eval 0.18.0**
-(`io.github.markpollack:agent-judge-*:0.18.0`, from Maven Central); the separate
-fundamentals reactor remains on released Agent Judge 0.17.0. Coordinates keep `agent-judge`.
+This case-study reactor uses released **Agent Eval 1.0.0**
+(`io.github.markpollack:agent-judge-*:1.0.0`, from Maven Central), as does the separate
+fundamentals reactor. Agent Eval was formerly Agent Judge; coordinates keep `agent-judge`.
 No producer checkout or source build is needed. See [CONFIGURED-RUN.md](CONFIGURED-RUN.md) for
 preparation, cached replay, complete results, AssertJ commands, and the optional source build.
 Do not assume these artifacts are BOM-managed.

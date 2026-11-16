@@ -58,7 +58,7 @@ public class AIValidator {
         }
 
         return """
-            You are a tutorial validator for the Agent Judge Tutorial.
+            You are a tutorial validator for the Agent Eval Tutorial.
 
             ## Module: %s
 

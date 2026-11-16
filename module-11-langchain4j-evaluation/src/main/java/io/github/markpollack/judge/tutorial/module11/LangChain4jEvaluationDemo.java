@@ -1,8 +1,8 @@
 /*
  * Module 11: The same bar again, through a different framework
  *
- * LangChain4j hands back a Result<T>. LangChain4jEvaluator adapts it into a
- * JudgmentContext and applies an ordinary Judge - the same shape as module 10,
+ * LangChain4j hands back a Result<T>. LangChain4jEvaluator adapts it into
+ * CompletionEvidence and applies an ordinary Judge - the same shape as module 10,
  * with a different framework on the far side.
  *
  * Two frameworks, one evaluation layer, and a judge that does not know or care
@@ -15,18 +15,20 @@ package io.github.markpollack.judge.tutorial.module11;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.Result;
+import java.util.function.Function;
+
 import io.github.markpollack.judge.Judge;
-import io.github.markpollack.judge.context.JudgmentContext;
+import io.github.markpollack.judge.completion.CompletionEvidence;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.langchain4j.LangChain4jEvaluator;
-import io.github.markpollack.judge.result.Judgment;
 
 public class LangChain4jEvaluationDemo {
 
     public static void main(String[] args) {
         System.out.println("=== Module 11: Evaluating a LangChain4j result ===\n");
 
-        Judge addressesTopic = (JudgmentContext context) -> {
-            String output = context.agentOutput().orElse("").toLowerCase();
+        Function<CompletionEvidence, Judge> addressesTopic = evidence -> () -> {
+            String output = evidence.response() == null ? "" : evidence.response().toLowerCase();
             boolean relevant = output.contains("spring boot");
             return Judgment.verdict(relevant)
                 .reasoning(relevant ? "Answer addresses Spring Boot" : "Answer misses the requested topic")

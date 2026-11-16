@@ -17,16 +17,13 @@ package io.github.markpollack.judge.tutorial.module03;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 
 import io.github.markpollack.judge.Judge;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
+import io.github.markpollack.judge.coverage.CoverageComparison;
 import io.github.markpollack.judge.coverage.CoverageImprovementJudge;
 import io.github.markpollack.judge.coverage.CoveragePreservationJudge;
 import io.github.markpollack.judge.exec.BuildSuccessJudge;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.judgment.Judgment;
 
 public class CoverageEvidenceDemo {
 
@@ -61,24 +58,18 @@ public class CoverageEvidenceDemo {
         // ---------------------------------------------------------------
         if (!Files.exists(REPORT)) {
             System.out.println("No JaCoCo report yet. Producing the evidence first...");
-            Judgment build = BuildSuccessJudge.maven("test").judge(context());
+            Judgment build = BuildSuccessJudge.maven("test").evidence(WORKSPACE).build().judge();
             System.out.println("  build+tests: " + build.status() + " - " + build.reasoning() + "\n");
         }
 
-        JudgmentContext context = JudgmentContext.builder()
-            .goal("Expose a sales report endpoint")
-            .workspace(WORKSPACE)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofMinutes(2))
-            .metadata("baselineCoverage", BASELINE_LINE_COVERAGE)
-            .build();
+        // The evidence: where the report lives, and the baseline it is compared to.
+        CoverageComparison comparison = new CoverageComparison(WORKSPACE, BASELINE_LINE_COVERAGE);
 
         // ---------------------------------------------------------------
         // 1. The measurement.
         // ---------------------------------------------------------------
         System.out.println("--- The measurement ---");
-        Judgment measured = new CoverageImprovementJudge().judge(context);
+        Judgment measured = CoverageImprovementJudge.builder().evidence(comparison).build().judge();
 
         System.out.printf("  baseline   %.2f%%%n", asDouble(measured, "baselineLineCoverage"));
         System.out.printf("  current    %.2f%%%n", asDouble(measured, "currentLineCoverage"));
@@ -97,14 +88,14 @@ public class CoverageEvidenceDemo {
         System.out.println("  the parts it kept:");
         measured.checks().forEach(check ->
             System.out.printf("    %-4s %-20s %s%n",
-                check.passed() ? "PASS" : "FAIL", check.name(), check.message()));
+                check.judgment().status(), check.id(), check.judgment().reasoning()));
 
         // ---------------------------------------------------------------
         // 3. The status - a separate decision, against a bar somebody chose.
         // ---------------------------------------------------------------
         System.out.println("\n--- The acceptance decision ---");
-        Judge gate = new CoveragePreservationJudge(MAX_ACCEPTABLE_DROP);
-        Judgment accepted = gate.judge(context);
+        Judge gate = CoveragePreservationJudge.builder(MAX_ACCEPTABLE_DROP).evidence(comparison).build();
+        Judgment accepted = gate.judge();
 
         System.out.printf("  bar        %.1f pp drop, at most%n", MAX_ACCEPTABLE_DROP);
         System.out.println("  status     " + accepted.status());
@@ -112,21 +103,17 @@ public class CoverageEvidenceDemo {
         wrap(accepted.reasoning());
         accepted.checks().forEach(check ->
             System.out.printf("    %-4s %-24s %s%n",
-                check.passed() ? "PASS" : "FAIL", check.name(), check.message()));
+                check.judgment().status(), check.id(), check.judgment().reasoning()));
 
         // ---------------------------------------------------------------
         // 4. A measurement that could not be taken is not a measurement of 0.
         // ---------------------------------------------------------------
         System.out.println("\n--- No evidence at all ---");
         Path empty = Files.createTempDirectory("no-build-ran");
-        Judgment missing = gate.judge(JudgmentContext.builder()
-            .goal("Expose a sales report endpoint")
-            .workspace(empty)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofSeconds(1))
-            .metadata("baselineCoverage", BASELINE_LINE_COVERAGE)
-            .build());
+        Judgment missing = CoveragePreservationJudge.builder(MAX_ACCEPTABLE_DROP)
+            .evidence(new CoverageComparison(empty, BASELINE_LINE_COVERAGE))
+            .build()
+            .judge();
 
         System.out.println("  status     " + missing.status());
         System.out.println("  reasoning");
@@ -172,13 +159,4 @@ public class CoverageEvidenceDemo {
         System.out.println();
     }
 
-    private static JudgmentContext context() {
-        return JudgmentContext.builder()
-            .goal("Expose a sales report endpoint")
-            .workspace(WORKSPACE)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofMinutes(2))
-            .build();
-    }
 }

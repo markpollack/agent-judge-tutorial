@@ -4,17 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.markpollack.judge.Judge;
-import io.github.markpollack.judge.context.JudgmentContext;
+import io.github.markpollack.judge.judgment.Check;
+import io.github.markpollack.judge.judgment.Judgment;
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 import io.github.markpollack.judge.jury.Jury;
-import io.github.markpollack.judge.jury.Verdict;
-import io.github.markpollack.judge.result.Check;
-import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.result.JudgmentStatus;
+import io.github.markpollack.judge.verdict.Verdict;
 
 import org.opentest4j.AssertionFailedError;
 
 /**
- * Turns an Agent Judge outcome into a JUnit assertion failure that says why.
+ * Turns an Agent Eval outcome into a JUnit assertion failure that says why.
  *
  * <p>This is the whole bridge. It decides nothing: it runs no policy, applies no
  * threshold, and adds no state. It exists because {@code assertTrue(judgment.pass())}
@@ -32,15 +31,15 @@ import org.opentest4j.AssertionFailedError;
  * <p>That distinction is the reason {@link #assertFail} exists rather than
  * {@code assertFalse(judgment.pass())}. A judge that errored is not a caught bug.
  *
- * <h2>Lambdas and overload resolution</h2>
+ * <h2>Configured before it runs</h2>
  *
- * <p>{@code Judge} and {@code Jury} are both functional interfaces taking a
- * {@link JudgmentContext}, so an implicitly typed lambda passed to
- * {@code assertPass(judge, context)} is ambiguous. Name the judge first - which is
- * worth doing anyway, because an unnamed judge has no identity in a verdict:
+ * <p>A {@code Judge} or {@code Jury} receives its evidence when it is built, so the
+ * overloads that run one take nothing else: {@code judge()} and {@code vote()} have no
+ * input. Name a lambda judge before you assert on it - an unnamed judge has no identity
+ * in a verdict:
  *
  * <pre>{@code
- * assertPass(Judges.named(ctx -> ..., "has-tests"), context);
+ * assertPass(Judges.named(() -> ..., "has-tests"));
  * }</pre>
  */
 public final class JudgeAssertions {
@@ -74,18 +73,18 @@ public final class JudgeAssertions {
     }
 
     /** Run the judge, assert it passed, and return the judgment for further inspection. */
-    public static Judgment assertPass(Judge judge, JudgmentContext context) {
-        return assertStatus(JudgmentStatus.PASS, judge, context);
+    public static Judgment assertPass(Judge judge) {
+        return assertStatus(JudgmentStatus.PASS, judge);
     }
 
     /** Run the judge, assert it failed, and return the judgment for further inspection. */
-    public static Judgment assertFail(Judge judge, JudgmentContext context) {
-        return assertStatus(JudgmentStatus.FAIL, judge, context);
+    public static Judgment assertFail(Judge judge) {
+        return assertStatus(JudgmentStatus.FAIL, judge);
     }
 
     /** Run the judge, assert its exact status, and return the judgment. */
-    public static Judgment assertStatus(JudgmentStatus expected, Judge judge, JudgmentContext context) {
-        Judgment judgment = judge.judge(context);
+    public static Judgment assertStatus(JudgmentStatus expected, Judge judge) {
+        Judgment judgment = judge.judge();
         assertStatus(expected, judgment);
         return judgment;
     }
@@ -104,7 +103,7 @@ public final class JudgeAssertions {
 
     /** Assert a verdict's exact aggregate status, reporting every member by name. */
     public static void assertStatus(JudgmentStatus expected, Verdict verdict) {
-        Judgment aggregated = verdict.aggregated();
+        Judgment aggregated = verdict.judgment();
         if (aggregated.status() != expected) {
             throw new AssertionFailedError(describeVerdict(expected, verdict),
                 expected, aggregated.status());
@@ -112,18 +111,18 @@ public final class JudgeAssertions {
     }
 
     /** Run the jury, assert its aggregate passed, and return the verdict. */
-    public static Verdict assertPass(Jury jury, JudgmentContext context) {
-        return assertStatus(JudgmentStatus.PASS, jury, context);
+    public static Verdict assertPass(Jury jury) {
+        return assertStatus(JudgmentStatus.PASS, jury);
     }
 
     /** Run the jury, assert its aggregate failed, and return the verdict. */
-    public static Verdict assertFail(Jury jury, JudgmentContext context) {
-        return assertStatus(JudgmentStatus.FAIL, jury, context);
+    public static Verdict assertFail(Jury jury) {
+        return assertStatus(JudgmentStatus.FAIL, jury);
     }
 
     /** Run the jury, assert its exact aggregate status, and return the verdict. */
-    public static Verdict assertStatus(JudgmentStatus expected, Jury jury, JudgmentContext context) {
-        Verdict verdict = jury.vote(context);
+    public static Verdict assertStatus(JudgmentStatus expected, Jury jury) {
+        Verdict verdict = jury.vote();
         assertStatus(expected, verdict);
         return verdict;
     }
@@ -142,7 +141,7 @@ public final class JudgeAssertions {
     }
 
     private static String describeVerdict(JudgmentStatus expected, Verdict verdict) {
-        Judgment aggregated = verdict.aggregated();
+        Judgment aggregated = verdict.judgment();
         StringBuilder message = new StringBuilder();
         message.append("Expected verdict ").append(expected)
             .append(" but was ").append(aggregated.status());
@@ -197,16 +196,17 @@ public final class JudgeAssertions {
     }
 
     private static void appendChecks(StringBuilder message, List<Check> checks, String indent) {
-        List<Check> failed = checks.stream().filter(check -> !check.passed()).toList();
+        List<Check> failed = checks.stream()
+            .filter(check -> check.judgment().status() != JudgmentStatus.PASS).toList();
         if (failed.isEmpty()) {
             return;
         }
         message.append('\n').append(indent).append(failed.size()).append(" of ")
             .append(checks.size()).append(" checks failed:");
         for (Check check : failed) {
-            message.append('\n').append(indent).append("  - ").append(check.name());
-            if (!check.message().isBlank()) {
-                message.append(": ").append(check.message());
+            message.append('\n').append(indent).append("  - ").append(check.id());
+            if (!check.judgment().reasoning().isBlank()) {
+                message.append(": ").append(check.judgment().reasoning());
             }
         }
     }

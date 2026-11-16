@@ -16,28 +16,27 @@ package io.github.markpollack.judge.tutorial.module09;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import io.github.markpollack.judge.Judge;
 import io.github.markpollack.judge.Judges;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
+import io.github.markpollack.judge.coverage.CoverageComparison;
 import io.github.markpollack.judge.coverage.CoveragePreservationJudge;
-import io.github.markpollack.judge.fs.FileContentJudge;
-import io.github.markpollack.judge.fs.FileExistsJudge;
+import io.github.markpollack.judge.file.FileContentJudge;
+import io.github.markpollack.judge.file.FileExistsJudge;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.jury.CascadedJury;
-import io.github.markpollack.judge.jury.CompositeAttempt;
-import io.github.markpollack.judge.jury.CompositePathEntry;
-import io.github.markpollack.judge.jury.CompositePaths;
-import io.github.markpollack.judge.jury.ErrorPolicy;
-import io.github.markpollack.judge.jury.MajorityVotingStrategy;
 import io.github.markpollack.judge.jury.SimpleJury;
-import io.github.markpollack.judge.jury.TiePolicy;
-import io.github.markpollack.judge.jury.Verdict;
-import io.github.markpollack.judge.result.Judgment;
+import io.github.markpollack.judge.verdict.CompositeAttempt;
+import io.github.markpollack.judge.verdict.CompositePathEntry;
+import io.github.markpollack.judge.verdict.CompositePaths;
+import io.github.markpollack.judge.verdict.RoutingRule;
+import io.github.markpollack.judge.verdict.Verdict;
+import io.github.markpollack.judge.voting.ErrorHandling;
+import io.github.markpollack.judge.voting.MajorityVotingStrategy;
+import io.github.markpollack.judge.voting.TieBreakRule;
 
 public class ErrorAndEscalationDemo {
 
@@ -51,24 +50,16 @@ public class ErrorAndEscalationDemo {
         // it is the same judge module 03 used, on a directory with no report.
         Path neverBuilt = Files.createTempDirectory("no-build-ran");
 
-        JudgmentContext context = JudgmentContext.builder()
-            .goal("Expose a sales report endpoint")
-            .workspace(neverBuilt)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofMinutes(2))
-            .metadata("baselineCoverage", 100.0)
-            .build();
-
         // build and tests stand in here. The subject of this module is what the
         // jury does with the third judge, so the other two are kept trivial.
-        Judge build = Judges.named(ctx -> Judgment.pass("exit code 0"), "build");
-        Judge tests = Judges.named(ctx -> Judgment.pass("4 tests, 0 failures"), "tests");
-        Judge coverage = Judges.named(new CoveragePreservationJudge(5.0), "coverage");
+        Judge build = Judges.named(() -> Judgment.pass("exit code 0"), "build");
+        Judge tests = Judges.named(() -> Judgment.pass("4 tests, 0 failures"), "tests");
+        Judge coverage = Judges.named(CoveragePreservationJudge.builder(5.0)
+            .evidence(new CoverageComparison(neverBuilt, 100.0)).build(), "coverage");
 
         System.out.println("--- Three judges, one of which cannot run ---\n");
         for (Judge judge : new Judge[] { build, tests, coverage }) {
-            Judgment judgment = judge.judge(context);
+            Judgment judgment = judge.judge();
             System.out.printf("  %-10s %s%n",
                 Judges.tryMetadata(judge).map(m -> m.name()).orElse("?"), judgment.status());
             wrap(judgment.reasoning());
@@ -77,22 +68,22 @@ public class ErrorAndEscalationDemo {
         // ---------------------------------------------------------------
         // The same panel, under each error policy.
         // ---------------------------------------------------------------
-        System.out.println("\n--- The same panel, under each ErrorPolicy ---\n");
+        System.out.println("\n--- The same panel, under each ErrorHandling ---\n");
         System.out.printf("  %-18s %-8s %s%n", "POLICY", "STATUS", "ROSTER");
         System.out.printf("  %-18s %-8s %s%n", "-".repeat(18), "------", "----------");
 
-        for (ErrorPolicy policy : ErrorPolicy.values()) {
+        for (ErrorHandling policy : ErrorHandling.values()) {
             SimpleJury jury = SimpleJury.builder()
                 .judge(build, 1.0)
                 .judge(tests, 1.0)
                 .judge(coverage, 1.0)
-                .votingStrategy(new MajorityVotingStrategy(TiePolicy.FAIL, policy))
+                .votingStrategy(new MajorityVotingStrategy(TieBreakRule.FAIL, policy))
                 .build();
 
-            Verdict verdict = jury.vote(context);
-            Map<String, Object> evidence = aggregation(verdict.aggregated());
+            Verdict verdict = jury.vote();
+            Map<String, Object> evidence = aggregation(verdict.judgment());
             System.out.printf("  %-18s %-8s %s of %s%n",
-                policy, verdict.aggregated().status(),
+                policy, verdict.judgment().status(),
                 evidence.getOrDefault("eligibleCount", "?"),
                 evidence.getOrDefault("inputCount", "?"));
         }
@@ -122,13 +113,13 @@ public class ErrorAndEscalationDemo {
             .judge(build, 1.0)
             .judge(tests, 1.0)
             .judge(coverage, 1.0)
-            .votingStrategy(new MajorityVotingStrategy(TiePolicy.FAIL, ErrorPolicy.IGNORE))
+            .votingStrategy(new MajorityVotingStrategy(TieBreakRule.FAIL, ErrorHandling.IGNORE))
             .build();
-        Verdict ignored = ignoring.vote(context);
+        Verdict ignored = ignoring.vote();
 
-        System.out.println("  aggregate status: " + ignored.aggregated().status());
+        System.out.println("  aggregate status: " + ignored.judgment().status());
         System.out.println("  named members:    " + ignored.individualByName().keySet());
-        Map<String, Object> evidence = aggregation(ignored.aggregated());
+        Map<String, Object> evidence = aggregation(ignored.judgment());
         System.out.println("  inputCount:       " + evidence.get("inputCount"));
         System.out.println("  eligibleCount:    " + evidence.get("eligibleCount"));
         System.out.println("  errorCount:       " + evidence.get("errorCount"));
@@ -148,15 +139,12 @@ public class ErrorAndEscalationDemo {
         // Abstention is not agreement.
         // ---------------------------------------------------------------
         System.out.println("--- Abstention is not agreement ---\n");
-        JudgmentContext noBaseline = JudgmentContext.builder()
-            .goal("Expose a sales report endpoint")
-            .workspace(WORKSPACE)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofMinutes(2))
-            .build();
-
-        Judgment abstained = new CoveragePreservationJudge(5.0).judge(noBaseline);
+        // CoveragePreservationJudge cannot even be built without a baseline:
+        // CoverageComparison requires one. So the question moves to whoever
+        // supplies the evidence, and this judge is that caller. With no recorded
+        // baseline there is nothing to measure a drop against, so it abstains
+        // rather than guess.
+        Judgment abstained = coverageAgainst(Optional.empty()).judge();
         System.out.println("  status:    " + abstained.status());
         System.out.println("  reasoning: " + abstained.reasoning());
         System.out.println("  pass():    " + abstained.pass());
@@ -207,36 +195,30 @@ public class ErrorAndEscalationDemo {
      * run first; the expensive tier only runs on subjects that survived.
      */
     private static void cascade(String controller) {
-        JudgmentContext context = JudgmentContext.builder()
-            .goal("Expose a sales report endpoint")
-            .workspace(WORKSPACE)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofSeconds(5))
-            .build();
-
         SimpleJury structural = SimpleJury.builder()
-            .judge(Judges.named(new FileExistsJudge(controller), "file-exists"), 1.0)
-            .judge(Judges.named(new FileExistsJudge("pom.xml"), "has-pom"), 1.0)
+            .judge(Judges.named(FileExistsJudge.builder(controller).evidence(WORKSPACE).build(),
+                "file-exists"), 1.0)
+            .judge(Judges.named(FileExistsJudge.builder("pom.xml").evidence(WORKSPACE).build(),
+                "has-pom"), 1.0)
             .votingStrategy(new MajorityVotingStrategy())
             .build();
 
         SimpleJury content = SimpleJury.builder()
-            .judge(Judges.named(new FileContentJudge(controller, "class ReportController",
-                FileContentJudge.MatchMode.CONTAINS), "correct-class"), 1.0)
-            .judge(Judges.named(new FileContentJudge(controller, "@RestController",
-                FileContentJudge.MatchMode.CONTAINS), "is-annotated"), 1.0)
+            .judge(Judges.named(FileContentJudge.builder(controller, "class ReportController",
+                FileContentJudge.MatchMode.CONTAINS).evidence(WORKSPACE).build(), "correct-class"), 1.0)
+            .judge(Judges.named(FileContentJudge.builder(controller, "@RestController",
+                FileContentJudge.MatchMode.CONTAINS).evidence(WORKSPACE).build(), "is-annotated"), 1.0)
             .votingStrategy(new MajorityVotingStrategy())
             .build();
 
         CascadedJury jury = CascadedJury.builder()
-            .tier("structural", structural, io.github.markpollack.judge.jury.TierPolicy.REJECT_ON_ANY_FAIL)
-            .tier("content", content, io.github.markpollack.judge.jury.TierPolicy.FINAL_TIER)
+            .tier("structural", structural, RoutingRule.STOP_ON_ANY_OPINION_FAIL)
+            .tier("content", content, RoutingRule.FINAL_TIER)
             .build();
 
-        Verdict verdict = jury.vote(context);
-        System.out.println("  overall: " + verdict.aggregated().status());
-        System.out.println("  reason:  " + verdict.aggregated().reasoning());
+        Verdict verdict = jury.vote();
+        System.out.println("  overall: " + verdict.judgment().status());
+        System.out.println("  reason:  " + verdict.judgment().reasoning());
 
         // The composite evidence records which tiers ran and which did not, so a
         // subject rejected at tier 1 is distinguishable from one that failed at
@@ -245,15 +227,29 @@ public class ErrorAndEscalationDemo {
         for (CompositePathEntry entry : CompositePaths.flatten(verdict)) {
             CompositeAttempt attempt = entry.attempt();
             System.out.printf("    %-28s %s", entry.path(),
-                attempt.policy() != null ? attempt.policy().wireName() : attempt.relation().wireName());
+                attempt.routingRule() != null ? attempt.routingRule().wireName() : attempt.relation().wireName());
             if (attempt.verdict() != null) {
-                System.out.print("  " + attempt.verdict().aggregated().status());
+                System.out.print("  " + attempt.verdict().judgment().status());
             }
             else {
                 System.out.print("  not run: " + attempt.failure().code().wireName());
             }
             System.out.println();
         }
+    }
+
+    /**
+     * A coverage gate whose caller may not have a baseline. Without one there is
+     * nothing to compare against, so the honest answer is ABSTAIN - the question
+     * was not decided - rather than a FAIL that blames the subject.
+     */
+    private static Judge coverageAgainst(Optional<Double> baseline) {
+        return Judges.named(() -> baseline
+            .map(recorded -> CoveragePreservationJudge.builder(5.0)
+                .evidence(new CoverageComparison(WORKSPACE, recorded)).build().judge())
+            .orElseGet(() -> Judgment.abstain(
+                "No baseline coverage was recorded, so a coverage drop cannot be measured")),
+            "coverage");
     }
 
     @SuppressWarnings("unchecked")

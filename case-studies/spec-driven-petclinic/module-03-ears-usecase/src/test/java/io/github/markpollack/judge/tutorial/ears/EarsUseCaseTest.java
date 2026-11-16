@@ -38,7 +38,8 @@ class EarsUseCaseTest {
         assertThat(RosterResults.checks(result).stream().filter(c -> c.judgment().status() == JudgmentStatus.ABSTAIN).count()).isEqualTo(1L);
         assertThat(InvocationRecords.of(result)).hasSize(1);
         var root = result.invocations().getFirst();
-        assertThat(root.nativeFacts()).containsKeys("text", "messages", "answerState", "recording", "provenance");
+        assertThat(root.nativeFacts()).containsKeys("text", "messageDigests", "answerState", "recording", "provenance");
+        assertThat(root.nativeFacts()).doesNotContainKey("messages"); // generated-answer:v3 keeps digests, not request text
         assertThat(root.nativeFacts()).doesNotContainKey("usage"); // archived token usage is unknown
         for (int i = 0; i < 52; i++) {
             var requirement = result.roster().get(i);

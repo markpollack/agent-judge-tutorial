@@ -16,7 +16,7 @@ if "$FROM_SOURCE"; then
             git clone --no-checkout https://github.com/markpollack/agent-judge.git "$SOURCE"
             git -C "$SOURCE" checkout --detach "$SOURCE_REF"
         else
-            echo "Missing producer checkout: $SOURCE. Clone Agent Judge beside this tutorial, or set EVAL_SOURCE." >&2
+            echo "Missing producer checkout: $SOURCE. Clone Agent Eval (agent-judge) beside this tutorial, or set EVAL_SOURCE." >&2
             exit 2
         fi
     fi

@@ -25,19 +25,19 @@ void theControllerExists() {
 }
 ```
 
-That is not a weakness of Agent Judge, it is the rule: *use the least interpretive
-instrument that can reliably answer the question.* Here that is `assertTrue`. Agent Judge
+That is not a weakness of Agent Eval, it is the rule: *use the least interpretive
+instrument that can reliably answer the question.* Here that is `assertTrue`. Agent Eval
 is not a replacement for JUnit, AssertJ, ArchUnit, Checkstyle, JaCoCo, JApiCmp, or the
 compiler.
 
 **Judgment oracle.** No expected value exists, so the oracle has to be produced:
 
 ```java
-Judgment judgment = JudgeAssertions.assertFail(
-    ArchitecturalFitJudge.create(), contextFor(REPORT_CONTROLLER));
+Judgment judgment = JudgeAssertions.assertFail(judgeFor(REPORT_CONTROLLER));
 ```
 
-The question is:
+`judgeFor` builds the judge with its evidence - the goal, the codebase's own controller and
+the subject - so running it takes no argument. The question is:
 
 > Does this controller fit the architectural conventions and idioms of this codebase,
 > without introducing unnecessary complexity?
@@ -65,10 +65,10 @@ binding criterion is the only part anybody acts on.
 
 ## Credentials
 
-None. `FixtureJudgeModel` replays two hand-written reviews so the module runs offline.
+None. `FixtureEvalModel` replays two hand-written reviews so the module runs offline.
 A fixture cannot tell you a judge is *right* - only that the wiring around it is. The
 prompt, the classifier, and the `Judgment` are all real; swapping the model for
-`SpringAiJudgeModel` is one line.
+`SpringAiEvalModel` is one line.
 
 An unrecorded subject returns `ERROR`, never a default `PASS`. A stand-in that quietly
 approves what it has not seen is a judge that cannot fail, which is worse than no judge.
@@ -83,4 +83,4 @@ model.
 ## Next
 
 [Module 02](../module-02-build-and-tests) widens the known oracle: the compiler and JUnit
-are already oracles, and Agent Judge can read them.
+are already oracles, and Agent Eval can read them.

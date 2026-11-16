@@ -10,19 +10,21 @@ parts, composed, no subclassing:
 
 | Part | Job |
 |---|---|
-| `JudgePromptTemplate` | render the evaluation input from the context |
-| `JudgeModel` | call a backend |
+| `JudgePromptTemplate` | render the evaluation input from the evidence |
+| `EvalModel` | call a backend |
 | `JudgmentClassifier` | turn the reply into a `Judgment` |
 
 ## The prompt is just text
 
-The demo prints the rendered prompt. `{{goal}}`, `{{output}}`, `{{status}}`,
-`{{workspace}}` and `{{metadata.*}}` are substituted from the `JudgmentContext` you built.
+The demo prints the rendered prompt. `{{goal}}`, `{{output}}` and `{{status}}` are
+substituted from the evidence through a `variables` function you write, so nothing is
+filled in that you did not name. The builder is a recipe: each `.evidence(run).build()`
+makes one ready judge for one agent run.
 
 ## The model is the only part that costs anything
 
 The fixture here replays two replies and refuses everything else. In production this one
-line becomes `SpringAiJudgeModel` (`agent-judge-llm`) or `AgentClientJudgeModel`
+line becomes `SpringAiEvalModel` (`agent-judge-llm`) or `AgentClientEvalModel`
 (`agent-judge-agent-client`). Nothing else in the file changes.
 
 ## The classifier is a mapping you write down

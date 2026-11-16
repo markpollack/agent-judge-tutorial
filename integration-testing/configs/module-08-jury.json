@@ -13,7 +13,7 @@
     "FAIL",
     "Consensus",
     "ABSTAIN",
-    "weights:",
+    "weight 1.0",
     "Done."
   ]
 }

@@ -7,8 +7,9 @@
  *     task -> criterion -> evidence -> judgment
  *
  * Judge is a @FunctionalInterface, so the smallest judge that can exist is a
- * lambda taking a JudgmentContext and returning a Judgment. Start there and
- * add only what the criterion actually needs.
+ * lambda returning a Judgment. It takes no argument: the evidence it reads is
+ * bound when the judge is made - here, the workspace the lambda closes over.
+ * Start there and add only what the criterion actually needs.
  *
  * Run: ./mvnw exec:java -pl module-04-custom-judge
  */
@@ -16,18 +17,14 @@ package io.github.markpollack.judge.tutorial.module04;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 import io.github.markpollack.judge.Judge;
 import io.github.markpollack.judge.Judges;
 import io.github.markpollack.judge.JudgeType;
 import io.github.markpollack.judge.JudgeWithMetadata;
-import io.github.markpollack.judge.context.ExecutionStatus;
-import io.github.markpollack.judge.context.JudgmentContext;
-import io.github.markpollack.judge.result.Judgment;
-import io.github.markpollack.judge.result.JudgmentStatus;
+import io.github.markpollack.judge.judgment.Judgment;
+import io.github.markpollack.judge.judgment.JudgmentStatus;
 
 public class CustomJudgeDemo {
 
@@ -36,22 +33,14 @@ public class CustomJudgeDemo {
 
         Path workspace = Path.of("test-workspace");
 
-        JudgmentContext context = JudgmentContext.builder()
-            .goal("Create a Maven project with source code")
-            .workspace(workspace)
-            .status(ExecutionStatus.SUCCESS)
-            .startedAt(Instant.now())
-            .executionTime(Duration.ofSeconds(5))
-            .build();
-
         // --- Lambda judge (3 lines) ---
         System.out.println("--- Lambda Judge ---");
-        Judge pomCheck = ctx -> {
-            boolean exists = Files.exists(ctx.workspace().resolve("pom.xml"));
+        Judge pomCheck = () -> {
+            boolean exists = Files.exists(workspace.resolve("pom.xml"));
             return exists ? Judgment.pass("pom.xml found") : Judgment.fail("pom.xml missing");
         };
 
-        Judgment pomResult = pomCheck.judge(context);
+        Judgment pomResult = pomCheck.judge();
         System.out.println("  pom.xml check: " + pomResult.status());
         System.out.println("  Reasoning: " + pomResult.reasoning());
 
@@ -81,14 +70,14 @@ public class CustomJudgeDemo {
         System.out.println("\n--- Three criteria, all required ---");
 
         Judge srcDirCheck = Judges.named(
-            ctx -> Files.isDirectory(ctx.workspace().resolve("src"))
+            () -> Files.isDirectory(workspace.resolve("src"))
                 ? Judgment.pass("src/ directory exists")
                 : Judgment.fail("src/ directory missing"),
             "src-dir", "Source directory check");
 
         Judge javaFileCheck = Judges.named(
-            ctx -> {
-                Path javaDir = ctx.workspace().resolve("src/main/java");
+            () -> {
+                Path javaDir = workspace.resolve("src/main/java");
                 if (!Files.isDirectory(javaDir)) {
                     return Judgment.fail("No Java source directory");
                 }
@@ -109,7 +98,7 @@ public class CustomJudgeDemo {
             "java-files", "Java source files present");
 
         List<Judge> required = List.of(namedPom, srcDirCheck, javaFileCheck);
-        List<Judgment> results = required.stream().map(judge -> judge.judge(context)).toList();
+        List<Judgment> results = required.stream().map(Judge::judge).toList();
 
         for (int i = 0; i < required.size(); i++) {
             System.out.printf("    %-12s %-6s %s%n",

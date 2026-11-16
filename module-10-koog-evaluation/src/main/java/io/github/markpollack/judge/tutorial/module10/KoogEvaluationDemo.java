@@ -3,7 +3,8 @@
  *
  * Everything so far judged a workspace. An agent framework hands you its own
  * result type instead, and an evaluator is the adapter: it runs or wraps that
- * result, puts it in a JudgmentContext, and then applies an ordinary Judge.
+ * result, records it as CompletionEvidence, and then builds and applies an
+ * ordinary Judge over that evidence.
  *
  * That is the whole bridge. The judge does not know it came from Koog, which
  * is the point - the bar you built in module 06 is the same bar here.
@@ -16,10 +17,12 @@
 package io.github.markpollack.judge.tutorial.module10;
 
 import ai.koog.agents.core.agent.AIAgent;
+import java.util.function.Function;
+
 import io.github.markpollack.judge.Judge;
-import io.github.markpollack.judge.context.JudgmentContext;
+import io.github.markpollack.judge.completion.CompletionEvidence;
+import io.github.markpollack.judge.judgment.Judgment;
 import io.github.markpollack.judge.koog.KoogEvaluator;
-import io.github.markpollack.judge.result.Judgment;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,8 +38,10 @@ public class KoogEvaluationDemo {
             .thenReturn("Dependencies are supplied by an external source instead of created internally.");
         when(agent.getId()).thenReturn("docs-assistant");
 
-        Judge describesDependencyInjection = (JudgmentContext context) -> {
-            String output = context.agentOutput().orElse("").toLowerCase();
+        // The evaluator supplies the evidence; this function turns it into a
+        // ready judge. The judge itself takes no argument.
+        Function<CompletionEvidence, Judge> describesDependencyInjection = evidence -> () -> {
+            String output = evidence.response() == null ? "" : evidence.response().toLowerCase();
             boolean complete = output.contains("dependencies") && output.contains("external");
             return Judgment.verdict(complete)
                 .reasoning(complete
